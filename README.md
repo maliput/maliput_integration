@@ -3,6 +3,31 @@
 This package contains integration examples and tools that unify `maliput` core
 and its possible backends.
 
+## Build
+
+1. Setup a development workspace as described [here](https://github.com/ToyotaResearchInstitute/dsim-repos-index/tree/master/README.md).
+
+2. Bring up your development workspace:
+
+```sh
+cd path/to/my/workspace
+source ./bringup
+```
+
+3. Build maliput-integration package and its dependencies:
+
+  - If not building drake from source:
+
+   ```sh
+   colcon build --packages-up-to maliput-integration
+   ```
+
+  - If building drake from source:
+
+   ```sh
+   colcon build --cmake-args -DWITH_PYTHON_VERSION=3 --packages-up-to maliput-integration
+   ```
+
 # Applications
 
 ## `dragway_to_urdf`
