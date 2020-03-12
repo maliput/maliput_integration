@@ -8,15 +8,15 @@ node('delphyne-linux-bionic-unprovisioned') {
     ansiColor('xterm') {
       try {
         stage('checkout') {
-          dir('src/maliput-integration') {
+          dir('src/maliput_integration') {
             checkout scm
           }
         }
         stage('checkout_index') {
-          sh 'src/maliput-integration/ci/jenkins/checkout_index'
+          sh 'src/maliput_integration/ci/jenkins/checkout_index'
         }
-        withEnv(['COLCON_BUILD_EXTRA_ARGS=--packages-up-to maliput-integration',
-                 'COLCON_TEST_EXTRA_ARGS=--packages-up-to maliput-integration']) {
+        withEnv(['COLCON_BUILD_EXTRA_ARGS=--packages-up-to maliput_integration',
+                 'COLCON_TEST_EXTRA_ARGS=--packages-up-to maliput_integration']) {
           load './index/ci/jenkins/pipeline.groovy'
         }
       } finally {

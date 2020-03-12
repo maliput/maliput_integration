@@ -1,4 +1,4 @@
-# `maliput-integration`
+# `maliput_integration`
 
 This package contains integration examples and tools that unify `maliput` core
 and its possible backends.
@@ -14,18 +14,18 @@ cd path/to/my/workspace
 source ./bringup
 ```
 
-3. Build maliput-integration package and its dependencies:
+3. Build maliput_integration package and its dependencies:
 
   - If not building drake from source:
 
    ```sh
-   colcon build --packages-up-to maliput-integration
+   colcon build --packages-up-to maliput_integration
    ```
 
   - If building drake from source:
 
    ```sh
-   colcon build --cmake-args -DWITH_PYTHON_VERSION=3 --packages-up-to maliput-integration
+   colcon build --cmake-args -DWITH_PYTHON_VERSION=3 --packages-up-to maliput_integration
    ```
 
 # Applications
