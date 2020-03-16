@@ -11,8 +11,8 @@
 
 #include "maliput/utilities/generate_obj.h"
 
-#include "multilane/builder.h"
-#include "multilane/loader.h"
+#include "maliput_multilane/builder.h"
+#include "maliput_multilane/loader.h"
 
 #include "yaml-cpp/yaml.h"
 

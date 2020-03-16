@@ -15,7 +15,7 @@ find_package(ament_cmake REQUIRED)
 find_package(dragway REQUIRED)
 find_package(gflags REQUIRED)
 find_package(maliput REQUIRED)
-find_package(multilane REQUIRED)
+find_package(maliput_multilane REQUIRED)
 find_package(yaml-cpp REQUIRED)
 
 ##############################################################################
