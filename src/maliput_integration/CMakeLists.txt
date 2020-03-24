@@ -6,16 +6,16 @@ add_executable(dragway_to_urdf
 )
 
 ament_target_dependencies(dragway_to_urdf
-  "dragway"
   "maliput"
+  "maliput_dragway"
 )
 
 target_link_libraries(dragway_to_urdf
-    dragway::dragway
     gflags
     maliput::common
     maliput::geometry_base
     maliput::utilities
+    maliput_dragway::maliput_dragway
 )
 
 add_executable(yaml_to_obj

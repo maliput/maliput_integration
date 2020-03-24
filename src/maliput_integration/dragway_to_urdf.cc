@@ -8,12 +8,12 @@
 
 #include <gflags/gflags.h>
 
-#include "dragway/road_geometry.h"
 #include "maliput/api/road_geometry.h"
 #include "maliput/common/filesystem.h"
 #include "maliput/common/logger.h"
 #include "maliput/common/maliput_abort.h"
 #include "maliput/utilities/generate_urdf.h"
+#include "maliput_dragway/road_geometry.h"
 
 DEFINE_int32(num_lanes, 2, "The number of lanes.");
 DEFINE_double(length, 10, "The length of the dragway in meters.");

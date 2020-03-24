@@ -12,9 +12,9 @@ project(maliput_integration LANGUAGES C CXX VERSION 3.0.0)
 message(STATUS "\n\n====== Finding 3rd Party Packages ======\n")
 
 find_package(ament_cmake REQUIRED)
-find_package(dragway REQUIRED)
 find_package(gflags REQUIRED)
 find_package(maliput REQUIRED)
+find_package(maliput_dragway REQUIRED)
 find_package(multilane REQUIRED)
 find_package(yaml-cpp REQUIRED)
 
@@ -59,7 +59,7 @@ if(BUILD_DOCS)
   find_package(ament_cmake_doxygen REQUIRED)
   ament_doxygen_generate(doxygen_maliput_integration
     CONFIG_OVERLAY doc/Doxyfile.overlay.in
-    DEPENDENCIES dragway maliput multilane
+    DEPENDENCIES maliput maliput_dragway multilane
   )
 endif()
 
