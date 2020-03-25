@@ -23,13 +23,13 @@ add_executable(yaml_to_obj
 
 ament_target_dependencies(yaml_to_obj
   "maliput"
-  "multilane"
+  "maliput_multilane"
 )
 
 target_link_libraries(yaml_to_obj
     gflags
     maliput::utilities
-    multilane::multilane
+    maliput_multilane::maliput_multilane
     yaml-cpp
 )
 
