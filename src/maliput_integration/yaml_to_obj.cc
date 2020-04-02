@@ -43,7 +43,7 @@ DEFINE_string(spdlog_level, "unchanged",
               "'off'");
 
 namespace maliput {
-namespace utility {
+namespace integration {
 namespace {
 
 // Available maliput implementations to load.
@@ -106,7 +106,7 @@ int main(int argc, char* argv[]) {
 }
 
 }  // namespace
-}  // namespace utility
+}  // namespace integration
 }  // namespace maliput
 
-int main(int argc, char* argv[]) { return maliput::utility::main(argc, argv); }
+int main(int argc, char* argv[]) { return maliput::integration::main(argc, argv); }
