@@ -18,17 +18,19 @@ target_link_libraries(dragway_to_urdf
     maliput_dragway::maliput_dragway
 )
 
-add_executable(yaml_to_obj
-  yaml_to_obj.cc)
+add_executable(maliput_to_obj
+  maliput_to_obj.cc)
 
-ament_target_dependencies(yaml_to_obj
+ament_target_dependencies(maliput_to_obj
   "maliput"
+  "maliput_dragway"
   "maliput_multilane"
 )
 
-target_link_libraries(yaml_to_obj
+target_link_libraries(maliput_to_obj
     gflags
     maliput::utilities
+    maliput_dragway::maliput_dragway
     maliput_multilane::maliput_multilane
     yaml-cpp
 )
@@ -37,7 +39,7 @@ target_link_libraries(yaml_to_obj
 # Install
 ##############################################################################
 
-install(TARGETS dragway_to_urdf yaml_to_obj
+install(TARGETS dragway_to_urdf maliput_to_obj
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
