@@ -5,10 +5,10 @@
 ///
 /// Notes:
 /// 1 - It allows to create an OBJ file from different road geometry implementations. If a valid
-///     filepath of an YAML file is passed, the road geometry will be created from there. Otherwise,
+///     filepath of an YAML file is passed, a multilane RoadGeometry will be created. Otherwise,
 ///     the following arguments will help to carry out a dragway implementation:
 ///      -num_lanes, -length, -lane_width, -shoulder_width, maximum_height.
-/// 2 - The applications posses flags to modify the OBJ file builder:
+/// 2 - The applications possesses flags to modify the OBJ file builder:
 ///      -obj_dir, -obj_file, -max_grid_unit, -min_grid_resolution, -draw_elevation_bounds, -simplify_mesh_threshold
 /// 3 - The level of the logger could be setted by: -log_level.
 
