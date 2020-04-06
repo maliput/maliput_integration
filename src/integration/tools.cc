@@ -12,24 +12,47 @@
 
 namespace maliput {
 namespace integration {
+namespace {
 
-MaliputImplementation GetMaliputImplementationFromFile(const std::string& filename) {
+// Available maliput implementations.
+enum class MaliputImplementation {
+  kDragway,    //< dragway implementation.
+  kMultilane,  //< multilane implementation.
+  kUnknown     //< Used when none of the implementations could be identified.
+};
+
+// Indicates whether `filename` correspond with a multilane description.
+//
+// @param filename Is the path to the filename.
+// @returns True when the file describes a multilane::RoadGeometry.
+// @throw maliput::common::assertion_error When YAML file is not well-constructed.
+bool IsMultilaneDescription(const std::string& filename) {
   const YAML::Node yaml_file = YAML::LoadFile(filename);
   MALIPUT_DEMAND(yaml_file.IsMap());
-  return yaml_file["maliput_multilane_builder"] ? MaliputImplementation::kMultilane : MaliputImplementation::kUnknown;
+  return yaml_file["maliput_multilane_builder"] ? true : false;
 }
 
-MaliputImplementation DecideMaliputImplementation(const std::string& filename) {
-  return filename.empty() ? MaliputImplementation::kDragway : GetMaliputImplementationFromFile(filename);
+// Decides which type of road geometry implementation should be choosen.
+// If `filename` is empty it returns MaliputImplementation:kDragway.
+// If `filename` is not empty it will load the file and check which implementation it refers to.
+//
+// @param filename Is the path to the filename.
+// @returns The MaliputImplementation choosen.
+MaliputImplementation GetMaliputImplementation(const std::string& filename) {
+  return filename.empty()
+             ? MaliputImplementation::kDragway
+             : (IsMultilaneDescription(filename) ? MaliputImplementation::kMultilane : MaliputImplementation::kUnknown);
 }
 
-std::optional<std::unique_ptr<const api::RoadGeometry>> CreateRoadGeometryFrom(std::string yaml_file, int num_lanes,
-                                                                               double length, double lane_width,
-                                                                               double shoulder_width,
+}  // namespace
+
+std::optional<std::unique_ptr<const api::RoadGeometry>> CreateRoadGeometryFrom(const std::string& filename,
+                                                                               int num_lanes, double length,
+                                                                               double lane_width, double shoulder_width,
                                                                                double maximum_height) {
-  switch (DecideMaliputImplementation(yaml_file)) {
+  switch (GetMaliputImplementation(filename)) {
     case MaliputImplementation::kDragway: {
-      maliput::log()->info("Loaded a dragway road geometry.");
+      maliput::log()->debug("Loaded a dragway road geometry.");
       return std::make_unique<dragway::RoadGeometry>(
           api::RoadGeometryId{"Dragway with " + std::to_string(num_lanes) + " lanes."}, num_lanes, length, lane_width,
           shoulder_width, maximum_height, std::numeric_limits<double>::epsilon(),
@@ -37,8 +60,8 @@ std::optional<std::unique_ptr<const api::RoadGeometry>> CreateRoadGeometryFrom(s
       break;
     }
     case MaliputImplementation::kMultilane: {
-      maliput::log()->info("Loaded a multilane road geometry.");
-      return maliput::multilane::LoadFile(maliput::multilane::BuilderFactory(), yaml_file);
+      maliput::log()->debug("Loaded a multilane road geometry.");
+      return maliput::multilane::LoadFile(maliput::multilane::BuilderFactory(), filename);
       break;
     }
     case MaliputImplementation::kUnknown: {
