@@ -15,9 +15,9 @@ _THIS_DIR = os.path.dirname(_THIS_FILE)
 class TestYamlObjing(unittest.TestCase):
 
     def setUp(self):
-        self._yaml_to_obj = os.path.join(os.getcwd(), "yaml_to_obj")
-        self.assertTrue(os.path.exists(self._yaml_to_obj),
-                        self._yaml_to_obj + " not found")
+        self._maliput_to_obj = os.path.join(os.getcwd(), "maliput_to_obj")
+        self.assertTrue(os.path.exists(self._maliput_to_obj),
+                        self._maliput_to_obj + " not found")
 
     def test_yaml_files(self):
         this_dir = os.path.dirname(_THIS_DIR)
@@ -33,7 +33,12 @@ class TestYamlObjing(unittest.TestCase):
 
         for yf in test_yaml_files:
             subprocess.check_call([
-                self._yaml_to_obj,
+                self._maliput_to_obj,
                 "-yaml_file", yf,
                 "-obj_file", "/dev/null",
             ])
+    def test_dragway_creation(self):
+        subprocess.check_call([
+            self._maliput_to_obj,
+            "-obj_file", "/dev/null",
+        ])
