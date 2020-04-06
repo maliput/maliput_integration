@@ -1,1 +1,2 @@
-add_subdirectory(maliput_integration)
+add_subdirectory(applications)
+add_subdirectory(integration)

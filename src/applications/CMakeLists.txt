@@ -1,21 +1,23 @@
 ##############################################################################
 # Sources
 ##############################################################################
-add_executable(dragway_to_urdf
-  dragway_to_urdf.cc
+add_executable(maliput_to_urdf
+  maliput_to_urdf.cc
 )
 
-ament_target_dependencies(dragway_to_urdf
+ament_target_dependencies(maliput_to_urdf
   "maliput"
   "maliput_dragway"
+  "maliput_multilane"
 )
 
-target_link_libraries(dragway_to_urdf
+target_link_libraries(maliput_to_urdf
     gflags
+    integration
     maliput::common
-    maliput::geometry_base
     maliput::utilities
     maliput_dragway::maliput_dragway
+    maliput_multilane::maliput_multilane
 )
 
 add_executable(maliput_to_obj
@@ -29,17 +31,18 @@ ament_target_dependencies(maliput_to_obj
 
 target_link_libraries(maliput_to_obj
     gflags
+    integration
+    maliput::common
     maliput::utilities
     maliput_dragway::maliput_dragway
     maliput_multilane::maliput_multilane
-    yaml-cpp
 )
 
 ##############################################################################
 # Install
 ##############################################################################
 
-install(TARGETS dragway_to_urdf maliput_to_obj
+install(TARGETS maliput_to_urdf maliput_to_obj
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
