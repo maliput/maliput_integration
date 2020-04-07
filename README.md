@@ -104,3 +104,34 @@ One the above command is executed, the following files should exist:
 For an explanation on what the above-mentioned parameters mean, execute:
 
     maliput_to_obj --help
+
+
+## `maliput_to_string`
+
+## How to run it?
+
+The executable `maliput_to_string` builds an api::RoadGeometry and lists its entities.
+When a valid file path to a YAML document is passed, a `multilane` api::RoadGeometry is built.
+Otherwise, the following arguments will help to carry out a `dragway` implementation:
+ -num_lanes, -length, -lane_width, -shoulder_width, -maximum_height.
+
+To run `maliput_to_string`, execute:
+
+    maliput_to_string \
+          --yaml_file=[yaml file for multilane road geometry.] \
+          --lane_width=[lane width] \
+          --length=[length of road in meters] \
+          --num_lanes=[number of lanes] \
+          --shoulder_width=[width of shoulder in meters] \
+          --maximum_height=[maximum modelled height above the road surface in meters] \
+          --include_type_labels=[Whether to include type labels in the output string] \
+          --include_road_geometry_id[Whether to include road geometry IDs in the output string] \
+          --include_junction_ids[Whether to include junction IDs in the output string] \
+          --include_segment_ids[Whether to include segment IDs in the output string] \
+          --include_lane_ids[Whether to include lane IDs in the output string] \
+          --include_lane_details[Whether to include lane details in the output string] \
+          --log_level=[log level threshold]
+
+For an explanation on what the above-mentioned parameters mean, execute:
+
+    maliput_to_string --help

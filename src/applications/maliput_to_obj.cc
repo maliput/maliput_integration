@@ -83,9 +83,12 @@ int Main(int argc, char* argv[]) {
   log()->debug("Loading road geometry...");
   const std::optional<std::string> yaml_file =
       !FLAGS_yaml_file.empty() ? std::make_optional<std::string>(FLAGS_yaml_file) : std::nullopt;
-  std::unique_ptr<const api::RoadGeometry> rg = CreateRoadGeometryFrom(
-      yaml_file,
-      DragwayBuildProperties{FLAGS_num_lanes, FLAGS_length, FLAGS_lane_width, FLAGS_lane_width, FLAGS_lane_width});
+  const std::optional<DragwayBuildProperties> dragway_build_properties =
+      !FLAGS_yaml_file.empty()
+          ? std::nullopt
+          : std::make_optional<DragwayBuildProperties>(DragwayBuildProperties{
+                FLAGS_num_lanes, FLAGS_length, FLAGS_lane_width, FLAGS_lane_width, FLAGS_lane_width});
+  std::unique_ptr<const api::RoadGeometry> rg = CreateRoadGeometryFrom(yaml_file, dragway_build_properties);
   if (rg == nullptr) {
     log()->error("Error loading RoadGeometry");
     return 1;
