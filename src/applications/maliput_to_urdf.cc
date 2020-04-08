@@ -64,19 +64,21 @@ namespace maliput {
 namespace integration {
 namespace {
 
-int main(int argc, char* argv[]) {
+int Main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
   common::set_log_level(FLAGS_log_level);
 
-  maliput::log()->info("Loading road geometry...");
-  std::optional<std::unique_ptr<const maliput::api::RoadGeometry>> rg = CreateRoadGeometryFrom(
-      FLAGS_yaml_file, FLAGS_num_lanes, FLAGS_length, FLAGS_lane_width, FLAGS_lane_width, FLAGS_lane_width);
-  if (rg.has_value()) {
-    maliput::log()->info("RoadGeometry loaded correctly");
-  } else {
-    maliput::log()->error("Error loading RoadGeometry");
+  log()->debug("Loading road geometry...");
+  const std::optional<std::string> yaml_file =
+      !FLAGS_yaml_file.empty() ? std::make_optional<std::string>(FLAGS_yaml_file) : std::nullopt;
+  std::unique_ptr<const api::RoadGeometry> rg = CreateRoadGeometryFrom(
+      yaml_file,
+      DragwayBuildProperties{FLAGS_num_lanes, FLAGS_length, FLAGS_lane_width, FLAGS_lane_width, FLAGS_lane_width});
+  if (rg == nullptr) {
+    log()->error("Error loading RoadGeometry");
     return 1;
   }
+  log()->debug("RoadGeometry loaded successfully");
 
   utility::ObjFeatures features;
 
@@ -86,15 +88,14 @@ int main(int argc, char* argv[]) {
   if (!directory.exists()) {
     common::Filesystem::create_directory_recursive(directory);
   }
-  MALIPUT_DEMAND(directory.exists());
+  MALIPUT_THROW_UNLESS(directory.exists());
 
-  // The following is necessary for users to know where to find the resulting
-  // files when this program is executed in a sandbox. This occurs, for example
-  // when using `maliput_to_urdf`.
-  const common::Path my_path = maliput::common::Filesystem::get_cwd();
+  const common::Path my_path = common::Filesystem::get_cwd();
   FLAGS_dirpath == "." ? log()->info("URDF files location: {}.", my_path.get_path())
                        : log()->info("URDF files location: {}.", FLAGS_dirpath);
-  utility::GenerateUrdfFile(rg.value().get(), directory.get_path(), FLAGS_file_name_root, features);
+
+  log()->debug("Generating URDF files.");
+  utility::GenerateUrdfFile(rg.get(), directory.get_path(), FLAGS_file_name_root, features);
   return 0;
 }
 
@@ -102,4 +103,4 @@ int main(int argc, char* argv[]) {
 }  // namespace integration
 }  // namespace maliput
 
-int main(int argc, char* argv[]) { return maliput::integration::main(argc, argv); }
+int main(int argc, char* argv[]) { return maliput::integration::Main(argc, argv); }

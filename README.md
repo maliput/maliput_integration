@@ -40,8 +40,9 @@ the following arguments will help to carry out a dragway implementation:
  -num_lanes, -length, -lane_width, -shoulder_width, -maximum_height.
 To run `maliput_to_urdf`, execute:
 
-    maliput_to_urdf \
-          --yaml_file=[yaml file for multilane road geometry.]
+```sh
+    maliput_to_urdf ... \
+          --yaml_file=[yaml file for multilane road geometry.] \
           --dirpath=[dirpath] \
           --file_name_root=[file name root] \
           --lane_width=[lane width] \
@@ -50,11 +51,7 @@ To run `maliput_to_urdf`, execute:
           --shoulder_width=[width of shoulder in meters] \
           --maximum_height=[maximum modelled height above the road surface in meters] \
           --log_level=[log level threshold]
-
-For an explanation on what the above-mentioned parameters mean, execute:
-
-    maliput_to_urdf --help
-
+```
 One the above command is executed, the following files should exist:
 
   1. `[dirpath]/[file name root].urdf` -- a [URDF](http://wiki.ros.org/urdf)
@@ -64,6 +61,11 @@ One the above command is executed, the following files should exist:
      the dragway.
   3. `[dirpath]/[file name root].mtl` -- a material file that applies textures
      and colors to the above Wavefront OBJ file.
+
+For an explanation on what the above-mentioned parameters mean, execute:
+
+    maliput_to_urdf --help
+
 
 ## `maliput_to_obj`
 
@@ -75,8 +77,9 @@ the following arguments will help to carry out a dragway implementation:
  -num_lanes, -length, -lane_width, -shoulder_width, -maximum_height.
 To run `maliput_to_obj`, execute:
 
-    maliput_to_obj \
-          --yaml_file=[yaml file for multilane road geometry.]
+```sh
+    maliput_to_obj ... \
+          --yaml_file=[yaml file for multilane road geometry.] \
           --dirpath=[dirpath] \
           --file_name_root=[file name root] \
           --lane_width=[lane width] \
@@ -89,11 +92,7 @@ To run `maliput_to_obj`, execute:
           --draw_elevation_boounds=[whether to draw the elevation bounds] \
           --simplify_mesh_threshold=[optional tolerance for mesh simplification, in meters] \
           --log_level=[log level threshold]
-
-For an explanation on what the above-mentioned parameters mean, execute:
-
-    maliput_to_obj --help
-
+```
 One the above command is executed, the following files should exist:
 
   1. `[dirpath]/[file name root].obj` -- a
@@ -101,3 +100,7 @@ One the above command is executed, the following files should exist:
      the road geometry.
   3. `[dirpath]/[file name root].mtl` -- a material file that applies textures
      and colors to the above Wavefront OBJ file.
+
+For an explanation on what the above-mentioned parameters mean, execute:
+
+    maliput_to_obj --help

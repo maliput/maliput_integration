@@ -24,24 +24,28 @@ constexpr double kMaximumHeight{5.2};
 
 GTEST_TEST(CreateRoadGeometryFrom, MultilaneRoadGeometry) {
   const std::string kFilePath{maliput::common::Filesystem::get_env_path(MULTILANE_RESOURCE_VAR) + kFileName};
-
-  std::optional<std::unique_ptr<const api::RoadGeometry>> dut =
-      CreateRoadGeometryFrom(kFilePath, kNumLanes, kLength, kLaneWidth, kShoulderWidth, kMaximumHeight);
-  EXPECT_TRUE(dut.has_value());
-  EXPECT_NE(nullptr,
-            dynamic_cast<multilane::RoadGeometry*>(const_cast<maliput::api::RoadGeometry*>(dut.value().get())));
-  EXPECT_EQ(nullptr, dynamic_cast<dragway::RoadGeometry*>(const_cast<maliput::api::RoadGeometry*>(dut.value().get())));
+  std::unique_ptr<const api::RoadGeometry> dut = CreateRoadGeometryFrom(kFilePath, std::nullopt);
+  EXPECT_NE(nullptr, dut);
+  EXPECT_NE(nullptr, dynamic_cast<const multilane::RoadGeometry*>(dut.get()));
 }
 
 GTEST_TEST(CreateRoadGeometryFrom, DragwayRoadGeometry) {
-  const std::string kFilePath{""};
+  std::unique_ptr<const api::RoadGeometry> dut = CreateRoadGeometryFrom(
+      std::nullopt, DragwayBuildProperties{kNumLanes, kLength, kLaneWidth, kShoulderWidth, kMaximumHeight});
+  EXPECT_NE(nullptr, dut);
+  EXPECT_NE(nullptr, dynamic_cast<const dragway::RoadGeometry*>(dut.get()));
+}
 
-  std::optional<std::unique_ptr<const api::RoadGeometry>> dut =
-      CreateRoadGeometryFrom(kFilePath, kNumLanes, kLength, kLaneWidth, kShoulderWidth, kMaximumHeight);
-  EXPECT_TRUE(dut.has_value());
-  EXPECT_NE(nullptr, dynamic_cast<dragway::RoadGeometry*>(const_cast<maliput::api::RoadGeometry*>(dut.value().get())));
-  EXPECT_EQ(nullptr,
-            dynamic_cast<multilane::RoadGeometry*>(const_cast<maliput::api::RoadGeometry*>(dut.value().get())));
+GTEST_TEST(CreateRoadGeometryFrom, NoneImplementationSelected) {
+  std::unique_ptr<const api::RoadGeometry> dut = CreateRoadGeometryFrom(std::nullopt, std::nullopt);
+  EXPECT_EQ(nullptr, dut);
+}
+
+GTEST_TEST(CreateRoadGeometryFrom, BothImplementationSelected) {
+  const std::string kFilePath{maliput::common::Filesystem::get_env_path(MULTILANE_RESOURCE_VAR) + kFileName};
+  std::unique_ptr<const api::RoadGeometry> dut = CreateRoadGeometryFrom(
+      kFilePath, DragwayBuildProperties{kNumLanes, kLength, kLaneWidth, kShoulderWidth, kMaximumHeight});
+  EXPECT_EQ(nullptr, dut);
 }
 
 }  // namespace

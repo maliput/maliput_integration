@@ -76,20 +76,21 @@ namespace {
 
 // Generates an OBJ file from a YAML file path or from
 // configurable values given as CLI arguments.
-int main(int argc, char* argv[]) {
-  maliput::log()->debug("main()");
+int Main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
-  maliput::common::set_log_level(FLAGS_log_level);
+  common::set_log_level(FLAGS_log_level);
 
-  maliput::log()->info("Loading road geometry...");
-  std::optional<std::unique_ptr<const maliput::api::RoadGeometry>> rg = CreateRoadGeometryFrom(
-      FLAGS_yaml_file, FLAGS_num_lanes, FLAGS_length, FLAGS_lane_width, FLAGS_lane_width, FLAGS_lane_width);
-  if (rg.has_value()) {
-    maliput::log()->info("RoadGeometry loaded correctly");
-  } else {
-    maliput::log()->error("Error loading RoadGeometry");
+  log()->debug("Loading road geometry...");
+  const std::optional<std::string> yaml_file =
+      !FLAGS_yaml_file.empty() ? std::make_optional<std::string>(FLAGS_yaml_file) : std::nullopt;
+  std::unique_ptr<const api::RoadGeometry> rg = CreateRoadGeometryFrom(
+      yaml_file,
+      DragwayBuildProperties{FLAGS_num_lanes, FLAGS_length, FLAGS_lane_width, FLAGS_lane_width, FLAGS_lane_width});
+  if (rg == nullptr) {
+    log()->error("Error loading RoadGeometry");
     return 1;
   }
+  log()->debug("RoadGeometry loaded successfully");
 
   // Creates the destination directory if it does not already exist.
   common::Path directory;
@@ -97,7 +98,7 @@ int main(int argc, char* argv[]) {
   if (!directory.exists()) {
     common::Filesystem::create_directory_recursive(directory);
   }
-  MALIPUT_DEMAND(directory.exists());
+  MALIPUT_THROW_UNLESS(directory.exists());
 
   utility::ObjFeatures features;
   features.max_grid_unit = FLAGS_max_grid_unit;
@@ -105,12 +106,12 @@ int main(int argc, char* argv[]) {
   features.draw_elevation_bounds = FLAGS_draw_elevation_bounds;
   features.simplify_mesh_threshold = FLAGS_simplify_mesh_threshold;
 
-  const common::Path my_path = maliput::common::Filesystem::get_cwd();
-  FLAGS_dirpath == "." ? log()->info("URDF files location: {}.", my_path.get_path())
-                       : log()->info("URDF files location: {}.", FLAGS_dirpath);
+  const common::Path my_path = common::Filesystem::get_cwd();
+  FLAGS_dirpath == "." ? log()->info("OBJ files location: {}.", my_path.get_path())
+                       : log()->info("OBJ files location: {}.", FLAGS_dirpath);
 
-  maliput::log()->info("Generating OBJ.");
-  GenerateObjFile(rg.value().get(), FLAGS_dirpath, FLAGS_file_name_root, features);
+  log()->debug("Generating OBJ.");
+  GenerateObjFile(rg.get(), FLAGS_dirpath, FLAGS_file_name_root, features);
 
   return 0;
 }
@@ -119,4 +120,4 @@ int main(int argc, char* argv[]) {
 }  // namespace integration
 }  // namespace maliput
 
-int main(int argc, char* argv[]) { return maliput::integration::main(argc, argv); }
+int main(int argc, char* argv[]) { return maliput::integration::Main(argc, argv); }

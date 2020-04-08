@@ -33,43 +33,54 @@ bool IsMultilaneDescription(const std::string& filename) {
 }
 
 // Decides which type of road geometry implementation should be choosen.
-// If `filename` is empty it returns MaliputImplementation:kDragway.
-// If `filename` is not empty it will load the file and check which implementation it refers to.
+// If only `filename` has a value it will return MaliputImplementation::kMultilane.
+// If only `dragway_build_properties` has a value it will return MaliputImplementation::kDragway.
+// Otherwise it will return MaliputImplementation::kUnknown.
 //
-// @param filename Is the path to the filename.
+// @param filename Is the path to the YAML file.
+// @param dragway_build_properties Contains the properties needed to build a dragway::RoadGeometry.
 // @returns The MaliputImplementation choosen.
-MaliputImplementation GetMaliputImplementation(const std::string& filename) {
-  return filename.empty()
-             ? MaliputImplementation::kDragway
-             : (IsMultilaneDescription(filename) ? MaliputImplementation::kMultilane : MaliputImplementation::kUnknown);
+MaliputImplementation GetMaliputImplementation(const std::optional<std::string>& filename,
+                                               const std::optional<DragwayBuildProperties>& dragway_build_properties) {
+  if (filename.has_value() && dragway_build_properties.has_value()) {
+    log()->error("Both implementations selected.");
+    return MaliputImplementation::kUnknown;
+  } else {
+    return filename.has_value() ? (IsMultilaneDescription(filename.value()) ? MaliputImplementation::kMultilane
+                                                                            : MaliputImplementation::kUnknown)
+                                : (dragway_build_properties.has_value() ? MaliputImplementation::kDragway
+                                                                        : MaliputImplementation::kUnknown);
+  }
 }
 
 }  // namespace
 
-std::optional<std::unique_ptr<const api::RoadGeometry>> CreateRoadGeometryFrom(const std::string& filename,
-                                                                               int num_lanes, double length,
-                                                                               double lane_width, double shoulder_width,
-                                                                               double maximum_height) {
-  switch (GetMaliputImplementation(filename)) {
+std::unique_ptr<const api::RoadGeometry> CreateRoadGeometryFrom(
+    const std::optional<std::string>& filename, const std::optional<DragwayBuildProperties>& dragway_build_properties) {
+  switch (GetMaliputImplementation(filename, dragway_build_properties)) {
     case MaliputImplementation::kDragway: {
       maliput::log()->debug("Loaded a dragway road geometry.");
       return std::make_unique<dragway::RoadGeometry>(
-          api::RoadGeometryId{"Dragway with " + std::to_string(num_lanes) + " lanes."}, num_lanes, length, lane_width,
-          shoulder_width, maximum_height, std::numeric_limits<double>::epsilon(),
+          api::RoadGeometryId{"Dragway with " + std::to_string(dragway_build_properties.value().num_lanes) + " lanes."},
+          dragway_build_properties.value().num_lanes, dragway_build_properties.value().length,
+          dragway_build_properties.value().lane_width, dragway_build_properties.value().shoulder_width,
+          dragway_build_properties.value().maximum_height, std::numeric_limits<double>::epsilon(),
           std::numeric_limits<double>::epsilon());
       break;
     }
     case MaliputImplementation::kMultilane: {
       maliput::log()->debug("Loaded a multilane road geometry.");
-      return maliput::multilane::LoadFile(maliput::multilane::BuilderFactory(), filename);
+      return maliput::multilane::LoadFile(maliput::multilane::BuilderFactory(), filename.value());
       break;
     }
     case MaliputImplementation::kUnknown: {
       maliput::log()->error("Unknown map.");
-      return std::nullopt;
+      return nullptr;
+      break;
     }
     default:
-      return std::nullopt;
+      maliput::log()->error("GetMaliputImplementation() method returned an unexpected value.");
+      return nullptr;
   }
 }
 
