@@ -11,22 +11,29 @@ namespace integration {
 
 /// Contains the attributes needed for building a dragway::Roadgeometry.
 struct DragwayBuildProperties {
-  int num_lanes{};
-  double length{};
-  double lane_width{};
-  double shoulder_width{};
-  double maximum_height{};
+  /// Number of lanes.
+  int num_lanes{2};
+  /// Length of the lanes.
+  double length{10};
+  /// Width of the lanes.
+  double lane_width{3.7};
+  /// Width of the shoulders of the road.
+  double shoulder_width{3.};
+  /// Maximum height above the road surface.
+  double maximum_height{5.2};
 };
 
-/// Selects a RoadGeometry implementation and build the road geometry.
-/// If only `filename` has a value it will try to build a multilane::RoadGeometry.
-/// If only `dragway_build_properties` has a value itwill try to build a dragway::RoadGeometry
-/// Otherwise it will return nullptr.
+/// Builds an api::RoadGeometry based on the following rules:
+///
+/// - `filename` is set and `dragway_build_properties` is not, and `filename` points to a valid `multilane` YAML.
+///    It creates a multilane::RoadGeometry.
+/// - `filename` is not set and `dragway_build_properties` is, and `dragway_build_properties` has valid attributes.
+///    It creates a dragway::RoadGeometry.
 ///
 /// @param filename Is the YAML file containing a road geometry description to be built as a multilane::RoadGeometry.
 /// @param dragway_build_properties Contains the properties needeed to build a dragway::RoadGeometry.
-/// @returns A maliput::api::RoadGeometry when it could be built.
-///          A nullptr when no implementation is matched.
+/// @return When attributes are valid and mutually exclusive, a valid maliput::api::RoadGeometry based on the
+/// appropriate backend. Otherwise, nullptr.
 std::unique_ptr<const api::RoadGeometry> CreateRoadGeometryFrom(
     const std::optional<std::string>& filename, const std::optional<DragwayBuildProperties>& dragway_build_properties);
 

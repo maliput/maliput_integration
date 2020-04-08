@@ -45,12 +45,11 @@ MaliputImplementation GetMaliputImplementation(const std::optional<std::string>&
   if (filename.has_value() && dragway_build_properties.has_value()) {
     log()->error("Both implementations selected.");
     return MaliputImplementation::kUnknown;
-  } else {
-    return filename.has_value() ? (IsMultilaneDescription(filename.value()) ? MaliputImplementation::kMultilane
-                                                                            : MaliputImplementation::kUnknown)
-                                : (dragway_build_properties.has_value() ? MaliputImplementation::kDragway
-                                                                        : MaliputImplementation::kUnknown);
   }
+  return filename.has_value() ? (IsMultilaneDescription(filename.value()) ? MaliputImplementation::kMultilane
+                                                                          : MaliputImplementation::kUnknown)
+                              : (dragway_build_properties.has_value() ? MaliputImplementation::kDragway
+                                                                      : MaliputImplementation::kUnknown);
 }
 
 }  // namespace
@@ -59,7 +58,7 @@ std::unique_ptr<const api::RoadGeometry> CreateRoadGeometryFrom(
     const std::optional<std::string>& filename, const std::optional<DragwayBuildProperties>& dragway_build_properties) {
   switch (GetMaliputImplementation(filename, dragway_build_properties)) {
     case MaliputImplementation::kDragway: {
-      maliput::log()->debug("Loaded a dragway road geometry.");
+      maliput::log()->debug("About to create dragway RoadGeometry.");
       return std::make_unique<dragway::RoadGeometry>(
           api::RoadGeometryId{"Dragway with " + std::to_string(dragway_build_properties.value().num_lanes) + " lanes."},
           dragway_build_properties.value().num_lanes, dragway_build_properties.value().length,
@@ -69,7 +68,7 @@ std::unique_ptr<const api::RoadGeometry> CreateRoadGeometryFrom(
       break;
     }
     case MaliputImplementation::kMultilane: {
-      maliput::log()->debug("Loaded a multilane road geometry.");
+      maliput::log()->debug("About to load multilane RoadGeometry.");
       return maliput::multilane::LoadFile(maliput::multilane::BuilderFactory(), filename.value());
       break;
     }
