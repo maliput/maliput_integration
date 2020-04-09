@@ -7,7 +7,7 @@
 /// 1 - It allows to create an OBJ file from different road geometry implementations. If a valid
 ///     filepath of an YAML file is passed, a multilane RoadGeometry will be created. Otherwise,
 ///     the following arguments will help to carry out a dragway implementation:
-///      -num_lanes, -length, -lane_width, -shoulder_width, maximum_height.
+///      -num_lanes, -length, -lane_width, -shoulder_width, -maximum_height.
 /// 2 - The applications possesses flags to modify the OBJ file builder:
 ///      -obj_dir, -obj_file, -max_grid_unit, -min_grid_resolution, -draw_elevation_bounds, -simplify_mesh_threshold
 /// 3 - The level of the logger could be setted by: -log_level.
@@ -17,14 +17,12 @@
 
 #include <gflags/gflags.h>
 
+#include "integration/tools.h"
+
+#include "maliput/common/filesystem.h"
 #include "maliput/common/logger.h"
 #include "maliput/common/maliput_abort.h"
-
 #include "maliput/utilities/generate_obj.h"
-
-#include "maliput_dragway/road_geometry.h"
-#include "maliput_multilane/builder.h"
-#include "maliput_multilane/loader.h"
 
 #include "yaml-cpp/yaml.h"
 
@@ -45,8 +43,8 @@ DEFINE_double(shoulder_width, 3.0,
 DEFINE_double(maximum_height, 5.2, "The maximum modelled height above the road surface (meters).");
 
 // Gflags for output files.
-DEFINE_string(obj_dir, ".", "Directory to contain rendered road surface");
-DEFINE_string(obj_file, "", "Basename for output Wavefront OBJ and MTL files");
+DEFINE_string(dirpath, ".", "Directory to contain rendered road surface");
+DEFINE_string(file_name_root, "maliput_to_obj", "Basename for output Wavefront OBJ and MTL files");
 
 // Gflags for OBJ generation configuration.
 DEFINE_double(max_grid_unit, maliput::utility::ObjFeatures().max_grid_unit,
@@ -62,7 +60,7 @@ DEFINE_double(simplify_mesh_threshold, maliput::utility::ObjFeatures().simplify_
               "equal to the road linear tolerance to get a mesh size reduction "
               "while keeping geometrical fidelity.");
 DEFINE_string(log_level, "unchanged",
-              "sets the spdlog output threshold; possible values are "
+              "sets the log output threshold; possible values are "
               "'unchanged', "
               "'trace', "
               "'debug', "
@@ -76,71 +74,44 @@ namespace maliput {
 namespace integration {
 namespace {
 
-// Available maliput implementations to load.
-enum class MaliputImplementation {
-  kDragway,    //< dragway implementation.
-  kMultilane,  //< multilane implementation.
-  kUnknown     //< Used when none of the implementations could be identified.
-};
-
-// Parses a file whose path is `filename` as a YAML and looks for a node called
-// "maliput_multilane_builder". If it is found,
-// MaliputImplementation::kMultilane is returned. Otherwise,
-// MaliputImplementation::kUnknown is returned.
-MaliputImplementation GetMaliputImplementationFromFile(const std::string& filename) {
-  const YAML::Node yaml_file = YAML::LoadFile(filename);
-  MALIPUT_DEMAND(yaml_file.IsMap());
-  return yaml_file["maliput_multilane_builder"] ? MaliputImplementation::kMultilane : MaliputImplementation::kUnknown;
-}
-
-// Decides which type of road geometry implementation the application should select.
-// If `filename` is empty it returns MaliputImplementation:kDragway.
-// If `filename` is not empty it will load the file and check which implementation it refers to.
-MaliputImplementation GetMaliputImplementation(const std::string& filename) {
-  return filename.empty() ? MaliputImplementation::kDragway : GetMaliputImplementationFromFile(filename);
-}
-
 // Generates an OBJ file from a YAML file path or from
 // configurable values given as CLI arguments.
-int main(int argc, char* argv[]) {
-  maliput::log()->debug("main()");
+int Main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
-  maliput::common::set_log_level(FLAGS_log_level);
+  common::set_log_level(FLAGS_log_level);
 
-  if (FLAGS_obj_file.empty()) {
-    maliput::log()->critical("No output file specified.");
+  log()->debug("Loading road geometry...");
+  const std::optional<std::string> yaml_file =
+      !FLAGS_yaml_file.empty() ? std::make_optional<std::string>(FLAGS_yaml_file) : std::nullopt;
+  std::unique_ptr<const api::RoadGeometry> rg = CreateRoadGeometryFrom(
+      yaml_file,
+      DragwayBuildProperties{FLAGS_num_lanes, FLAGS_length, FLAGS_lane_width, FLAGS_lane_width, FLAGS_lane_width});
+  if (rg == nullptr) {
+    log()->error("Error loading RoadGeometry");
     return 1;
   }
+  log()->debug("RoadGeometry loaded successfully");
 
-  maliput::log()->info("Loading road geometry...");
-  std::unique_ptr<const maliput::api::RoadGeometry> rg{};
-  switch (GetMaliputImplementation(FLAGS_yaml_file)) {
-    case MaliputImplementation::kDragway: {
-      rg = std::make_unique<dragway::RoadGeometry>(
-          api::RoadGeometryId{"Dragway with " + std::to_string(FLAGS_num_lanes) + " lanes."}, FLAGS_num_lanes,
-          FLAGS_length, FLAGS_lane_width, FLAGS_shoulder_width, FLAGS_maximum_height,
-          std::numeric_limits<double>::epsilon(), std::numeric_limits<double>::epsilon());
-      maliput::log()->info("Loaded a dragway road geometry.");
-      break;
-    }
-    case MaliputImplementation::kMultilane: {
-      rg = maliput::multilane::LoadFile(maliput::multilane::BuilderFactory(), FLAGS_yaml_file);
-      maliput::log()->info("Loaded a multilane road geometry.");
-      break;
-    }
-    case MaliputImplementation::kUnknown: {
-      maliput::log()->error("Unknown map.");
-      return 1;
-    }
+  // Creates the destination directory if it does not already exist.
+  common::Path directory;
+  directory.set_path(FLAGS_dirpath);
+  if (!directory.exists()) {
+    common::Filesystem::create_directory_recursive(directory);
   }
+  MALIPUT_THROW_UNLESS(directory.exists());
 
   utility::ObjFeatures features;
   features.max_grid_unit = FLAGS_max_grid_unit;
   features.min_grid_resolution = FLAGS_min_grid_resolution;
   features.draw_elevation_bounds = FLAGS_draw_elevation_bounds;
   features.simplify_mesh_threshold = FLAGS_simplify_mesh_threshold;
-  maliput::log()->info("Generating OBJ.");
-  GenerateObjFile(rg.get(), FLAGS_obj_dir, FLAGS_obj_file, features);
+
+  const common::Path my_path = common::Filesystem::get_cwd();
+  FLAGS_dirpath == "." ? log()->info("OBJ files location: {}.", my_path.get_path())
+                       : log()->info("OBJ files location: {}.", FLAGS_dirpath);
+
+  log()->debug("Generating OBJ.");
+  GenerateObjFile(rg.get(), FLAGS_dirpath, FLAGS_file_name_root, features);
 
   return 0;
 }
@@ -149,4 +120,4 @@ int main(int argc, char* argv[]) {
 }  // namespace integration
 }  // namespace maliput
 
-int main(int argc, char* argv[]) { return maliput::integration::main(argc, argv); }
+int main(int argc, char* argv[]) { return maliput::integration::Main(argc, argv); }

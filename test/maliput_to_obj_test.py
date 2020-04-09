@@ -34,11 +34,11 @@ class TestYamlObjing(unittest.TestCase):
         for yf in test_yaml_files:
             subprocess.check_call([
                 self._maliput_to_obj,
-                "-yaml_file", yf,
-                "-obj_file", "/dev/null",
+                "-file_name_root", yf,
+                "-file_name_root", "/dev/null",
             ])
     def test_dragway_creation(self):
         subprocess.check_call([
             self._maliput_to_obj,
-            "-obj_file", "/dev/null",
+            "-file_name_root", "/dev/null",
         ])
