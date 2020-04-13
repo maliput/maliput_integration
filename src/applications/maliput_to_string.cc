@@ -1,28 +1,27 @@
-/// @file maliput_to_urdf.cc
+/// @file maliput_to_string.cc
 ///
-/// Builds a dragway road geometry from flags or a multilane road geometry from a file,
-/// and outputs a URDF model of it.
+/// Builds an api::RoadGeometry and lists its entities. Possible backends are `dragway` and `multilane`.
 ///
 /// Notes:
-/// 1 - It allows to create URDF files from different road geometry implementations. If a valid
-///     filepath of an YAML file is passed, a multilane RoadGeometry will be created. Otherwise,
-///     the following arguments will help to carry out a dragway implementation:
+///   1- Allows to load a `dragway` or a `multilane` api::RoadGeometry. When a valid file path to a YAML document
+///       is passed, a `multilane` api::RoadGeometry is built. Otherwise, the following arguments will help to
+///       carry out a dragway implementation:
 ///      -num_lanes, -length, -lane_width, -shoulder_width, -maximum_height.
-/// 2 - The level of the logger could be setted by: -log_level.
+///   2 - The applications possesses flags to modify the output serialization:
+///      -include_type_labels, -include_road_geometry_id, -include_junction_ids,
+///      -include_segment_ids, -include_lane_ids, -include_lane_details.
+///   3- The level of the logger is selected with `-log_level`.
 
-#include <limits>
+#include <iostream>
+#include <memory>
 #include <string>
 
 #include <gflags/gflags.h>
 
 #include "integration/tools.h"
 
-#include "maliput/common/filesystem.h"
 #include "maliput/common/logger.h"
-#include "maliput/common/maliput_abort.h"
-#include "maliput/utilities/generate_urdf.h"
-
-#include "yaml-cpp/yaml.h"
+#include "maliput/utilities/generate_string.h"
 
 // Gflags for road geometry loaded from file/
 DEFINE_string(yaml_file, "", "yaml input file defining a multilane road geometry");
@@ -40,15 +39,14 @@ DEFINE_double(shoulder_width, 3.0,
               "width.");
 DEFINE_double(maximum_height, 5.2, "The maximum modelled height above the road surface (meters).");
 
-// Gflags for output files.
-DEFINE_string(dirpath, ".",
-              "The path to where the URDF and OBJ files should be saved. If this path "
-              " does not exist, it is created.");
-DEFINE_string(file_name_root, "maliput_to_urdf",
-              "The root name of the files to create. For example, if the value of this "
-              "parameter is \"foo\", the following files will be created: \"foo.urdf\", "
-              "\"foo.obj\", and \"foo.mtl\". These files will be placed in the path "
-              "specified by parameter 'dirpath'.");
+// Gflags to select options for serialization.
+DEFINE_bool(include_type_labels, false, "Whether to include type labels in the output string");
+DEFINE_bool(include_road_geometry_id, false, "Whether to include road geometry IDs in the output string");
+DEFINE_bool(include_junction_ids, false, "Whether to include junction IDs in the output string");
+DEFINE_bool(include_segment_ids, false, "Whether to include segment IDs in the output string");
+DEFINE_bool(include_lane_ids, false, "Whether to include lane IDs in the output string");
+DEFINE_bool(include_lane_details, false, "Whether to include lane details in the output string");
+// Gflag to set the log output threshold.
 DEFINE_string(log_level, "unchanged",
               "sets the log output threshold; possible values are "
               "'unchanged', "
@@ -66,7 +64,7 @@ namespace {
 
 int Main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
-  common::set_log_level(FLAGS_log_level);
+  maliput::common::set_log_level(FLAGS_log_level);
 
   log()->debug("Loading road geometry...");
   const std::optional<std::string> yaml_file =
@@ -83,22 +81,12 @@ int Main(int argc, char* argv[]) {
   }
   log()->debug("RoadGeometry loaded successfully");
 
-  utility::ObjFeatures features;
+  const maliput::utility::GenerateStringOptions options{FLAGS_include_type_labels,  FLAGS_include_road_geometry_id,
+                                                        FLAGS_include_junction_ids, FLAGS_include_segment_ids,
+                                                        FLAGS_include_lane_ids,     FLAGS_include_lane_details};
+  const std::string result = maliput::utility::GenerateString(*rg, options);
 
-  // Creates the destination directory if it does not already exist.
-  common::Path directory;
-  directory.set_path(FLAGS_dirpath);
-  if (!directory.exists()) {
-    common::Filesystem::create_directory_recursive(directory);
-  }
-  MALIPUT_THROW_UNLESS(directory.exists());
-
-  const common::Path my_path = common::Filesystem::get_cwd();
-  FLAGS_dirpath == "." ? log()->info("URDF files location: {}.", my_path.get_path())
-                       : log()->info("URDF files location: {}.", FLAGS_dirpath);
-
-  log()->debug("Generating URDF files.");
-  utility::GenerateUrdfFile(rg.get(), directory.get_path(), FLAGS_file_name_root, features);
+  std::cout << result << std::endl;
   return 0;
 }
 
