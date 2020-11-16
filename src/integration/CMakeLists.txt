@@ -13,12 +13,14 @@ ament_target_dependencies(integration
   PUBLIC
     "maliput"
     "maliput_dragway"
+    "maliput_malidrive"
     "maliput_multilane"
 )
 
 target_link_libraries(integration
   PUBLIC
     maliput::common
+    maliput_malidrive::builder
     yaml-cpp
 )
 

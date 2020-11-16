@@ -1,13 +1,17 @@
 /// @file maliput_to_urdf.cc
 ///
-/// Builds a dragway road geometry from flags or a multilane road geometry from a file,
+/// Builds a dragway, multilane or malidrive road geometry,
 /// and outputs a URDF model of it.
 ///
 /// Notes:
-/// 1 - It allows to create URDF files from different road geometry implementations. If a valid
-///     filepath of an YAML file is passed, a multilane RoadGeometry will be created. Otherwise,
-///     the following arguments will help to carry out a dragway implementation:
-///      -num_lanes, -length, -lane_width, -shoulder_width, -maximum_height.
+/// 1 - It allows to create URDF files from different road geometry implementations.
+///     The `maliput_backend` flag will determine the backend to be used.
+///    A - "dragway": The following flags are supported to use in order to create dragway road geometry:
+///         -num_lanes, -length, -lane_width, -shoulder_width, -maximum_height.
+///    B - "multilane": yaml file path must be provided:
+///         -yaml_file.
+///    C - "malidrive": xodr file path must be provided and the tolerance is optional:
+///         -xodr_file_path -linear_tolerance.
 /// 2 - The level of the logger could be setted by: -log_level.
 
 #include <limits>
@@ -27,7 +31,10 @@
 
 MULTILANE_PROPERTIES_FLAGS();
 DRAGWAY_PROPERTIES_FLAGS();
+MALIDRIVE_PROPERTIES_FLAGS();
 MALIPUT_APPLICATION_DEFINE_LOG_LEVEL_FLAG();
+
+DEFINE_string(maliput_backend, "dragway", "Whether to use <dragway>, <multilane> or <malidrive>. Default is dragway.");
 
 // Gflags for output files.
 DEFINE_string(dirpath, ".",
@@ -47,18 +54,23 @@ int Main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
   common::set_log_level(FLAGS_log_level);
 
-  log()->debug("Loading road geometry...");
-  const std::optional<std::string> yaml_file =
-      !FLAGS_yaml_file.empty() ? std::make_optional<std::string>(FLAGS_yaml_file) : std::nullopt;
-  const std::optional<DragwayBuildProperties> dragway_build_properties =
-      !FLAGS_yaml_file.empty()
-          ? std::nullopt
-          : std::make_optional<DragwayBuildProperties>(DragwayBuildProperties{
-                FLAGS_num_lanes, FLAGS_length, FLAGS_lane_width, FLAGS_lane_width, FLAGS_lane_width});
-  std::unique_ptr<const api::RoadGeometry> rg = CreateRoadGeometryFrom(yaml_file, dragway_build_properties);
-  if (rg == nullptr) {
-    log()->error("Error loading RoadGeometry");
-    return 1;
+  log()->debug("Loading road geometry using {} backend implementation...", FLAGS_maliput_backend);
+  MaliputImplementation maliput_implementation{StringToMaliputImplementation(FLAGS_maliput_backend)};
+  std::unique_ptr<const api::RoadGeometry> rg;
+  switch (maliput_implementation) {
+    case MaliputImplementation::kDragway:
+      rg = CreateDragwayRoadGeometry(
+          {FLAGS_num_lanes, FLAGS_length, FLAGS_lane_width, FLAGS_shoulder_width, FLAGS_maximum_height});
+      break;
+    case MaliputImplementation::kMultilane:
+      rg = CreateMultilaneRoadGeometry({FLAGS_yaml_file});
+      break;
+    case MaliputImplementation::kMalidrive:
+      rg = CreateMalidriveRoadGeometry({FLAGS_xodr_file_path, FLAGS_linear_tolerance});
+      break;
+    default:
+      log()->error("Error loading RoadGeometry. Unknown implementation.");
+      return 1;
   }
   log()->debug("RoadGeometry loaded successfully");
 

@@ -14,6 +14,7 @@
   <depend>libgflags-dev</depend>
   <depend>maliput</depend>
   <depend>maliput_dragway</depend>
+  <depend>maliput_malidrive</depend>
   <depend>maliput_multilane</depend>
   <depend>yaml-cpp</depend>
 

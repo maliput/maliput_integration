@@ -1,12 +1,16 @@
 /// @file maliput_to_string.cc
 ///
-/// Builds an api::RoadGeometry and lists its entities. Possible backends are `dragway` and `multilane`.
+/// Builds an api::RoadGeometry and lists its entities. Possible backends are `dragway`, `multilane` and `malidrive`.
 ///
 /// Notes:
-///   1- Allows to load a `dragway` or a `multilane` api::RoadGeometry. When a valid file path to a YAML document
-///       is passed, a `multilane` api::RoadGeometry is built. Otherwise, the following arguments will help to
-///       carry out a dragway implementation:
-///      -num_lanes, -length, -lane_width, -shoulder_width, -maximum_height.
+///   1 - Allows to load a road geometry from different road geometry implementations.
+///       The `maliput_backend` flag will determine the backend to be used.
+///      A - "dragway": The following flags are supported to use in order to create dragway road geometry:
+///           -num_lanes, -length, -lane_width, -shoulder_width, -maximum_height.
+///      B - "multilane": yaml file path must be provided:
+///           -yaml_file.
+///      C - "malidrive": xodr file path must be provided and the tolerance is optional:
+///           -xodr_file_path -linear_tolerance.
 ///   2 - The applications possesses flags to modify the output serialization:
 ///      -include_type_labels, -include_road_geometry_id, -include_junction_ids,
 ///      -include_segment_ids, -include_lane_ids, -include_lane_details.
@@ -26,7 +30,10 @@
 
 MULTILANE_PROPERTIES_FLAGS();
 DRAGWAY_PROPERTIES_FLAGS();
+MALIDRIVE_PROPERTIES_FLAGS();
 MALIPUT_APPLICATION_DEFINE_LOG_LEVEL_FLAG();
+
+DEFINE_string(maliput_backend, "dragway", "Whether to use <dragway>, <multilane> or <malidrive>. Default is dragway.");
 
 // Gflags to select options for serialization.
 DEFINE_bool(include_type_labels, false, "Whether to include type labels in the output string");
@@ -44,18 +51,23 @@ int Main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
   maliput::common::set_log_level(FLAGS_log_level);
 
-  log()->debug("Loading road geometry...");
-  const std::optional<std::string> yaml_file =
-      !FLAGS_yaml_file.empty() ? std::make_optional<std::string>(FLAGS_yaml_file) : std::nullopt;
-  const std::optional<DragwayBuildProperties> dragway_build_properties =
-      !FLAGS_yaml_file.empty()
-          ? std::nullopt
-          : std::make_optional<DragwayBuildProperties>(DragwayBuildProperties{
-                FLAGS_num_lanes, FLAGS_length, FLAGS_lane_width, FLAGS_lane_width, FLAGS_lane_width});
-  std::unique_ptr<const api::RoadGeometry> rg = CreateRoadGeometryFrom(yaml_file, dragway_build_properties);
-  if (rg == nullptr) {
-    log()->error("Error loading RoadGeometry");
-    return 1;
+  log()->debug("Loading road geometry using {} backend implementation...", FLAGS_maliput_backend);
+  MaliputImplementation maliput_implementation{StringToMaliputImplementation(FLAGS_maliput_backend)};
+  std::unique_ptr<const api::RoadGeometry> rg;
+  switch (maliput_implementation) {
+    case MaliputImplementation::kDragway:
+      rg = CreateDragwayRoadGeometry(
+          {FLAGS_num_lanes, FLAGS_length, FLAGS_lane_width, FLAGS_shoulder_width, FLAGS_maximum_height});
+      break;
+    case MaliputImplementation::kMultilane:
+      rg = CreateMultilaneRoadGeometry({FLAGS_yaml_file});
+      break;
+    case MaliputImplementation::kMalidrive:
+      rg = CreateMalidriveRoadGeometry({FLAGS_xodr_file_path, FLAGS_linear_tolerance});
+      break;
+    default:
+      log()->error("Error loading RoadGeometry. Unknown implementation.");
+      return 1;
   }
   log()->debug("RoadGeometry loaded successfully");
 

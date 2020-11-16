@@ -8,6 +8,7 @@ add_executable(maliput_to_urdf
 ament_target_dependencies(maliput_to_urdf
   "maliput"
   "maliput_dragway"
+  "maliput_malidrive"
   "maliput_multilane"
 )
 
@@ -26,6 +27,7 @@ add_executable(maliput_to_obj
 ament_target_dependencies(maliput_to_obj
   "maliput"
   "maliput_dragway"
+  "maliput_malidrive"
   "maliput_multilane"
 )
 
@@ -44,6 +46,7 @@ add_executable(maliput_to_string
 ament_target_dependencies(maliput_to_string
   "maliput"
   "maliput_dragway"
+  "maliput_malidrive"
   "maliput_multilane"
 )
 

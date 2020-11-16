@@ -45,5 +45,5 @@
 
 #define MALIDRIVE_PROPERTIES_FLAGS()                    \
   DEFINE_string(xodr_file_path, "", "XODR file path."); \
-  DEFINE_double(linear_tolerance, "5e-2", "Linear tolerance used to load the map.");
+  DEFINE_double(linear_tolerance, 5e-2, "Linear tolerance used to load the map.");
 #endif  // MALIDRIVE_PROPERTIES_FLAGS
