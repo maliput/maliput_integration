@@ -21,6 +21,7 @@ target_link_libraries(integration
   PUBLIC
     maliput::common
     maliput_malidrive::builder
+    maliput_malidrive::loader
     yaml-cpp
 )
 

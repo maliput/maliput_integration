@@ -26,12 +26,13 @@ constexpr double kLaneWidth{3.7};
 constexpr double kShoulderWidth{3.};
 constexpr double kMaximumHeight{5.2};
 
-GTEST_TEST(CreateRoadGeometry, MalidriveRoadGeometry) {
+GTEST_TEST(CreateRoadNetwork, MalidriveRoadNetwork) {
   const std::string kFilePath{maliput::common::Filesystem::get_env_path(MALIPUT_MALIDRIVE_RESOURCE_VAR) +
                               kXodrFileName};
-  std::unique_ptr<const api::RoadGeometry> dut = CreateMalidriveRoadGeometry({kFilePath, 5e-2});
+  std::unique_ptr<const api::RoadNetwork> dut = CreateMalidriveRoadNetwork({kFilePath, 5e-2});
   EXPECT_NE(nullptr, dut);
-  EXPECT_NE(nullptr, dynamic_cast<const malidrive::RoadGeometry*>(dut.get()));
+  EXPECT_NE(nullptr, dut->road_geometry());
+  EXPECT_NE(nullptr, dynamic_cast<const malidrive::RoadGeometry*>(dut->road_geometry()));
 }
 
 GTEST_TEST(CreateRoadGeometry, MultilaneRoadGeometry) {

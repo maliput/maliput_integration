@@ -8,7 +8,8 @@
 #include "maliput_dragway/road_geometry.h"
 
 #include "maliput_malidrive/base/inertial_to_lane_mapping_config.h"
-#include "maliput_malidrive/builder/road_geometry_builder.h"
+#include "maliput_malidrive/builder/road_network_builder.h"
+#include "maliput_malidrive/loader/loader.h"
 
 #include "maliput_multilane/builder.h"
 #include "maliput_multilane/loader.h"
@@ -60,7 +61,7 @@ std::unique_ptr<const api::RoadGeometry> CreateMultilaneRoadGeometry(const Multi
   return maliput::multilane::LoadFile(maliput::multilane::BuilderFactory(), build_properties.yaml_file);
 }
 
-std::unique_ptr<const api::RoadGeometry> CreateMalidriveRoadGeometry(const MalidriveBuildProperties& build_properties) {
+std::unique_ptr<const api::RoadNetwork> CreateMalidriveRoadNetwork(const MalidriveBuildProperties& build_properties) {
   const malidrive::builder::RoadGeometryConfiguration road_geometry_configuration{
       maliput::api::RoadGeometryId("malidrive_rg"),
       build_properties.xodr_file_path,
@@ -69,18 +70,12 @@ std::unique_ptr<const api::RoadGeometry> CreateMalidriveRoadGeometry(const Malid
       malidrive::constants::kScaleLength,
       malidrive::InertialToLaneMappingConfig(malidrive::constants::kExplorationRadius,
                                              malidrive::constants::kNumIterations)};
-
   if (!road_geometry_configuration.opendrive_file.has_value()) {
     MALIPUT_ABORT_MESSAGE("opendrive_file cannot be empty.");
   }
-  std::unique_ptr<malidrive::builder::RoadCurveFactoryBase> road_curve_factory =
-      std::make_unique<malidrive::builder::RoadCurveFactory>(road_geometry_configuration.linear_tolerance,
-                                                             road_geometry_configuration.scale_length,
-                                                             road_geometry_configuration.angular_tolerance);
-  return malidrive::builder::RoadGeometryBuilder(
-      malidrive::xodr::LoadDataBaseFromFile(road_geometry_configuration.opendrive_file.value(),
-                                            road_geometry_configuration.linear_tolerance),
-      road_geometry_configuration, std::move(road_curve_factory))();
+  const malidrive::builder::RoadNetworkConfiguration road_network_configuration{
+      road_geometry_configuration, std::nullopt, std::nullopt, std::nullopt, std::nullopt};
+  return malidrive::loader::Load<malidrive::builder::RoadNetworkBuilder>(road_network_configuration);
 }
 
 }  // namespace integration

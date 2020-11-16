@@ -1,6 +1,7 @@
 #pragma once
 
 #include "maliput/api/road_geometry.h"
+#include "maliput/api/road_network.h"
 
 #include <memory>
 #include <optional>
@@ -11,7 +12,7 @@ namespace integration {
 
 /// Available maliput implementations.
 enum class MaliputImplementation {
-  kMalidrive,  //< dragway implementation.
+  kMalidrive,  //< malidrive implementation.
   kDragway,    //< dragway implementation.
   kMultilane,  //< multilane implementation.
 };
@@ -59,12 +60,12 @@ std::unique_ptr<const api::RoadGeometry> CreateDragwayRoadGeometry(const Dragway
 /// @throw maliput::common::assertion_error When `build_properties.yaml_file` is empty.
 std::unique_ptr<const api::RoadGeometry> CreateMultilaneRoadGeometry(const MultilaneBuildProperties& build_properties);
 
-/// Builds an api::RoadGeometry based on Malidrive implementation.
-/// @param build_properties Holds the properties to build the RoadGeometry.
-/// @return A maliput::api::RoadGeometry.
+/// Builds an api::RoadNetwork based on Malidrive implementation.
+/// @param build_properties Holds the properties to build the RoadNetwork.
+/// @return A maliput::api::RoadNetwork.
 ///
 /// @throw maliput::common::assertion_error When `build_properties.xodr_file_path` is empty.
-std::unique_ptr<const api::RoadGeometry> CreateMalidriveRoadGeometry(const MalidriveBuildProperties& build_properties);
+std::unique_ptr<const api::RoadNetwork> CreateMalidriveRoadNetwork(const MalidriveBuildProperties& build_properties);
 
 }  // namespace integration
 }  // namespace maliput
