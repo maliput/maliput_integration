@@ -18,6 +18,7 @@
 #include <gflags/gflags.h>
 
 #include "integration/tools.h"
+#include "maliput_gflags.h"
 
 #include "maliput/common/filesystem.h"
 #include "maliput/common/logger.h"
@@ -26,21 +27,9 @@
 
 #include "yaml-cpp/yaml.h"
 
-// Gflags for road geometry loaded from file/
-DEFINE_string(yaml_file, "", "yaml input file defining a multilane road geometry");
-
-// Gflags for implementing a dragway road geometry manually.
-DEFINE_int32(num_lanes, 2, "The number of lanes.");
-DEFINE_double(length, 10, "The length of the dragway in meters.");
-// By default, each lane is 3.7m (12 feet) wide, which is the standard used by
-// the U.S. interstate highway system.
-DEFINE_double(lane_width, 3.7, "The width of each lane in meters.");
-// By default, the shoulder width is 3 m (10 feet) wide, which is the standard
-// used by the U.S. interstate highway system.
-DEFINE_double(shoulder_width, 3.0,
-              "The width of the shoulders in meters. Both shoulders have the same "
-              "width.");
-DEFINE_double(maximum_height, 5.2, "The maximum modelled height above the road surface (meters).");
+MULTILANE_PROPERTIES_FLAGS();
+DRAGWAY_PROPERTIES_FLAGS();
+MALIPUT_APPLICATION_DEFINE_LOG_LEVEL_FLAG();
 
 // Gflags for output files.
 DEFINE_string(dirpath, ".", "Directory to contain rendered road surface");
@@ -59,16 +48,6 @@ DEFINE_double(simplify_mesh_threshold, maliput::utility::ObjFeatures().simplify_
               "Optional tolerance for mesh simplification, in meters. Make it "
               "equal to the road linear tolerance to get a mesh size reduction "
               "while keeping geometrical fidelity.");
-DEFINE_string(log_level, "unchanged",
-              "sets the log output threshold; possible values are "
-              "'unchanged', "
-              "'trace', "
-              "'debug', "
-              "'info', "
-              "'warn', "
-              "'err', "
-              "'critical', "
-              "'off'");
 
 namespace maliput {
 namespace integration {
