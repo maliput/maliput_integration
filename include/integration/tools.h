@@ -1,6 +1,7 @@
 #pragma once
 
 #include "maliput/api/road_geometry.h"
+#include "maliput/api/road_network.h"
 
 #include <memory>
 #include <optional>
@@ -8,6 +9,19 @@
 
 namespace maliput {
 namespace integration {
+
+/// Available maliput implementations.
+enum class MaliputImplementation {
+  kMalidrive,  //< malidrive implementation.
+  kDragway,    //< dragway implementation.
+  kMultilane,  //< multilane implementation.
+};
+
+/// Returns the std::string version of `maliput_impl`.
+std::string MaliputImplementationToString(MaliputImplementation maliput_impl);
+
+/// Returns the MaliputImplementation version of `maliput_impl`.
+MaliputImplementation StringToMaliputImplementation(const std::string& maliput_impl);
 
 /// Contains the attributes needed for building a dragway::Roadgeometry.
 struct DragwayBuildProperties {
@@ -23,19 +37,48 @@ struct DragwayBuildProperties {
   double maximum_height{5.2};
 };
 
-/// Builds an api::RoadGeometry based on the following rules:
+/// Contains the attributes needed for building a multilane::Roadgeometry.
+struct MultilaneBuildProperties {
+  std::string yaml_file{""};
+};
+
+/// Contains the attributes needed for building a malidrive::Roadgeometry.
+struct MalidriveBuildProperties {
+  std::string xodr_file_path{""};
+  double linear_tolerance{5e-2};
+};
+
+/// Builds an api::RoadNetwork based on Dragway implementation.
+/// @param build_properties Holds the properties to build the RoadNetwork.
+/// @return A maliput::api::RoadNetwork.
+std::unique_ptr<const api::RoadNetwork> CreateDragwayRoadNetwork(const DragwayBuildProperties& build_properties);
+
+/// Builds an api::RoadNetwork based on Multilane implementation.
+/// @param build_properties Holds the properties to build the RoadNetwork.
+/// @return A maliput::api::RoadNetwork.
 ///
-/// - `filename` is set and `dragway_build_properties` is not, and `filename` points to a valid `multilane` YAML.
-///    It creates a multilane::RoadGeometry.
-/// - `filename` is not set and `dragway_build_properties` is, and `dragway_build_properties` has valid attributes.
-///    It creates a dragway::RoadGeometry.
+/// @throw maliput::common::assertion_error When `build_properties.yaml_file` is empty.
+std::unique_ptr<const api::RoadNetwork> CreateMultilaneRoadNetwork(const MultilaneBuildProperties& build_properties);
+
+/// Builds an api::RoadNetwork based on Malidrive implementation.
+/// @param build_properties Holds the properties to build the RoadNetwork.
+/// @return A maliput::api::RoadNetwork.
 ///
-/// @param filename Is the YAML file containing a road geometry description to be built as a multilane::RoadGeometry.
-/// @param dragway_build_properties Contains the properties needeed to build a dragway::RoadGeometry.
-/// @return When attributes are valid and mutually exclusive, a valid maliput::api::RoadGeometry based on the
-/// appropriate backend. Otherwise, nullptr.
-std::unique_ptr<const api::RoadGeometry> CreateRoadGeometryFrom(
-    const std::optional<std::string>& filename, const std::optional<DragwayBuildProperties>& dragway_build_properties);
+/// @throw maliput::common::assertion_error When `build_properties.xodr_file_path` is empty.
+std::unique_ptr<const api::RoadNetwork> CreateMalidriveRoadNetwork(const MalidriveBuildProperties& build_properties);
+
+/// Builds an api::RoadNetwork using the implementation that `maliput_implementation` describes.
+/// @param maliput_implementation One of MaliputImplementation. (kDragway, kMultilane, kMalidrive).
+/// @param dragway_build_properties Holds the properties to build a dragway RoadNetwork.
+/// @param multilane_build_properties Holds the properties to build a multilane RoadNetwork.
+/// @param malidrive_build_properties Holds the properties to build a malidrive RoadNetwork.
+/// @return A maliput::api::RoadNetwork.
+///
+/// @throw maliput::common::assertion_error When `maliput_implementation` is unknown.
+std::unique_ptr<const api::RoadNetwork> LoadRoadNetwork(MaliputImplementation maliput_implementation,
+                                                        const DragwayBuildProperties& dragway_build_properties,
+                                                        const MultilaneBuildProperties& multilane_build_properties,
+                                                        const MalidriveBuildProperties& malidrive_build_properties);
 
 }  // namespace integration
 }  // namespace maliput

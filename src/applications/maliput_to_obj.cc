@@ -1,13 +1,17 @@
 /// @file maliput_to_obj.cc
 ///
-/// Builds a dragway road geometry from flags or a multilane road geometry from a file,
+/// Builds a dragway, multilane or malidrive road geometry
 /// and render the road surface to a WaveFront OBJ output file.
 ///
 /// Notes:
-/// 1 - It allows to create an OBJ file from different road geometry implementations. If a valid
-///     filepath of an YAML file is passed, a multilane RoadGeometry will be created. Otherwise,
-///     the following arguments will help to carry out a dragway implementation:
-///      -num_lanes, -length, -lane_width, -shoulder_width, -maximum_height.
+/// 1 - It allows to create an OBJ file from different road geometry implementations.
+///     The `maliput_backend` flag will determine the backend to be used.
+///    A - "dragway": The following flags are supported to use in order to create dragway road geometry:
+///         -num_lanes, -length, -lane_width, -shoulder_width, -maximum_height.
+///    B - "multilane": yaml file path must be provided:
+///         -yaml_file.
+///    C - "malidrive": xodr file path must be provided and the tolerance is optional:
+///         -xodr_file_path -linear_tolerance.
 /// 2 - The applications possesses flags to modify the OBJ file builder:
 ///      -obj_dir, -obj_file, -max_grid_unit, -min_grid_resolution, -draw_elevation_bounds, -simplify_mesh_threshold
 /// 3 - The level of the logger could be setted by: -log_level.
@@ -18,6 +22,7 @@
 #include <gflags/gflags.h>
 
 #include "integration/tools.h"
+#include "maliput_gflags.h"
 
 #include "maliput/common/filesystem.h"
 #include "maliput/common/logger.h"
@@ -26,21 +31,12 @@
 
 #include "yaml-cpp/yaml.h"
 
-// Gflags for road geometry loaded from file/
-DEFINE_string(yaml_file, "", "yaml input file defining a multilane road geometry");
+MULTILANE_PROPERTIES_FLAGS();
+DRAGWAY_PROPERTIES_FLAGS();
+MALIDRIVE_PROPERTIES_FLAGS();
+MALIPUT_APPLICATION_DEFINE_LOG_LEVEL_FLAG();
 
-// Gflags for implementing a dragway road geometry manually.
-DEFINE_int32(num_lanes, 2, "The number of lanes.");
-DEFINE_double(length, 10, "The length of the dragway in meters.");
-// By default, each lane is 3.7m (12 feet) wide, which is the standard used by
-// the U.S. interstate highway system.
-DEFINE_double(lane_width, 3.7, "The width of each lane in meters.");
-// By default, the shoulder width is 3 m (10 feet) wide, which is the standard
-// used by the U.S. interstate highway system.
-DEFINE_double(shoulder_width, 3.0,
-              "The width of the shoulders in meters. Both shoulders have the same "
-              "width.");
-DEFINE_double(maximum_height, 5.2, "The maximum modelled height above the road surface (meters).");
+DEFINE_string(maliput_backend, "dragway", "Whether to use <dragway>, <multilane> or <malidrive>. Default is dragway.");
 
 // Gflags for output files.
 DEFINE_string(dirpath, ".", "Directory to contain rendered road surface");
@@ -59,16 +55,6 @@ DEFINE_double(simplify_mesh_threshold, maliput::utility::ObjFeatures().simplify_
               "Optional tolerance for mesh simplification, in meters. Make it "
               "equal to the road linear tolerance to get a mesh size reduction "
               "while keeping geometrical fidelity.");
-DEFINE_string(log_level, "unchanged",
-              "sets the log output threshold; possible values are "
-              "'unchanged', "
-              "'trace', "
-              "'debug', "
-              "'info', "
-              "'warn', "
-              "'err', "
-              "'critical', "
-              "'off'");
 
 namespace maliput {
 namespace integration {
@@ -80,20 +66,13 @@ int Main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
   common::set_log_level(FLAGS_log_level);
 
-  log()->debug("Loading road geometry...");
-  const std::optional<std::string> yaml_file =
-      !FLAGS_yaml_file.empty() ? std::make_optional<std::string>(FLAGS_yaml_file) : std::nullopt;
-  const std::optional<DragwayBuildProperties> dragway_build_properties =
-      !FLAGS_yaml_file.empty()
-          ? std::nullopt
-          : std::make_optional<DragwayBuildProperties>(DragwayBuildProperties{
-                FLAGS_num_lanes, FLAGS_length, FLAGS_lane_width, FLAGS_lane_width, FLAGS_lane_width});
-  std::unique_ptr<const api::RoadGeometry> rg = CreateRoadGeometryFrom(yaml_file, dragway_build_properties);
-  if (rg == nullptr) {
-    log()->error("Error loading RoadGeometry");
-    return 1;
-  }
-  log()->debug("RoadGeometry loaded successfully");
+  log()->debug("Loading road network using {} backend implementation...", FLAGS_maliput_backend);
+  const MaliputImplementation maliput_implementation{StringToMaliputImplementation(FLAGS_maliput_backend)};
+  auto rn =
+      LoadRoadNetwork(maliput_implementation,
+                      {FLAGS_num_lanes, FLAGS_length, FLAGS_lane_width, FLAGS_shoulder_width, FLAGS_maximum_height},
+                      {FLAGS_yaml_file}, {FLAGS_xodr_file_path, FLAGS_linear_tolerance});
+  log()->debug("RoadNetwork loaded successfully.");
 
   // Creates the destination directory if it does not already exist.
   common::Path directory;
@@ -114,7 +93,7 @@ int Main(int argc, char* argv[]) {
                        : log()->info("OBJ files location: {}.", FLAGS_dirpath);
 
   log()->debug("Generating OBJ.");
-  GenerateObjFile(rg.get(), FLAGS_dirpath, FLAGS_file_name_root, features);
+  GenerateObjFile(rn->road_geometry(), FLAGS_dirpath, FLAGS_file_name_root, features);
 
   return 0;
 }
