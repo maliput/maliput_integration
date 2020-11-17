@@ -126,7 +126,15 @@ std::unique_ptr<const api::RoadNetwork> CreateMalidriveRoadNetwork(const Malidri
     MALIPUT_ABORT_MESSAGE("opendrive_file cannot be empty.");
   }
   const malidrive::builder::RoadNetworkConfiguration road_network_configuration{
-      road_geometry_configuration, std::nullopt, std::nullopt, std::nullopt, std::nullopt};
+      road_geometry_configuration,
+      build_properties.road_rule_book_file.empty() ? std::nullopt
+                                                   : std::make_optional(build_properties.road_rule_book_file),
+      build_properties.traffic_light_book_file.empty() ? std::nullopt
+                                                       : std::make_optional(build_properties.traffic_light_book_file),
+      build_properties.phase_ring_book_file.empty() ? std::nullopt
+                                                    : std::make_optional(build_properties.phase_ring_book_file),
+      build_properties.intersection_book_file.empty() ? std::nullopt
+                                                      : std::make_optional(build_properties.intersection_book_file)};
   return malidrive::loader::Load<malidrive::builder::RoadNetworkBuilder>(road_network_configuration);
 }
 
