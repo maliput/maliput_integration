@@ -130,5 +130,21 @@ std::unique_ptr<const api::RoadNetwork> CreateMalidriveRoadNetwork(const Malidri
   return malidrive::loader::Load<malidrive::builder::RoadNetworkBuilder>(road_network_configuration);
 }
 
+std::unique_ptr<const api::RoadNetwork> LoadRoadNetwork(MaliputImplementation maliput_implementation,
+                                                        const DragwayBuildProperties& dragway_build_properties,
+                                                        const MultilaneBuildProperties& multilane_build_properties,
+                                                        const MalidriveBuildProperties& malidrive_build_properties) {
+  switch (maliput_implementation) {
+    case MaliputImplementation::kDragway:
+      return CreateDragwayRoadNetwork(dragway_build_properties);
+    case MaliputImplementation::kMultilane:
+      return CreateMultilaneRoadNetwork(multilane_build_properties);
+    case MaliputImplementation::kMalidrive:
+      return CreateMalidriveRoadNetwork(malidrive_build_properties);
+    default:
+      MALIPUT_ABORT_MESSAGE("Error loading RoadNetwork. Unknown implementation.");
+  }
+}
+
 }  // namespace integration
 }  // namespace maliput

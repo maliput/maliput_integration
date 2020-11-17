@@ -51,25 +51,13 @@ int Main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
   maliput::common::set_log_level(FLAGS_log_level);
 
-  log()->debug("Loading road geometry using {} backend implementation...", FLAGS_maliput_backend);
+  log()->debug("Loading road network using {} backend implementation...", FLAGS_maliput_backend);
   const MaliputImplementation maliput_implementation{StringToMaliputImplementation(FLAGS_maliput_backend)};
-  std::unique_ptr<const api::RoadNetwork> rn;
-  switch (maliput_implementation) {
-    case MaliputImplementation::kDragway:
-      rn = CreateDragwayRoadNetwork(
-          {FLAGS_num_lanes, FLAGS_length, FLAGS_lane_width, FLAGS_shoulder_width, FLAGS_maximum_height});
-      break;
-    case MaliputImplementation::kMultilane:
-      rn = CreateMultilaneRoadNetwork({FLAGS_yaml_file});
-      break;
-    case MaliputImplementation::kMalidrive:
-      rn = CreateMalidriveRoadNetwork({FLAGS_xodr_file_path, FLAGS_linear_tolerance});
-      break;
-    default:
-      log()->error("Error loading RoadGeometry. Unknown implementation.");
-      return 1;
-  }
-  log()->debug("RoadGeometry loaded successfully");
+  auto rn =
+      LoadRoadNetwork(maliput_implementation,
+                      {FLAGS_num_lanes, FLAGS_length, FLAGS_lane_width, FLAGS_shoulder_width, FLAGS_maximum_height},
+                      {FLAGS_yaml_file}, {FLAGS_xodr_file_path, FLAGS_linear_tolerance});
+  log()->debug("RoadNetwork loaded successfully.");
 
   const maliput::utility::GenerateStringOptions options{FLAGS_include_type_labels,  FLAGS_include_road_geometry_id,
                                                         FLAGS_include_junction_ids, FLAGS_include_segment_ids,

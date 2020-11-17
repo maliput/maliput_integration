@@ -67,5 +67,18 @@ std::unique_ptr<const api::RoadNetwork> CreateMultilaneRoadNetwork(const Multila
 /// @throw maliput::common::assertion_error When `build_properties.xodr_file_path` is empty.
 std::unique_ptr<const api::RoadNetwork> CreateMalidriveRoadNetwork(const MalidriveBuildProperties& build_properties);
 
+/// Builds an api::RoadNetwork using the implementation that `maliput_implementation` describes.
+/// @param maliput_implementation One of MaliputImplementation. (kDragway, kMultilane, kMalidrive).
+/// @param dragway_build_properties Holds the properties to build a dragway RoadNetwork.
+/// @param multilane_build_properties Holds the properties to build a multilane RoadNetwork.
+/// @param malidrive_build_properties Holds the properties to build a malidrive RoadNetwork.
+/// @return A maliput::api::RoadNetwork.
+///
+/// @throw maliput::common::assertion_error When `maliput_implementation` is unknown.
+std::unique_ptr<const api::RoadNetwork> LoadRoadNetwork(MaliputImplementation maliput_implementation,
+                                                        const DragwayBuildProperties& dragway_build_properties,
+                                                        const MultilaneBuildProperties& multilane_build_properties,
+                                                        const MalidriveBuildProperties& malidrive_build_properties);
+
 }  // namespace integration
 }  // namespace maliput
