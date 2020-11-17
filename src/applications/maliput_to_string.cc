@@ -54,10 +54,9 @@ int Main(int argc, char* argv[]) {
   log()->debug("Loading road geometry using {} backend implementation...", FLAGS_maliput_backend);
   const MaliputImplementation maliput_implementation{StringToMaliputImplementation(FLAGS_maliput_backend)};
   std::unique_ptr<const api::RoadNetwork> rn;
-  std::unique_ptr<const api::RoadGeometry> rg;
   switch (maliput_implementation) {
     case MaliputImplementation::kDragway:
-      rg = CreateDragwayRoadGeometry(
+      rn = CreateDragwayRoadNetwork(
           {FLAGS_num_lanes, FLAGS_length, FLAGS_lane_width, FLAGS_shoulder_width, FLAGS_maximum_height});
       break;
     case MaliputImplementation::kMultilane:
@@ -75,8 +74,7 @@ int Main(int argc, char* argv[]) {
   const maliput::utility::GenerateStringOptions options{FLAGS_include_type_labels,  FLAGS_include_road_geometry_id,
                                                         FLAGS_include_junction_ids, FLAGS_include_segment_ids,
                                                         FLAGS_include_lane_ids,     FLAGS_include_lane_details};
-  const std::string result = maliput::utility::GenerateString(
-      maliput_implementation == MaliputImplementation::kDragway ? *rg : *(rn->road_geometry()), options);
+  const std::string result = maliput::utility::GenerateString(*(rn->road_geometry()), options);
 
   std::cout << result << std::endl;
   return 0;

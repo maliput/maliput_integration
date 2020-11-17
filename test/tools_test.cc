@@ -43,11 +43,12 @@ GTEST_TEST(CreateRoadNetwork, MultilaneRoadNetwork) {
   EXPECT_NE(nullptr, dynamic_cast<const malidrive::RoadGeometry*>(dut->road_geometry()));
 }
 
-GTEST_TEST(CreateRoadGeometry, DragwayRoadGeometry) {
-  std::unique_ptr<const api::RoadGeometry> dut =
-      CreateDragwayRoadGeometry(DragwayBuildProperties{kNumLanes, kLength, kLaneWidth, kShoulderWidth, kMaximumHeight});
+GTEST_TEST(CreateRoadNetwork, DragwayRoadNetwork) {
+  std::unique_ptr<const api::RoadNetwork> dut =
+      CreateDragwayRoadNetwork(DragwayBuildProperties{kNumLanes, kLength, kLaneWidth, kShoulderWidth, kMaximumHeight});
   EXPECT_NE(nullptr, dut);
-  EXPECT_NE(nullptr, dynamic_cast<const dragway::RoadGeometry*>(dut.get()));
+  EXPECT_NE(nullptr, dut->road_geometry());
+  EXPECT_NE(nullptr, dynamic_cast<const malidrive::RoadGeometry*>(dut->road_geometry()));
 }
 
 }  // namespace

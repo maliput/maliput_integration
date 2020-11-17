@@ -48,10 +48,10 @@ struct MalidriveBuildProperties {
   double linear_tolerance{5e-2};
 };
 
-/// Builds an api::RoadGeometry based on Dragway implementation.
-/// @param build_properties Holds the properties to build the RoadGeometry.
-/// @return A maliput::api::RoadGeometry.
-std::unique_ptr<const api::RoadGeometry> CreateDragwayRoadGeometry(const DragwayBuildProperties& build_properties);
+/// Builds an api::RoadNetwork based on Dragway implementation.
+/// @param build_properties Holds the properties to build the RoadNetwork.
+/// @return A maliput::api::RoadNetwork.
+std::unique_ptr<const api::RoadNetwork> CreateDragwayRoadNetwork(const DragwayBuildProperties& build_properties);
 
 /// Builds an api::RoadNetwork based on Multilane implementation.
 /// @param build_properties Holds the properties to build the RoadNetwork.

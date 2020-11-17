@@ -69,10 +69,9 @@ int Main(int argc, char* argv[]) {
   log()->debug("Loading road geometry using {} backend implementation...", FLAGS_maliput_backend);
   const MaliputImplementation maliput_implementation{StringToMaliputImplementation(FLAGS_maliput_backend)};
   std::unique_ptr<const api::RoadNetwork> rn;
-  std::unique_ptr<const api::RoadGeometry> rg;
   switch (maliput_implementation) {
     case MaliputImplementation::kDragway:
-      rg = CreateDragwayRoadGeometry(
+      rn = CreateDragwayRoadNetwork(
           {FLAGS_num_lanes, FLAGS_length, FLAGS_lane_width, FLAGS_shoulder_width, FLAGS_maximum_height});
       break;
     case MaliputImplementation::kMultilane:
@@ -106,8 +105,7 @@ int Main(int argc, char* argv[]) {
                        : log()->info("OBJ files location: {}.", FLAGS_dirpath);
 
   log()->debug("Generating OBJ.");
-  GenerateObjFile(maliput_implementation == MaliputImplementation::kDragway ? rg.get() : rn->road_geometry(),
-                  FLAGS_dirpath, FLAGS_file_name_root, features);
+  GenerateObjFile(rn->road_geometry(), FLAGS_dirpath, FLAGS_file_name_root, features);
 
   return 0;
 }
