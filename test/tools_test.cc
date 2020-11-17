@@ -35,11 +35,12 @@ GTEST_TEST(CreateRoadNetwork, MalidriveRoadNetwork) {
   EXPECT_NE(nullptr, dynamic_cast<const malidrive::RoadGeometry*>(dut->road_geometry()));
 }
 
-GTEST_TEST(CreateRoadGeometry, MultilaneRoadGeometry) {
+GTEST_TEST(CreateRoadNetwork, MultilaneRoadNetwork) {
   const std::string kFilePath{maliput::common::Filesystem::get_env_path(MULTILANE_RESOURCE_VAR) + kYamlFileName};
-  std::unique_ptr<const api::RoadGeometry> dut = CreateMultilaneRoadGeometry({kFilePath});
+  std::unique_ptr<const api::RoadNetwork> dut = CreateMultilaneRoadNetwork({kFilePath});
   EXPECT_NE(nullptr, dut);
-  EXPECT_NE(nullptr, dynamic_cast<const multilane::RoadGeometry*>(dut.get()));
+  EXPECT_NE(nullptr, dut->road_geometry());
+  EXPECT_NE(nullptr, dynamic_cast<const malidrive::RoadGeometry*>(dut->road_geometry()));
 }
 
 GTEST_TEST(CreateRoadGeometry, DragwayRoadGeometry) {

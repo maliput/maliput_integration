@@ -53,7 +53,7 @@ int Main(int argc, char* argv[]) {
 
   log()->debug("Loading road geometry using {} backend implementation...", FLAGS_maliput_backend);
   const MaliputImplementation maliput_implementation{StringToMaliputImplementation(FLAGS_maliput_backend)};
-  std::unique_ptr<const api::RoadNetwork> malidrive_rn;
+  std::unique_ptr<const api::RoadNetwork> rn;
   std::unique_ptr<const api::RoadGeometry> rg;
   switch (maliput_implementation) {
     case MaliputImplementation::kDragway:
@@ -61,10 +61,10 @@ int Main(int argc, char* argv[]) {
           {FLAGS_num_lanes, FLAGS_length, FLAGS_lane_width, FLAGS_shoulder_width, FLAGS_maximum_height});
       break;
     case MaliputImplementation::kMultilane:
-      rg = CreateMultilaneRoadGeometry({FLAGS_yaml_file});
+      rn = CreateMultilaneRoadNetwork({FLAGS_yaml_file});
       break;
     case MaliputImplementation::kMalidrive:
-      malidrive_rn = CreateMalidriveRoadNetwork({FLAGS_xodr_file_path, FLAGS_linear_tolerance});
+      rn = CreateMalidriveRoadNetwork({FLAGS_xodr_file_path, FLAGS_linear_tolerance});
       break;
     default:
       log()->error("Error loading RoadGeometry. Unknown implementation.");
@@ -76,7 +76,7 @@ int Main(int argc, char* argv[]) {
                                                         FLAGS_include_junction_ids, FLAGS_include_segment_ids,
                                                         FLAGS_include_lane_ids,     FLAGS_include_lane_details};
   const std::string result = maliput::utility::GenerateString(
-      maliput_implementation == MaliputImplementation::kMalidrive ? *(malidrive_rn->road_geometry()) : *rg, options);
+      maliput_implementation == MaliputImplementation::kDragway ? *rg : *(rn->road_geometry()), options);
 
   std::cout << result << std::endl;
   return 0;

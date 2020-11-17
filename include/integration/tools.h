@@ -53,12 +53,12 @@ struct MalidriveBuildProperties {
 /// @return A maliput::api::RoadGeometry.
 std::unique_ptr<const api::RoadGeometry> CreateDragwayRoadGeometry(const DragwayBuildProperties& build_properties);
 
-/// Builds an api::RoadGeometry based on Multilane implementation.
-/// @param build_properties Holds the properties to build the RoadGeometry.
-/// @return A maliput::api::RoadGeometry.
+/// Builds an api::RoadNetwork based on Multilane implementation.
+/// @param build_properties Holds the properties to build the RoadNetwork.
+/// @return A maliput::api::RoadNetwork.
 ///
 /// @throw maliput::common::assertion_error When `build_properties.yaml_file` is empty.
-std::unique_ptr<const api::RoadGeometry> CreateMultilaneRoadGeometry(const MultilaneBuildProperties& build_properties);
+std::unique_ptr<const api::RoadNetwork> CreateMultilaneRoadNetwork(const MultilaneBuildProperties& build_properties);
 
 /// Builds an api::RoadNetwork based on Malidrive implementation.
 /// @param build_properties Holds the properties to build the RoadNetwork.
