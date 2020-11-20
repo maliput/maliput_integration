@@ -68,10 +68,11 @@ int Main(int argc, char* argv[]) {
 
   log()->debug("Loading road network using {} backend implementation...", FLAGS_maliput_backend);
   const MaliputImplementation maliput_implementation{StringToMaliputImplementation(FLAGS_maliput_backend)};
-  auto rn =
-      LoadRoadNetwork(maliput_implementation,
-                      {FLAGS_num_lanes, FLAGS_length, FLAGS_lane_width, FLAGS_shoulder_width, FLAGS_maximum_height},
-                      {FLAGS_yaml_file}, {FLAGS_xodr_file_path, FLAGS_linear_tolerance});
+  auto rn = LoadRoadNetwork(
+      maliput_implementation,
+      {FLAGS_num_lanes, FLAGS_length, FLAGS_lane_width, FLAGS_shoulder_width, FLAGS_maximum_height}, {FLAGS_yaml_file},
+      {FLAGS_xodr_file_path, FLAGS_linear_tolerance, FLAGS_road_rule_book_file, FLAGS_traffic_light_book_file,
+       FLAGS_phase_ring_book_file, FLAGS_intersection_book_file});
   log()->debug("RoadNetwork loaded successfully.");
 
   // Creates the destination directory if it does not already exist.

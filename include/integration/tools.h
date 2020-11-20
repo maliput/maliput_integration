@@ -23,7 +23,7 @@ std::string MaliputImplementationToString(MaliputImplementation maliput_impl);
 /// Returns the MaliputImplementation version of `maliput_impl`.
 MaliputImplementation StringToMaliputImplementation(const std::string& maliput_impl);
 
-/// Contains the attributes needed for building a dragway::Roadgeometry.
+/// Contains the attributes needed for building a dragway::RoadGeometry.
 struct DragwayBuildProperties {
   /// Number of lanes.
   int num_lanes{2};
@@ -37,15 +37,19 @@ struct DragwayBuildProperties {
   double maximum_height{5.2};
 };
 
-/// Contains the attributes needed for building a multilane::Roadgeometry.
+/// Contains the attributes needed for building a multilane::RoadGeometry.
 struct MultilaneBuildProperties {
   std::string yaml_file{""};
 };
 
-/// Contains the attributes needed for building a malidrive::Roadgeometry.
+/// Contains the attributes needed for building a malidrive::RoadNetwork.
 struct MalidriveBuildProperties {
   std::string xodr_file_path{""};
   double linear_tolerance{5e-2};
+  std::string road_rule_book_file{""};
+  std::string traffic_light_book_file{""};
+  std::string phase_ring_book_file{""};
+  std::string intersection_book_file{""};
 };
 
 /// Builds an api::RoadNetwork based on Dragway implementation.

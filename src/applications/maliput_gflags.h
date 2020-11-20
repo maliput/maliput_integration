@@ -43,7 +43,11 @@
 
 #ifndef MALIDRIVE_PROPERTIES_FLAGS
 
-#define MALIDRIVE_PROPERTIES_FLAGS()                    \
-  DEFINE_string(xodr_file_path, "", "XODR file path."); \
-  DEFINE_double(linear_tolerance, 5e-2, "Linear tolerance used to load the map.");
+#define MALIDRIVE_PROPERTIES_FLAGS()                                                              \
+  DEFINE_string(xodr_file_path, "", "XODR file path.");                                           \
+  DEFINE_double(linear_tolerance, 5e-2, "Linear tolerance used to load the map.");                \
+  DEFINE_string(road_rule_book_file, "", "YAML file defining a Maliput road rule book");          \
+  DEFINE_string(traffic_light_book_file, "", "YAML file defining a Maliput traffic lights book"); \
+  DEFINE_string(phase_ring_book_file, "", "YAML file defining a Maliput phase ring book");        \
+  DEFINE_string(intersection_book_file, "", "YAML file defining a Maliput intersection book");
 #endif  // MALIDRIVE_PROPERTIES_FLAGS
