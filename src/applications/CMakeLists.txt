@@ -82,8 +82,10 @@ target_link_libraries(maliput_query
 # Install
 ##############################################################################
 
-install(TARGETS maliput_to_urdf maliput_to_obj maliput_to_string maliput_query
-    ARCHIVE DESTINATION lib
-    LIBRARY DESTINATION lib
-    RUNTIME DESTINATION bin
+install(
+  TARGETS maliput_to_urdf maliput_to_obj maliput_to_string maliput_query
+  EXPORT ${PROJECT_NAME}-targets
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
 )
