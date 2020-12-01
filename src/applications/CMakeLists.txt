@@ -78,12 +78,32 @@ target_link_libraries(maliput_query
     maliput_multilane::maliput_multilane
 )
 
+add_executable(maliput_derive_lane_s_routes
+  maliput_derive_lane_s_routes.cc)
+
+ament_target_dependencies(maliput_derive_lane_s_routes
+  "maliput"
+  "maliput_dragway"
+  "maliput_malidrive"
+  "maliput_multilane"
+)
+
+target_link_libraries(maliput_derive_lane_s_routes
+    gflags
+    integration
+    maliput::common
+    maliput::routing
+    maliput::utilities
+    maliput_dragway::maliput_dragway
+    maliput_multilane::maliput_multilane
+)
+
 ##############################################################################
 # Install
 ##############################################################################
 
 install(
-  TARGETS maliput_to_urdf maliput_to_obj maliput_to_string maliput_query
+  TARGETS maliput_to_urdf maliput_to_obj maliput_to_string maliput_derive_lane_s_routes
   EXPORT ${PROJECT_NAME}-targets
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib

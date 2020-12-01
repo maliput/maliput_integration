@@ -33,7 +33,8 @@ DRAGWAY_PROPERTIES_FLAGS();
 MALIDRIVE_PROPERTIES_FLAGS();
 MALIPUT_APPLICATION_DEFINE_LOG_LEVEL_FLAG();
 
-DEFINE_string(maliput_backend, "dragway", "Whether to use <dragway>, <multilane> or <malidrive>. Default is dragway.");
+DEFINE_string(maliput_backend, "malidrive",
+              "Whether to use <dragway>, <multilane> or <malidrive>. Default is malidrive.");
 
 // Gflags to select options for serialization.
 DEFINE_bool(include_type_labels, false, "Whether to include type labels in the output string");
