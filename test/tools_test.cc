@@ -6,8 +6,6 @@
 
 #include "maliput_dragway/road_geometry.h"
 
-#include "maliput_malidrive/base/road_geometry.h"
-
 #include "maliput_multilane/builder.h"
 #include "maliput_multilane/loader.h"
 #include "maliput_multilane/road_geometry.h"
@@ -32,7 +30,10 @@ GTEST_TEST(CreateRoadNetwork, MalidriveRoadNetwork) {
   std::unique_ptr<const api::RoadNetwork> dut = CreateMalidriveRoadNetwork({kFilePath, 5e-2});
   EXPECT_NE(nullptr, dut);
   EXPECT_NE(nullptr, dut->road_geometry());
-  EXPECT_NE(nullptr, dynamic_cast<const malidrive::RoadGeometry*>(dut->road_geometry()));
+  // To evaluate the following condition, malidrive::RoadGeometry type is required. It is defined
+  // in maliput_malidrive/base/road_geometry.h but it brings with it a lot of header files that
+  // should not be exported.
+  // EXPECT_NE(nullptr, dynamic_cast<const malidrive::RoadGeometry*>(dut->road_geometry()));
 }
 
 GTEST_TEST(CreateRoadNetwork, MultilaneRoadNetwork) {
