@@ -43,7 +43,7 @@
 #include "maliput_malidrive/base/inertial_to_lane_mapping_config.h"
 #include "maliput_malidrive/constants.h"
 
-using maliput::api::GeoPosition;
+using maliput::api::InertialPosition;
 using maliput::api::LaneSRoute;
 using maliput::api::RoadGeometry;
 using maliput::api::RoadGeometryId;
@@ -66,8 +66,8 @@ DEFINE_bool(verbose, false,
 namespace YAML {
 
 template <>
-struct convert<GeoPosition> {
-  static Node encode(const GeoPosition& rhs) {
+struct convert<InertialPosition> {
+  static Node encode(const InertialPosition& rhs) {
     Node node;
     node.push_back(rhs.x());
     node.push_back(rhs.y());
@@ -75,7 +75,7 @@ struct convert<GeoPosition> {
     return node;
   }
 
-  static bool decode(const Node& node, GeoPosition& rhs) {
+  static bool decode(const Node& node, InertialPosition& rhs) {
     if (!node.IsSequence() || node.size() != 3) {
       return false;
     }
@@ -150,9 +150,9 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  std::vector<GeoPosition> waypoints;
+  std::vector<InertialPosition> waypoints;
   for (const YAML::Node& waypoint_node : waypoints_node) {
-    waypoints.push_back(waypoint_node.as<GeoPosition>());
+    waypoints.push_back(waypoint_node.as<InertialPosition>());
   }
 
   maliput::log()->info("Waypoints:");
@@ -166,9 +166,9 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  const GeoPosition& start_geo = waypoints.front();
-  const GeoPosition& end_geo = waypoints.back();
-  const double start_end_dist = (start_geo - end_geo).length();
+  const InertialPosition& start_inertial = waypoints.front();
+  const InertialPosition& end_inertial = waypoints.back();
+  const double start_end_dist = (start_inertial - end_inertial).length();
   if (start_end_dist > max_length) {
     maliput::log()->error("Distance between first and last waypoint ({})  exceeds max length ({}).", start_end_dist,
                           max_length);
@@ -176,8 +176,8 @@ int main(int argc, char* argv[]) {
   }
 
   const RoadGeometry* road_geometry = rn->road_geometry();
-  const RoadPositionResult start = road_geometry->ToRoadPosition(start_geo);
-  const RoadPositionResult end = road_geometry->ToRoadPosition(end_geo);
+  const RoadPositionResult start = road_geometry->ToRoadPosition(start_inertial);
+  const RoadPositionResult end = road_geometry->ToRoadPosition(end_inertial);
 
   maliput::log()->info("Start RoadPosition:");
   maliput::log()->info("  - Lane: {}", start.road_position.lane->id().string());
