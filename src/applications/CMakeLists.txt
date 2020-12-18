@@ -103,6 +103,29 @@ target_link_libraries(maliput_derive_lane_s_routes
     maliput_multilane::maliput_multilane
 )
 
+add_executable(maliput_to_string_with_plugin
+  maliput_to_string_with_plugin.cc)
+
+ament_target_dependencies(maliput_to_string_with_plugin
+   "maliput"
+)
+
+target_link_libraries(maliput_to_string_with_plugin
+  gflags
+  maliput::api
+  maliput::plugin
+  maliput::common
+  maliput::utilities
+)
+
+install(
+  TARGETS maliput_to_string_with_plugin
+  EXPORT ${PROJECT_NAME}-targets
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
+
 ##############################################################################
 # Install
 ##############################################################################
