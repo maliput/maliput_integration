@@ -1,4 +1,5 @@
 #include <iostream>
+#include <map>
 #include <memory>
 #include <string>
 
@@ -9,6 +10,13 @@
 #include "maliput/utilities/generate_string.h"
 
 DEFINE_string(lib_name, "libmaliput_dragway_road_network.so", "Name of the .so file to be loaded.");
+
+// Dragway parameters
+DEFINE_string(num_lanes, "2", "The number of lanes.");
+DEFINE_string(length, "10", "The length of the dragway in meters.");
+DEFINE_string(lane_width, "3.7", "The width of each lane in meters.");
+DEFINE_string(shoulder_width, "3.0", "The width of the shoulders in meters. Both shoulders have the same width.");
+DEFINE_string(maximum_height, "5.2", "The maximum modelled height above the road surface (meters).");
 
 // Gflags to select options for serialization.
 DEFINE_bool(include_type_labels, false, "Whether to include type labels in the output string");
@@ -21,7 +29,14 @@ DEFINE_bool(include_lane_details, false, "Whether to include lane details in the
 int main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 
-  maliput::plugin::LoadRoadNetworkPlugin loader(FLAGS_lib_name);
+  const std::map<std::string, std::string> parameters{
+    {"num_lanes", FLAGS_num_lanes},
+    {"length", FLAGS_length},
+    {"lane_width", FLAGS_lane_width},
+    {"shoulder_width", FLAGS_shoulder_width},
+    {"maximum_height", FLAGS_maximum_height}
+  };
+  maliput::plugin::LoadRoadNetworkPlugin loader{FLAGS_lib_name, parameters};
 
   // create an instance of the class
   std::unique_ptr<const maliput::api::RoadNetwork> rn = loader.GetRoadNetwork();
