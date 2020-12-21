@@ -142,3 +142,5 @@ install(
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
 )
+
+add_subdirectory(python)
