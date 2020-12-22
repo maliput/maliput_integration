@@ -5,6 +5,8 @@
 
 """Basic app for loading a dragway RoadNetwork as a plugin"""
 
+import argparse
+
 from maliput.plugin import (
     LoadRoadNetworkPlugin
 )
@@ -30,20 +32,49 @@ def generate_string(road_geometry):
                 print("\t\t\t\tlength: ", lane.length())
 
 
-def main():
-    params = {
-        "num_lanes": "12",
-        "length": "14.",
-        "lane_width": "4.",
-        "shoulder_width": "3.3",
-        "maximum_height": "5.3"
-    }
+def ParseArgs():
+    """Parse args"""
+    my_parser = argparse.ArgumentParser()
+    my_parser.add_argument('lib_name',
+                           metavar='lib_name',
+                           type=str,
+                           help='Name of the .so library')
+    my_parser.add_argument('-lib_name', action='store')
+    my_parser.add_argument('-num_lanes', action='store')
+    my_parser.add_argument('-length', action='store')
+    my_parser.add_argument('-lane_width', action='store')
+    my_parser.add_argument('-shoulder_width', action='store')
+    my_parser.add_argument('-maximum_height', action='store')
+    my_parser.add_argument('-opendrive_file', action='store')
+    my_parser.add_argument('-linear_tolerance', action='store')
+    my_parser.add_argument('-angular_tolerance', action='store')
+    my_parser.add_argument('-scale_length', action='store')
+    args = my_parser.parse_args()
 
-    loader = LoadRoadNetworkPlugin("libmaliput_dragway_road_network.so", params)
+    lib_name = args.lib_name
+    args_dict = vars(args)
+    del args_dict["lib_name"]
+
+    params = dict()
+    for key in args_dict:
+        if args_dict[key] is None:
+            continue
+        params[key] = args_dict[key]
+    print(lib_name)
+    print(params)
+    return lib_name, params
+
+
+def main():
+    """main function"""
+    lib_name, params = ParseArgs()
+
+    loader = LoadRoadNetworkPlugin(lib_name, params)
     rn = loader.GetRoadNetwork()
     rg = rn.road_geometry()
     print("\nRoad Geometry ID: ", rg.id().string())
     generate_string(rg)
 
+
 if __name__ == "__main__":
-  main()
+    main()
