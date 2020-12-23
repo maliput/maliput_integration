@@ -6,7 +6,7 @@
 #include <gflags/gflags.h>
 
 #include "maliput/common/logger.h"
-#include "maliput/plugin/load_road_network.h"
+#include "maliput/plugin/road_network_plugin_loader.h"
 #include "maliput/utilities/generate_string.h"
 #include "maliput_gflags.h"
 
@@ -53,7 +53,7 @@ int Main(int argc, char* argv[]) {
                                                       {"linear_tolerance", FLAGS_linear_tolerance},
                                                       {"angular_tolerance", FLAGS_angular_tolerance},
                                                       {"scale_map", FLAGS_scale_map}};
-  maliput::plugin::LoadRoadNetworkPlugin loader{FLAGS_lib_name, parameters};
+  maliput::plugin::RoadNetworkPluginLoader loader{FLAGS_lib_name, parameters};
 
   // create an instance of the class
   std::unique_ptr<const maliput::api::RoadNetwork> rn = loader.GetRoadNetwork();

@@ -8,7 +8,7 @@
 import argparse
 
 from maliput.plugin import (
-    LoadRoadNetworkPlugin
+    RoadNetworkPluginLoader
 )
 
 
@@ -60,8 +60,6 @@ def ParseArgs():
         if args_dict[key] is None:
             continue
         params[key] = args_dict[key]
-    print(lib_name)
-    print(params)
     return lib_name, params
 
 
@@ -69,7 +67,7 @@ def main():
     """main function"""
     lib_name, params = ParseArgs()
 
-    loader = LoadRoadNetworkPlugin(lib_name, params)
+    loader = RoadNetworkPluginLoader(lib_name, params)
     rn = loader.GetRoadNetwork()
     rg = rn.road_geometry()
     print("\nRoad Geometry ID: ", rg.id().string())
