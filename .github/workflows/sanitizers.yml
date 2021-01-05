@@ -31,6 +31,7 @@ jobs:
       CC: clang
       CXX: clang++
       LINKER_PATH: /usr/bin/llvm-ld
+    steps:
     # setup-ros first since it installs git, which is needed to fetch all branches from actions/checkout
     - uses: ros-tooling/setup-ros@0.0.26
     # install git from ppa since git 2.18+ is needed to fetch all branches from actions/checkout
@@ -42,7 +43,6 @@ jobs:
         apt install -y software-properties-common;
         add-apt-repository -y -u ppa:git-core/ppa;
         apt install -y git;
-    steps:
     - uses: actions/checkout@v2
       with:
         path: ${{ env.ROS_WS }}/src/${{ env.PACKAGE_NAME }}
