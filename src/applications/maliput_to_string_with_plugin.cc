@@ -6,11 +6,13 @@
 #include <gflags/gflags.h>
 
 #include "maliput/common/logger.h"
-#include "maliput/plugin/road_network_plugin_loader.h"
+#include "maliput/plugin/maliput_plugin.h"
+#include "maliput/plugin/maliput_plugin_manager.h"
+#include "maliput/plugin/road_network_loader.h"
 #include "maliput/utilities/generate_string.h"
 #include "maliput_gflags.h"
 
-DEFINE_string(lib_name, "libmaliput_dragway_road_network.so", "Name of the .so file to be loaded.");
+DEFINE_string(plugin_name, "maliput_malidrive", "Id of the RoadNetwork plugin to use.");
 
 // Dragway parameters
 DEFINE_string(num_lanes, "2", "The number of lanes.");
@@ -53,10 +55,28 @@ int Main(int argc, char* argv[]) {
                                                       {"linear_tolerance", FLAGS_linear_tolerance},
                                                       {"angular_tolerance", FLAGS_angular_tolerance},
                                                       {"scale_map", FLAGS_scale_map}};
-  maliput::plugin::RoadNetworkPluginLoader loader{FLAGS_lib_name, parameters};
 
+  maliput::log()->info("Creating MaliputPluginManager instance...");
+  maliput::plugin::MaliputPluginManager manager;
+  maliput::log()->info("Plugins loading is completed.");
+  const maliput::plugin::MaliputPlugin* maliput_plugin =
+      manager.GetPlugin(maliput::plugin::MaliputPlugin::Id(FLAGS_plugin_name));
+  if (!maliput_plugin) {
+    maliput::log()->error("{} plugin hasn't been found.", FLAGS_plugin_name);
+    return 1;
+  } else {
+    maliput::log()->info("{} plugin has been found.", FLAGS_plugin_name);
+    maliput::log()->info("Plugin id: {}", maliput_plugin->GetId());
+    maliput::log()->info(
+        "Plugin type: {}",
+        (maliput_plugin->GetType() == maliput::plugin::MaliputPluginType::kRoadNetworkLoader ? "RoadNetworkLoader"
+                                                                                             : "unknown"));
+  }
   // create an instance of the class
-  std::unique_ptr<const maliput::api::RoadNetwork> rn = loader.GetRoadNetwork();
+  std::unique_ptr<maliput::plugin::RoadNetworkLoader> road_network_loader =
+      maliput_plugin->ExecuteSymbol<std::unique_ptr<maliput::plugin::RoadNetworkLoader>>(
+          maliput::plugin::RoadNetworkLoader::GetEntryPoint());
+  std::unique_ptr<const maliput::api::RoadNetwork> rn = (*road_network_loader)(parameters);
 
   maliput::log()->debug("RoadNetwork loaded successfully.");
 
