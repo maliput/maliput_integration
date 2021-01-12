@@ -21,6 +21,9 @@ DEFINE_string(lane_width, "3.7", "The width of each lane in meters.");
 DEFINE_string(shoulder_width, "3.0", "The width of the shoulders in meters. Both shoulders have the same width.");
 DEFINE_string(maximum_height, "5.2", "The maximum modelled height above the road surface (meters).");
 
+// Multilane parameters
+DEFINE_string(yaml_file, "", "yaml input file defining a multilane road geometry");
+
 // Malidrive parameters
 DEFINE_string(opendrive_file, "install/maliput_malidrive/share/maliput_malidrive/resources/odr/LShapeRoad.xodr",
               "XODR file path. Default LShapeRoad.xodr");
@@ -51,6 +54,7 @@ int Main(int argc, char* argv[]) {
                                                       {"lane_width", FLAGS_lane_width},
                                                       {"shoulder_width", FLAGS_shoulder_width},
                                                       {"maximum_height", FLAGS_maximum_height},
+                                                      {"yaml_file", FLAGS_yaml_file},
                                                       {"opendrive_file", FLAGS_opendrive_file},
                                                       {"linear_tolerance", FLAGS_linear_tolerance},
                                                       {"angular_tolerance", FLAGS_angular_tolerance},
