@@ -635,9 +635,7 @@ double SFromCLI(char** argv) {
   return s;
 }
 
-}  // namespace
-
-int DoMain(int argc, char* argv[]) {
+int Main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
   gflags::SetUsageMessage(GetUsageMessage());
   if (argc < 3) {
@@ -731,7 +729,8 @@ int DoMain(int argc, char* argv[]) {
   return 0;
 }
 
+}  // namespace
 }  // namespace integration
 }  // namespace maliput
 
-int main(int argc, char* argv[]) { return maliput::integration::DoMain(argc, argv); }
+int main(int argc, char* argv[]) { return maliput::integration::Main(argc, argv); }
