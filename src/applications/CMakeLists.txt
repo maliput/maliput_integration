@@ -108,7 +108,12 @@ target_link_libraries(maliput_derive_lane_s_routes
 ##############################################################################
 
 install(
-  TARGETS maliput_to_urdf maliput_to_obj maliput_to_string maliput_derive_lane_s_routes
+  TARGETS
+    maliput_derive_lane_s_routes
+    maliput_query
+    maliput_to_obj
+    maliput_to_string
+    maliput_to_urdf
   EXPORT ${PROJECT_NAME}-targets
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
