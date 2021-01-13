@@ -118,14 +118,6 @@ target_link_libraries(maliput_to_string_with_plugin
   maliput::utilities
 )
 
-install(
-  TARGETS maliput_to_string_with_plugin
-  EXPORT ${PROJECT_NAME}-targets
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin
-)
-
 ##############################################################################
 # Install
 ##############################################################################
@@ -136,6 +128,7 @@ install(
     maliput_query
     maliput_to_obj
     maliput_to_string
+    maliput_to_string_with_plugin
     maliput_to_urdf
   EXPORT ${PROJECT_NAME}-targets
   ARCHIVE DESTINATION lib
