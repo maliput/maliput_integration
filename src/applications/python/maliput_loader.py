@@ -8,7 +8,7 @@
 import argparse
 
 from maliput.plugin import (
-    RoadNetworkPluginLoader
+    create_road_network_from_plugin
 )
 
 
@@ -35,40 +35,40 @@ def generate_string(road_geometry):
 def ParseArgs():
     """Parse args"""
     my_parser = argparse.ArgumentParser()
-    my_parser.add_argument('lib_name',
-                           metavar='lib_name',
+    my_parser.add_argument('plugin_name',
+                           metavar='plugin_name',
                            type=str,
                            help='Name of the .so library')
-    my_parser.add_argument('-lib_name', action='store')
+    my_parser.add_argument('-plugin_name', action='store')
     my_parser.add_argument('-num_lanes', action='store')
     my_parser.add_argument('-length', action='store')
     my_parser.add_argument('-lane_width', action='store')
     my_parser.add_argument('-shoulder_width', action='store')
     my_parser.add_argument('-maximum_height', action='store')
+    my_parser.add_argument('-yaml_file', action='store')
     my_parser.add_argument('-opendrive_file', action='store')
     my_parser.add_argument('-linear_tolerance', action='store')
     my_parser.add_argument('-angular_tolerance', action='store')
     my_parser.add_argument('-scale_length', action='store')
     args = my_parser.parse_args()
 
-    lib_name = args.lib_name
+    plugin_name = args.plugin_name
     args_dict = vars(args)
-    del args_dict["lib_name"]
+    del args_dict["plugin_name"]
 
     params = dict()
     for key in args_dict:
         if args_dict[key] is None:
             continue
         params[key] = args_dict[key]
-    return lib_name, params
+    return plugin_name, params
 
 
 def main():
     """main function"""
-    lib_name, params = ParseArgs()
+    plugin_name, params = ParseArgs()
 
-    loader = RoadNetworkPluginLoader(lib_name, params)
-    rn = loader.GetRoadNetwork()
+    rn = create_road_network_from_plugin(plugin_name, params)
     rg = rn.road_geometry()
     print("\nRoad Geometry ID: ", rg.id().string())
     generate_string(rg)
