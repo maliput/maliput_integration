@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# Copyright 2021 Toyota Research Institute.
+#
+
 SCRIPT_PATH=$(realpath ${BASH_SOURCE[0]})
 SCRIPT_DIR=$(dirname $SCRIPT_PATH)
 REPO_DIR=$SCRIPT_DIR/..

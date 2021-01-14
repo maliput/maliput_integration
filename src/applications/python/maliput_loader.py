@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright 2020 Toyota Research Institute
+# Copyright 2021 Toyota Research Institute
 #
 
 """Basic app for loading a dragway RoadNetwork as a plugin"""
@@ -14,6 +14,7 @@ from maliput.plugin import (
 
 def generate_string(road_geometry):
     """Print data from the `road_geometry`"""
+    print("\nRoad Geometry ID: ", road_geometry.id().string())
     num_junctions = road_geometry.num_junctions()
     print("Number of junctions: ", )
     for j_index in range(num_junctions):
@@ -32,7 +33,7 @@ def generate_string(road_geometry):
                 print("\t\t\t\tlength: ", lane.length())
 
 
-def ParseArgs():
+def parse_args():
     """Parse args"""
     my_parser = argparse.ArgumentParser()
     my_parser.add_argument('plugin_name',
@@ -65,12 +66,13 @@ def ParseArgs():
 
 
 def main():
-    """main function"""
-    plugin_name, params = ParseArgs()
+    """
+    Loads a `maliput::api::RoadNetwork` from a `maliput::plugin::MaliputPlugin` and generates a string out of it.
+    """
+    plugin_name, params = parse_args()
 
     rn = create_road_network_from_plugin(plugin_name, params)
     rg = rn.road_geometry()
-    print("\nRoad Geometry ID: ", rg.id().string())
     generate_string(rg)
 
 
