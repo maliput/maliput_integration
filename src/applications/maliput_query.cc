@@ -3,17 +3,17 @@
 /// Convenient application to run maliput's queries against a dragway, multilane or malidrive's
 /// RoadGeometry backend.
 ///
-/// Notes:
-/// 1 - Allows to load a road geometry from different road geometry implementations.
+/// @note
+/// 1. Allows to load a road geometry from different road geometry implementations.
 ///     The `maliput_backend` flag will determine the backend to be used.
-///    A - "dragway": The following flags are supported to use in order to create dragway road geometry:
-///         -num_lanes, -length, -lane_width, -shoulder_width, -maximum_height.
-///    B - "multilane": yaml file path must be provided:
-///         -yaml_file.
-///    C - "malidrive": xodr file path must be provided, tolerance and rule file paths are optional:
+///    - "dragway": The following flags are supported to use in order to create dragway road geometry:
+///       -num_lanes, -length, -lane_width, -shoulder_width, -maximum_height.
+///    - "multilane": yaml file path must be provided:
+///       -yaml_file.
+///    - "malidrive": xodr file path must be provided, tolerance and rule file paths are optional:
 ///         -xodr_file_path -linear_tolerance -road_rule_book_file -traffic_light_book_file -phase_ring_book_file
 ///         -intersection_book_file
-/// 2 - The level of the logger could be setted by: -log_level.
+/// 2. The level of the logger could be setted by: -log_level.
 
 #include <iostream>
 #include <map>

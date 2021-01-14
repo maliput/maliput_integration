@@ -67,7 +67,8 @@ def parse_args():
 
 def main():
     """
-    Loads a `maliput::api::RoadNetwork` from a `maliput::plugin::MaliputPlugin` and generates a string out of it.
+    Loads a `maliput::api::RoadNetwork` from a `maliput::plugin::MaliputPlugin`
+    and generates a string out of it.
     """
     plugin_name, params = parse_args()
 

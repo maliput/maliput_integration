@@ -4,20 +4,20 @@
 /// Builds an api::RoadGeometry and returns a set of LaneSRoute objects that go from the start waypoint to
 /// end one. Possible backends are `dragway`, `multilane` and `malidrive`.
 ///
-/// Notes:
-/// 1 - Allows to load a road geometry from different road geometry implementations.
+/// @note
+/// 1. Allows to load a road geometry from different road geometry implementations.
 ///     The `maliput_backend` flag will determine the backend to be used.
-///    A - "dragway": The following flags are supported to use in order to create dragway road geometry:
-///         -num_lanes, -length, -lane_width, -shoulder_width, -maximum_height.
-///    B - "multilane": yaml file path must be provided:
-///         -yaml_file.
-///    C - "malidrive": xodr file path must be provided, tolerance and rule file paths are optional:
+///    - "dragway": The following flags are supported to use in order to create dragway road geometry:
+///       -num_lanes, -length, -lane_width, -shoulder_width, -maximum_height.
+///    - "multilane": yaml file path must be provided:
+///       -yaml_file.
+///    - "malidrive": xodr file path must be provided, tolerance and rule file paths are optional:
 ///         -xodr_file_path -linear_tolerance -road_rule_book_file -traffic_light_book_file -phase_ring_book_file
 ///         -intersection_book_file
-/// 2 - Comments about the config_file:
+/// 2. Comments about the config_file:
 ///      i - It should have a valid xodr_file only when malidrive backend is selected.
 ///     ii - If a xodr_file_path(gflag) is provided then the xodr file path described in the config_file is discarded.
-/// 3 - The level of the logger could be setted by: -log_level.
+/// 3. The level of the logger could be setted by: -log_level.
 
 #include <cmath>
 #include <iostream>
