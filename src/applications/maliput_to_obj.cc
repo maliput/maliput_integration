@@ -3,18 +3,18 @@
 /// Builds a dragway, multilane or malidrive road geometry
 /// and render the road surface to a WaveFront OBJ output file.
 ///
-/// Notes:
-/// 1 - It allows to create an OBJ file from different road geometry implementations.
+/// @note
+/// 1. It allows to create an OBJ file from different road geometry implementations.
 ///     The `maliput_backend` flag will determine the backend to be used.
-///    A - "dragway": The following flags are supported to use in order to create dragway road geometry:
-///         -num_lanes, -length, -lane_width, -shoulder_width, -maximum_height.
-///    B - "multilane": yaml file path must be provided:
-///         -yaml_file.
-///    C - "malidrive": xodr file path must be provided and the tolerance is optional:
+///    - "dragway": The following flags are supported to use in order to create dragway road geometry:
+///       -num_lanes, -length, -lane_width, -shoulder_width, -maximum_height.
+///    - "multilane": yaml file path must be provided:
+///       -yaml_file.
+///    - "malidrive": xodr file path must be provided and the tolerance is optional:
 ///         -xodr_file_path -linear_tolerance.
-/// 2 - The applications possesses flags to modify the OBJ file builder:
+/// 2. The applications possesses flags to modify the OBJ file builder:
 ///      -obj_dir, -obj_file, -max_grid_unit, -min_grid_resolution, -draw_elevation_bounds, -simplify_mesh_threshold
-/// 3 - The level of the logger could be setted by: -log_level.
+/// 3. The level of the logger could be setted by: -log_level.
 
 #include <limits>
 #include <string>

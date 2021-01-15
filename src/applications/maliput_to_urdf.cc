@@ -3,16 +3,16 @@
 /// Builds a dragway, multilane or malidrive road geometry,
 /// and outputs a URDF model of it.
 ///
-/// Notes:
-/// 1 - It allows to create URDF files from different road geometry implementations.
+/// @note
+/// 1. It allows to create URDF files from different road geometry implementations.
 ///     The `maliput_backend` flag will determine the backend to be used.
-///    A - "dragway": The following flags are supported to use in order to create dragway road geometry:
-///         -num_lanes, -length, -lane_width, -shoulder_width, -maximum_height.
-///    B - "multilane": yaml file path must be provided:
-///         -yaml_file.
-///    C - "malidrive": xodr file path must be provided and the tolerance is optional:
+///    - "dragway": The following flags are supported to use in order to create dragway road geometry:
+///       -num_lanes, -length, -lane_width, -shoulder_width, -maximum_height.
+///    - "multilane": yaml file path must be provided:
+///       -yaml_file.
+///    - "malidrive": xodr file path must be provided and the tolerance is optional:
 ///         -xodr_file_path -linear_tolerance.
-/// 2 - The level of the logger could be setted by: -log_level.
+/// 2. The level of the logger could be setted by: -log_level.
 
 #include <limits>
 #include <string>
