@@ -4,18 +4,18 @@
 ///
 /// Builds an api::RoadNetwork and lists its entities.
 /// The road network is created using the maliput plugin architecture. \n
-/// Built-in backends available are `dragway`, `multilane` and `malidrive`, flags are provided
+/// Available backends are `dragway`, `multilane` and `malidrive`, flags are provided
 /// to correctly configure the requested paramteres for building the road network.
 /// @see maliput::plugin::MaliputPluginManager
 ///
 /// @note
-///   1. The `plugin_name` flag will determine the RoadNetworkLoader plugin to be selected.
+///   1. The `plugin_name` flag will determine the maliput::plugin::RoadNetworkLoader plugin to be selected.
 ///       - "maliput_dragway": The following flags are supported to use in order to create dragway road geometry:
 ///           -num_lanes, -length, -lane_width, -shoulder_width, -maximum_height.
 ///       - "maliput_multilane": yaml file path must be provided:
 ///           -yaml_file.
 ///       - "maliput_malidrive": xodr file path must be provided, the tolerances and scale length are optional:
-///           -xodr_file_path -linear_tolerance -angular_tolerance -scale_length.
+///           -xodr_file_path, -linear_tolerance, -angular_tolerance, -scale_length.
 ///   2. The applications possesses flags to modify the output serialization:
 ///      -include_type_labels, -include_road_geometry_id, -include_junction_ids,
 ///      -include_segment_ids, -include_lane_ids, -include_lane_details.
