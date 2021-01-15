@@ -3,7 +3,8 @@
 /// @file maliput_to_string_with_plugin.cc
 ///
 /// Builds an api::RoadNetwork and lists its entities.
-/// The road network is created using the maliput plugin architecture. \n
+/// The road network is created using the maliput plugin architecture.
+///
 /// Available backends are `dragway`, `multilane` and `malidrive`, flags are provided
 /// to correctly configure the requested paramteres for building the road network.
 /// @see maliput::plugin::MaliputPluginManager
