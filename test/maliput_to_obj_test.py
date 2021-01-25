@@ -9,7 +9,6 @@ import os
 import unittest
 
 _THIS_FILE = os.path.abspath(__file__)
-_THIS_DIR = os.path.dirname(_THIS_FILE)
 
 
 class TestYamlObjing(unittest.TestCase):
@@ -20,7 +19,6 @@ class TestYamlObjing(unittest.TestCase):
                         self._maliput_to_obj + " not found")
 
     def test_yaml_files(self):
-        this_dir = os.path.dirname(_THIS_DIR)
         yaml_dir = os.environ.get("MULTILANE_RESOURCE_ROOT")
 
         yaml_files = glob.glob(os.path.join(yaml_dir, '*.yaml'))
@@ -37,6 +35,7 @@ class TestYamlObjing(unittest.TestCase):
                 "-file_name_root", yf,
                 "-file_name_root", "/dev/null",
             ])
+
     def test_dragway_creation(self):
         subprocess.check_call([
             self._maliput_to_obj,
