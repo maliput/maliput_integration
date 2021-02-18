@@ -137,7 +137,7 @@ int main(int argc, char* argv[]) {
   auto rn = LoadRoadNetwork(
       maliput_implementation,
       {FLAGS_num_lanes, FLAGS_length, FLAGS_lane_width, FLAGS_shoulder_width, FLAGS_maximum_height}, {FLAGS_yaml_file},
-      {xodr_file, FLAGS_linear_tolerance, FLAGS_build_policy, FLAGS_threads, FLAGS_road_rule_book_file,
+      {xodr_file, FLAGS_linear_tolerance, FLAGS_build_policy, FLAGS_num_threads, FLAGS_road_rule_book_file,
        FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file, FLAGS_intersection_book_file});
   log()->info("RoadNetwork loaded successfully.");
 
