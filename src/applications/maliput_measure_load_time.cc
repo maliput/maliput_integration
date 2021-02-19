@@ -79,8 +79,6 @@ int Main(int argc, char* argv[]) {
     FLAGS_iterations = 1;
   }
   times.reserve(FLAGS_iterations);
-  const std::optional<int> num_threads{FLAGS_num_threads > 0 ? std::make_optional<int>(FLAGS_num_threads)
-                                                             : std::nullopt};
   for (int i = 0; i < FLAGS_iterations; i++) {
     times.push_back(MeasureLoadTime(
         maliput_implementation,
