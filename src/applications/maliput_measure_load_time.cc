@@ -57,11 +57,11 @@ double MeasureLoadTime(MaliputImplementation maliput_implementation,
                        const DragwayBuildProperties& dragway_build_properties,
                        const MultilaneBuildProperties& multilane_build_properties,
                        const MalidriveBuildProperties& malidrive_build_properties) {
-  auto start = std::chrono::high_resolution_clock::now();
-  auto rn = LoadRoadNetwork(maliput_implementation, dragway_build_properties, multilane_build_properties,
-                            malidrive_build_properties);
-  auto end = std::chrono::high_resolution_clock::now();
-  std::chrono::duration<double> duration = (end - start);
+  const auto start = std::chrono::high_resolution_clock::now();
+  const auto rn = LoadRoadNetwork(maliput_implementation, dragway_build_properties, multilane_build_properties,
+                                  malidrive_build_properties);
+  const auto end = std::chrono::high_resolution_clock::now();
+  const std::chrono::duration<double> duration = (end - start);
   return duration.count();
 }
 
@@ -72,14 +72,14 @@ int Main(int argc, char* argv[]) {
   log()->debug("Backend implementation selected is {} ", FLAGS_maliput_backend);
   const MaliputImplementation maliput_implementation{StringToMaliputImplementation(FLAGS_maliput_backend)};
 
-  std::vector<double> times;
   if (FLAGS_iterations < 1) {
-    log()->error("Iterations: {}. The number of iterations must be greater than zero. Using iterations=1.",
-                 FLAGS_iterations);
-    FLAGS_iterations = 1;
+    log()->error("Iterations: {}. The number of iterations must be greater than zero.", FLAGS_iterations);
+    return 1;
   }
+  std::vector<double> times;
   times.reserve(FLAGS_iterations);
   for (int i = 0; i < FLAGS_iterations; i++) {
+    log()->info("Building RoadNetwork {} of {}.", i + 1, FLAGS_iterations);
     times.push_back(MeasureLoadTime(
         maliput_implementation,
         {FLAGS_num_lanes, FLAGS_length, FLAGS_lane_width, FLAGS_shoulder_width, FLAGS_maximum_height},
@@ -88,7 +88,7 @@ int Main(int argc, char* argv[]) {
          FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file, FLAGS_intersection_book_file}));
   }
   const double mean_time = (std::accumulate(times.begin(), times.end(), 0.)) / static_cast<double>(times.size());
-  maliput::log()->info("\tMean time after {} iterations is ----> {} seconds.\n", FLAGS_iterations, mean_time);
+  maliput::log()->info("\tMean time was: {}s out of {} iterations.\n", mean_time, FLAGS_iterations);
 
   return 0;
 }
