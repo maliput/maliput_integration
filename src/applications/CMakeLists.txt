@@ -103,6 +103,27 @@ target_link_libraries(maliput_derive_lane_s_routes
     maliput_multilane::maliput_multilane
 )
 
+add_executable(maliput_measure_load_time
+  maliput_measure_load_time.cc)
+
+ament_target_dependencies(maliput_measure_load_time
+  "maliput"
+  "maliput_dragway"
+  "maliput_malidrive"
+  "maliput_multilane"
+)
+
+target_link_libraries(maliput_measure_load_time
+    gflags
+    integration
+    maliput::common
+    maliput::routing
+    maliput::utilities
+    maliput_dragway::maliput_dragway
+    maliput_malidrive::loader
+    maliput_multilane::maliput_multilane
+)
+
 add_executable(maliput_to_string_with_plugin
   maliput_to_string_with_plugin.cc)
 
@@ -125,6 +146,7 @@ target_link_libraries(maliput_to_string_with_plugin
 install(
   TARGETS
     maliput_derive_lane_s_routes
+    maliput_measure_load_time
     maliput_query
     maliput_to_obj
     maliput_to_string
