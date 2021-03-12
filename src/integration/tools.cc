@@ -62,7 +62,8 @@ std::unique_ptr<const api::RoadNetwork> CreateDragwayRoadNetwork(const DragwayBu
   auto rg = std::make_unique<dragway::RoadGeometry>(
       api::RoadGeometryId{"Dragway with " + std::to_string(build_properties.num_lanes) + " lanes."},
       build_properties.num_lanes, build_properties.length, build_properties.lane_width, build_properties.shoulder_width,
-      build_properties.maximum_height, std::numeric_limits<double>::epsilon(), std::numeric_limits<double>::epsilon());
+      build_properties.maximum_height, std::numeric_limits<double>::epsilon(), std::numeric_limits<double>::epsilon(),
+      maliput::math::Vector3(0, 0, 0));
 
   std::unique_ptr<ManualRulebook> rulebook = std::make_unique<ManualRulebook>();
   std::unique_ptr<TrafficLightBook> traffic_light_book = std::make_unique<TrafficLightBook>();
@@ -120,6 +121,7 @@ std::unique_ptr<const api::RoadNetwork> CreateMalidriveRoadNetwork(const Malidri
       build_properties.linear_tolerance,
       malidrive::constants::kAngularTolerance,
       malidrive::constants::kScaleLength,
+      maliput::math::Vector3(0, 0, 0),
       malidrive::InertialToLaneMappingConfig(malidrive::constants::kExplorationRadius,
                                              malidrive::constants::kNumIterations),
       {malidrive::builder::BuildPolicy::FromStrToType(build_properties.build_policy),
