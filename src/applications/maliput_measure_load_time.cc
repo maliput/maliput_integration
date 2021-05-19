@@ -80,12 +80,14 @@ int Main(int argc, char* argv[]) {
   times.reserve(FLAGS_iterations);
   for (int i = 0; i < FLAGS_iterations; i++) {
     log()->info("Building RoadNetwork {} of {}.", i + 1, FLAGS_iterations);
-    times.push_back(MeasureLoadTime(
-        maliput_implementation,
-        {FLAGS_num_lanes, FLAGS_length, FLAGS_lane_width, FLAGS_shoulder_width, FLAGS_maximum_height},
-        {FLAGS_yaml_file},
-        {FLAGS_xodr_file_path, FLAGS_linear_tolerance, FLAGS_build_policy, FLAGS_num_threads, FLAGS_road_rule_book_file,
-         FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file, FLAGS_intersection_book_file}));
+    times.push_back(
+        MeasureLoadTime(maliput_implementation,
+                        {FLAGS_num_lanes, FLAGS_length, FLAGS_lane_width, FLAGS_shoulder_width, FLAGS_maximum_height},
+                        {FLAGS_yaml_file},
+                        {FLAGS_xodr_file_path, FLAGS_linear_tolerance, FLAGS_build_policy, FLAGS_num_threads,
+                         FLAGS_simplification_policy, FLAGS_tolerance_selection_policy,
+                         FLAGS_standard_strictness_policy, FLAGS_road_rule_book_file, FLAGS_traffic_light_book_file,
+                         FLAGS_phase_ring_book_file, FLAGS_intersection_book_file}));
   }
   const double mean_time = (std::accumulate(times.begin(), times.end(), 0.)) / static_cast<double>(times.size());
   maliput::log()->info("\tMean time was: {}s out of {} iterations.\n", mean_time, FLAGS_iterations);

@@ -125,8 +125,13 @@ std::unique_ptr<const api::RoadNetwork> CreateMalidriveRoadNetwork(const Malidri
       malidrive::InertialToLaneMappingConfig(malidrive::constants::kExplorationRadius,
                                              malidrive::constants::kNumIterations),
       {malidrive::builder::BuildPolicy::FromStrToType(build_properties.build_policy),
-       build_properties.number_of_threads == 0 ? std::nullopt
-                                               : std::make_optional(build_properties.number_of_threads)}};
+       build_properties.number_of_threads == 0 ? std::nullopt : std::make_optional(build_properties.number_of_threads)},
+      malidrive::builder::RoadGeometryConfiguration::FromStrToSimplificationPolicy(
+          build_properties.simplification_policy),
+      malidrive::builder::RoadGeometryConfiguration::FromStrToToleranceSelectionPolicy(
+          build_properties.tolerance_selection_policy),
+      malidrive::builder::RoadGeometryConfiguration::FromStrToStandardStrictnessPolicy(
+          build_properties.standard_strictness_policy)};
   if (!road_geometry_configuration.opendrive_file.has_value()) {
     MALIPUT_ABORT_MESSAGE("opendrive_file cannot be empty.");
   }
