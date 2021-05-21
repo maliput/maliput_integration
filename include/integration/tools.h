@@ -48,6 +48,9 @@ struct MalidriveBuildProperties {
   double linear_tolerance{5e-2};
   std::string build_policy{"sequential"};
   int number_of_threads{0};
+  std::string simplification_policy{"none"};
+  std::string tolerance_selection_policy{"manual"};
+  std::string standard_strictness_policy{"permissive"};
   std::string road_rule_book_file{""};
   std::string traffic_light_book_file{""};
   std::string phase_ring_book_file{""};

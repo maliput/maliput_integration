@@ -55,6 +55,8 @@ DEFINE_string(opendrive_file, "install/maliput_malidrive/share/maliput_malidrive
 DEFINE_string(linear_tolerance, "5e-2", "Linear tolerance used to load the map.");
 DEFINE_string(angular_tolerance, "1e-3", "Angular tolerance used to load the map.");
 DEFINE_string(scale_length, "1", "Scale length");
+DEFINE_string(standard_strictness_policy, "permissive",
+              "OpenDrive standard strictness, it could be `permissive` or `strict`");
 
 // Gflags to select options for serialization.
 DEFINE_bool(include_type_labels, false, "Whether to include type labels in the output string");
@@ -83,7 +85,8 @@ int Main(int argc, char* argv[]) {
                                                       {"opendrive_file", FLAGS_opendrive_file},
                                                       {"linear_tolerance", FLAGS_linear_tolerance},
                                                       {"angular_tolerance", FLAGS_angular_tolerance},
-                                                      {"scale_length", FLAGS_scale_length}};
+                                                      {"scale_length", FLAGS_scale_length},
+                                                      {"standard_strictness_policy", FLAGS_standard_strictness_policy}};
 
   maliput::log()->info("Creating MaliputPluginManager instance...");
   maliput::plugin::MaliputPluginManager manager;

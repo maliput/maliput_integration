@@ -51,6 +51,7 @@ def parse_args():
     my_parser.add_argument('-linear_tolerance', action='store')
     my_parser.add_argument('-angular_tolerance', action='store')
     my_parser.add_argument('-scale_length', action='store')
+    my_parser.add_argument('-standard_strictness_policy', action='store')
     args = my_parser.parse_args()
 
     plugin_name = args.plugin_name

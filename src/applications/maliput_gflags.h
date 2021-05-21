@@ -43,13 +43,18 @@
 
 #ifndef MALIDRIVE_PROPERTIES_FLAGS
 
-#define MALIDRIVE_PROPERTIES_FLAGS()                                                                  \
-  DEFINE_string(xodr_file_path, "", "XODR file path.");                                               \
-  DEFINE_double(linear_tolerance, 5e-2, "Linear tolerance used to load the map.");                    \
-  DEFINE_string(build_policy, "sequential", "Build policy, it could be `sequential` or `parallel`."); \
-  DEFINE_int32(num_threads, 0, "Number of threads to create the Road Geometry.");                     \
-  DEFINE_string(road_rule_book_file, "", "YAML file defining a Maliput road rule book");              \
-  DEFINE_string(traffic_light_book_file, "", "YAML file defining a Maliput traffic lights book");     \
-  DEFINE_string(phase_ring_book_file, "", "YAML file defining a Maliput phase ring book");            \
+#define MALIDRIVE_PROPERTIES_FLAGS()                                                                                   \
+  DEFINE_string(xodr_file_path, "", "XODR file path.");                                                                \
+  DEFINE_double(linear_tolerance, 5e-2, "Linear tolerance used to load the map.");                                     \
+  DEFINE_string(build_policy, "sequential", "Build policy, it could be `sequential` or `parallel`.");                  \
+  DEFINE_int32(num_threads, 0, "Number of threads to create the Road Geometry.");                                      \
+  DEFINE_string(simplification_policy, "none", "Geometries simplification policy, it could be `none` or `simplify`."); \
+  DEFINE_string(tolerance_selection_policy, "manual",                                                                  \
+                "Tolerance selection policy, it could be `manual` or `automatic`.");                                   \
+  DEFINE_string(standard_strictness_policy, "permissive",                                                              \
+                "OpenDrive standard strictness, it could be `permissive` or `strict`.");                               \
+  DEFINE_string(road_rule_book_file, "", "YAML file defining a Maliput road rule book");                               \
+  DEFINE_string(traffic_light_book_file, "", "YAML file defining a Maliput traffic lights book");                      \
+  DEFINE_string(phase_ring_book_file, "", "YAML file defining a Maliput phase ring book");                             \
   DEFINE_string(intersection_book_file, "", "YAML file defining a Maliput intersection book");
 #endif  // MALIDRIVE_PROPERTIES_FLAGS
