@@ -51,8 +51,10 @@
   DEFINE_string(simplification_policy, "none", "Geometries simplification policy, it could be `none` or `simplify`."); \
   DEFINE_string(tolerance_selection_policy, "manual",                                                                  \
                 "Tolerance selection policy, it could be `manual` or `automatic`.");                                   \
-  DEFINE_string(standard_strictness_policy, "permissive",                                                              \
-                "OpenDrive standard strictness, it could be `permissive` or `strict`.");                               \
+  DEFINE_string(                                                                                                       \
+      standard_strictness_policy, "permissive",                                                                        \
+      "OpenDrive standard strictness, it could be `permissive`, `allow_schema_errors`, `allow_semantic_errors` or "    \
+      "`strict`. Union of policies are also allowed: 'allow_schema_errors|allow_semantic_errors'");                    \
   DEFINE_string(road_rule_book_file, "", "YAML file defining a Maliput road rule book");                               \
   DEFINE_string(traffic_light_book_file, "", "YAML file defining a Maliput traffic lights book");                      \
   DEFINE_string(phase_ring_book_file, "", "YAML file defining a Maliput phase ring book");                             \
