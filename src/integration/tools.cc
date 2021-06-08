@@ -133,7 +133,7 @@ std::unique_ptr<const api::RoadNetwork> CreateMalidriveRoadNetwork(const Malidri
       malidrive::builder::RoadGeometryConfiguration::FromStrToStandardStrictnessPolicy(
           build_properties.standard_strictness_policy),
       build_properties.omit_nondrivable_lanes};
-  if (!road_geometry_configuration.opendrive_file.has_value()) {
+  if (road_geometry_configuration.opendrive_file.empty()) {
     MALIPUT_ABORT_MESSAGE("opendrive_file cannot be empty.");
   }
   const malidrive::builder::RoadNetworkConfiguration road_network_configuration{
