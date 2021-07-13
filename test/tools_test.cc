@@ -2,7 +2,7 @@
 
 #include "integration/tools.h"
 
-#include "maliput/common/filesystem.h"
+#include <maliput/common/filesystem.h>
 
 #include "maliput_dragway/road_geometry.h"
 

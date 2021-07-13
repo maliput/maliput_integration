@@ -25,8 +25,8 @@
 #include "integration/tools.h"
 #include "maliput_gflags.h"
 
-#include "maliput/common/logger.h"
-#include "maliput/utilities/generate_string.h"
+#include <maliput/common/logger.h>
+#include <maliput/utilities/generate_string.h>
 
 MULTILANE_PROPERTIES_FLAGS();
 DRAGWAY_PROPERTIES_FLAGS();

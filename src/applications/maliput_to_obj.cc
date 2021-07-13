@@ -24,10 +24,10 @@
 #include "integration/tools.h"
 #include "maliput_gflags.h"
 
-#include "maliput/common/filesystem.h"
-#include "maliput/common/logger.h"
-#include "maliput/common/maliput_abort.h"
-#include "maliput/utilities/generate_obj.h"
+#include <maliput/common/filesystem.h>
+#include <maliput/common/logger.h>
+#include <maliput/common/maliput_abort.h>
+#include <maliput/utilities/generate_obj.h>
 
 #include "yaml-cpp/yaml.h"
 
