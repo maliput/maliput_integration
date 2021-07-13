@@ -38,7 +38,7 @@
 #include <maliput/common/logger.h>
 #include <maliput/routing/derive_lane_s_routes.h>
 #include <maliput/utilities/generate_string.h>
-#include "yaml-cpp/yaml.h"
+#include <yaml-cpp/yaml.h>
 
 #include <maliput_malidrive/base/inertial_to_lane_mapping_config.h>
 #include <maliput_malidrive/constants.h>

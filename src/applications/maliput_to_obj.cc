@@ -29,7 +29,7 @@
 #include <maliput/common/maliput_abort.h>
 #include <maliput/utilities/generate_obj.h>
 
-#include "yaml-cpp/yaml.h"
+#include <yaml-cpp/yaml.h>
 
 MULTILANE_PROPERTIES_FLAGS();
 DRAGWAY_PROPERTIES_FLAGS();

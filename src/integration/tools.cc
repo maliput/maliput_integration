@@ -17,7 +17,7 @@
 #include <maliput/common/logger.h>
 #include <maliput/common/maliput_abort.h>
 
-#include "maliput_dragway/road_geometry.h"
+#include <maliput_dragway/road_geometry.h>
 
 #include <maliput_malidrive/base/inertial_to_lane_mapping_config.h>
 #include <maliput_malidrive/builder/road_network_builder.h>
@@ -26,7 +26,7 @@
 #include <maliput_multilane/builder.h>
 #include <maliput_multilane/loader.h>
 
-#include "yaml-cpp/yaml.h"
+#include <yaml-cpp/yaml.h>
 
 namespace maliput {
 namespace integration {
