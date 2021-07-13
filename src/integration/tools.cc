@@ -19,9 +19,9 @@
 
 #include "maliput_dragway/road_geometry.h"
 
-#include "maliput_malidrive/base/inertial_to_lane_mapping_config.h"
-#include "maliput_malidrive/builder/road_network_builder.h"
-#include "maliput_malidrive/loader/loader.h"
+#include <maliput_malidrive/base/inertial_to_lane_mapping_config.h>
+#include <maliput_malidrive/builder/road_network_builder.h>
+#include <maliput_malidrive/loader/loader.h>
 
 #include "maliput_multilane/builder.h"
 #include "maliput_multilane/loader.h"
