@@ -23,8 +23,8 @@
 #include <maliput_malidrive/builder/road_network_builder.h>
 #include <maliput_malidrive/loader/loader.h>
 
-#include "maliput_multilane/builder.h"
-#include "maliput_multilane/loader.h"
+#include <maliput_multilane/builder.h>
+#include <maliput_multilane/loader.h>
 
 #include "yaml-cpp/yaml.h"
 
