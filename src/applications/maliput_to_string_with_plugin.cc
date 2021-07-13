@@ -29,11 +29,11 @@
 
 #include <gflags/gflags.h>
 
-#include "maliput/common/logger.h"
-#include "maliput/plugin/maliput_plugin.h"
-#include "maliput/plugin/maliput_plugin_manager.h"
-#include "maliput/plugin/road_network_loader.h"
-#include "maliput/utilities/generate_string.h"
+#include <maliput/common/logger.h>
+#include <maliput/plugin/maliput_plugin.h>
+#include <maliput/plugin/maliput_plugin_manager.h>
+#include <maliput/plugin/road_network_loader.h>
+#include <maliput/utilities/generate_string.h>
 #include "maliput_gflags.h"
 
 DEFINE_string(plugin_name, "maliput_malidrive", "Id of the RoadNetwork plugin to use.");
