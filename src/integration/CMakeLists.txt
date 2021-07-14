@@ -12,9 +12,13 @@ target_include_directories(integration
 
 target_link_libraries(integration
   PUBLIC
+    maliput::api
+    maliput::base
     maliput::common
+    maliput_dragway::maliput_dragway
     maliput_malidrive::builder
     maliput_malidrive::loader
+    maliput_multilane::maliput_multilane
     yaml-cpp
 )
 
