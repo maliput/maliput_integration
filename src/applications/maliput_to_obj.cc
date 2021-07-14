@@ -66,7 +66,7 @@ int Main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
   common::set_log_level(FLAGS_log_level);
 
-  log()->debug("Loading road network using {} backend implementation...", FLAGS_maliput_backend);
+  log()->info("Loading road network using {} backend implementation...", FLAGS_maliput_backend);
   const MaliputImplementation maliput_implementation{StringToMaliputImplementation(FLAGS_maliput_backend)};
   auto rn = LoadRoadNetwork(
       maliput_implementation,
@@ -75,7 +75,7 @@ int Main(int argc, char* argv[]) {
        FLAGS_tolerance_selection_policy, FLAGS_standard_strictness_policy, FLAGS_omit_nondrivable_lanes,
        FLAGS_road_rule_book_file, FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file,
        FLAGS_intersection_book_file});
-  log()->debug("RoadNetwork loaded successfully.");
+  log()->info("RoadNetwork loaded successfully.");
 
   // Creates the destination directory if it does not already exist.
   common::Path directory;
@@ -95,7 +95,7 @@ int Main(int argc, char* argv[]) {
   FLAGS_dirpath == "." ? log()->info("OBJ files location: {}.", my_path.get_path())
                        : log()->info("OBJ files location: {}.", FLAGS_dirpath);
 
-  log()->debug("Generating OBJ.");
+  log()->info("Generating OBJ.");
   GenerateObjFile(rn->road_geometry(), FLAGS_dirpath, FLAGS_file_name_root, features);
 
   return 0;

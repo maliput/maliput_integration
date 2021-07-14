@@ -115,7 +115,7 @@ int Main(int argc, char* argv[]) {
     maliput::log()->error("RoadNetwork couldn't be loaded correctly.");
     return 1;
   }
-  maliput::log()->debug("RoadNetwork loaded successfully.");
+  maliput::log()->info("RoadNetwork loaded successfully.");
 
   const maliput::utility::GenerateStringOptions options{FLAGS_include_type_labels,  FLAGS_include_road_geometry_id,
                                                         FLAGS_include_junction_ids, FLAGS_include_segment_ids,

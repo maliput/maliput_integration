@@ -650,7 +650,7 @@ int Main(int argc, char* argv[]) {
 
   maliput::common::set_log_level(FLAGS_log_level);
 
-  log()->debug("Loading road network using {} backend implementation...", FLAGS_maliput_backend);
+  log()->info("Loading road network using {} backend implementation...", FLAGS_maliput_backend);
   const MaliputImplementation maliput_implementation{StringToMaliputImplementation(FLAGS_maliput_backend)};
   // TODO(#): Extend this app to support other implementations than malidrive.
   if (maliput_implementation != MaliputImplementation::kMalidrive) {
@@ -664,7 +664,7 @@ int Main(int argc, char* argv[]) {
        FLAGS_tolerance_selection_policy, FLAGS_standard_strictness_policy, FLAGS_omit_nondrivable_lanes,
        FLAGS_road_rule_book_file, FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file,
        FLAGS_intersection_book_file});
-  log()->debug("RoadNetwork loaded successfully.");
+  log()->info("RoadNetwork loaded successfully.");
 
   MALIPUT_DEMAND(rn != nullptr);
 
