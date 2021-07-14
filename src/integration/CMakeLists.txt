@@ -7,7 +7,8 @@ add_library(integration tools.cc)
 target_include_directories(integration
   PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+    $<INSTALL_INTERFACE:include>
+)
 
 ament_target_dependencies(integration
   PUBLIC
