@@ -27,10 +27,6 @@
 #include <vector>
 
 #include <gflags/gflags.h>
-
-#include "integration/tools.h"
-#include "maliput_gflags.h"
-
 #include <maliput/api/lane_data.h>
 #include <maliput/api/regions.h>
 #include <maliput/api/road_geometry.h>
@@ -38,10 +34,12 @@
 #include <maliput/common/logger.h>
 #include <maliput/routing/derive_lane_s_routes.h>
 #include <maliput/utilities/generate_string.h>
-#include <yaml-cpp/yaml.h>
-
 #include <maliput_malidrive/base/inertial_to_lane_mapping_config.h>
 #include <maliput_malidrive/constants.h>
+#include <yaml-cpp/yaml.h>
+
+#include "integration/tools.h"
+#include "maliput_gflags.h"
 
 using maliput::api::InertialPosition;
 using maliput::api::LaneSRoute;

@@ -20,16 +20,14 @@
 #include <string>
 
 #include <gflags/gflags.h>
-
-#include "integration/tools.h"
-#include "maliput_gflags.h"
-
 #include <maliput/common/filesystem.h>
 #include <maliput/common/logger.h>
 #include <maliput/common/maliput_abort.h>
 #include <maliput/utilities/generate_obj.h>
-
 #include <yaml-cpp/yaml.h>
+
+#include "integration/tools.h"
+#include "maliput_gflags.h"
 
 MULTILANE_PROPERTIES_FLAGS();
 DRAGWAY_PROPERTIES_FLAGS();

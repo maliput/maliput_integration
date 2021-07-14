@@ -7,21 +7,18 @@ add_library(integration tools.cc)
 target_include_directories(integration
   PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-
-ament_target_dependencies(integration
-  PUBLIC
-    "maliput"
-    "maliput_dragway"
-    "maliput_malidrive"
-    "maliput_multilane"
+    $<INSTALL_INTERFACE:include>
 )
 
 target_link_libraries(integration
   PUBLIC
+    maliput::api
+    maliput::base
     maliput::common
+    maliput_dragway::maliput_dragway
     maliput_malidrive::builder
     maliput_malidrive::loader
+    maliput_multilane::maliput_multilane
     yaml-cpp
 )
 
