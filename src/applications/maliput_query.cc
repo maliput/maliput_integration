@@ -23,16 +23,14 @@
 #include <vector>
 
 #include <gflags/gflags.h>
-
-#include "integration/tools.h"
-#include "maliput_gflags.h"
-
 #include <maliput/common/logger.h>
 #include <maliput/common/maliput_abort.h>
-
 #include <maliput_malidrive/builder/road_network_configuration.h>
 #include <maliput_malidrive/constants.h>
 #include <maliput_malidrive/utility/file_tools.h>
+
+#include "integration/tools.h"
+#include "maliput_gflags.h"
 
 MULTILANE_PROPERTIES_FLAGS();
 DRAGWAY_PROPERTIES_FLAGS();

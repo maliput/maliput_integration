@@ -1,11 +1,11 @@
 #pragma once
 
-#include <maliput/api/road_geometry.h>
-#include <maliput/api/road_network.h>
-
 #include <memory>
 #include <optional>
 #include <string>
+
+#include <maliput/api/road_geometry.h>
+#include <maliput/api/road_network.h>
 
 namespace maliput {
 namespace integration {

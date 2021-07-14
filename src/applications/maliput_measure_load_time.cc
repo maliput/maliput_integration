@@ -24,11 +24,10 @@
 #include <vector>
 
 #include <gflags/gflags.h>
+#include <maliput/common/logger.h>
 
 #include "integration/tools.h"
 #include "maliput_gflags.h"
-
-#include <maliput/common/logger.h>
 
 namespace maliput {
 namespace integration {

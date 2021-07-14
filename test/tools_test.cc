@@ -1,11 +1,8 @@
-#include <gtest/gtest.h>
-
 #include "integration/tools.h"
 
+#include <gtest/gtest.h>
 #include <maliput/common/filesystem.h>
-
 #include <maliput_dragway/road_geometry.h>
-
 #include <maliput_multilane/builder.h>
 #include <maliput_multilane/loader.h>
 #include <maliput_multilane/road_geometry.h>
