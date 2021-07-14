@@ -5,13 +5,6 @@ add_executable(maliput_to_urdf
   maliput_to_urdf.cc
 )
 
-ament_target_dependencies(maliput_to_urdf
-  "maliput"
-  "maliput_dragway"
-  "maliput_malidrive"
-  "maliput_multilane"
-)
-
 target_link_libraries(maliput_to_urdf
     gflags
     integration
@@ -23,13 +16,7 @@ target_link_libraries(maliput_to_urdf
 )
 
 add_executable(maliput_to_obj
-  maliput_to_obj.cc)
-
-ament_target_dependencies(maliput_to_obj
-  "maliput"
-  "maliput_dragway"
-  "maliput_malidrive"
-  "maliput_multilane"
+  maliput_to_obj.cc
 )
 
 target_link_libraries(maliput_to_obj
@@ -43,13 +30,7 @@ target_link_libraries(maliput_to_obj
 )
 
 add_executable(maliput_to_string
-  maliput_to_string.cc)
-
-ament_target_dependencies(maliput_to_string
-  "maliput"
-  "maliput_dragway"
-  "maliput_malidrive"
-  "maliput_multilane"
+  maliput_to_string.cc
 )
 
 target_link_libraries(maliput_to_string
@@ -63,13 +44,7 @@ target_link_libraries(maliput_to_string
 )
 
 add_executable(maliput_query
-  maliput_query.cc)
-
-ament_target_dependencies(maliput_query
-  "maliput"
-  "maliput_dragway"
-  "maliput_malidrive"
-  "maliput_multilane"
+  maliput_query.cc
 )
 
 target_link_libraries(maliput_query
@@ -83,13 +58,7 @@ target_link_libraries(maliput_query
 )
 
 add_executable(maliput_derive_lane_s_routes
-  maliput_derive_lane_s_routes.cc)
-
-ament_target_dependencies(maliput_derive_lane_s_routes
-  "maliput"
-  "maliput_dragway"
-  "maliput_malidrive"
-  "maliput_multilane"
+  maliput_derive_lane_s_routes.cc
 )
 
 target_link_libraries(maliput_derive_lane_s_routes
@@ -104,13 +73,7 @@ target_link_libraries(maliput_derive_lane_s_routes
 )
 
 add_executable(maliput_measure_load_time
-  maliput_measure_load_time.cc)
-
-ament_target_dependencies(maliput_measure_load_time
-  "maliput"
-  "maliput_dragway"
-  "maliput_malidrive"
-  "maliput_multilane"
+  maliput_measure_load_time.cc
 )
 
 target_link_libraries(maliput_measure_load_time
@@ -125,10 +88,7 @@ target_link_libraries(maliput_measure_load_time
 )
 
 add_executable(maliput_to_string_with_plugin
-  maliput_to_string_with_plugin.cc)
-
-ament_target_dependencies(maliput_to_string_with_plugin
-   "maliput"
+  maliput_to_string_with_plugin.cc
 )
 
 target_link_libraries(maliput_to_string_with_plugin
