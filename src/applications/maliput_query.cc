@@ -59,58 +59,58 @@ const std::map<const std::string, const Command> CommandsUsage() {
   return {
       {"FindRoadPositions",
        {"FindRoadPositions",
-        "<xodr_file> FindRoadPositions x y z r",
+        "FindRoadPositions x y z r",
         {"Obtains, for all Lanes whose segment regions include points",
          "that are within a radius r of an (x, y, z) InertialPosition i.e. in",
          "the world frame, the RoadPosition of the point in the Lane manifold",
          "which is closest to that InertialPosition."},
-        6}},
+        5}},
       {"ToRoadPosition",
        {"ToRoadPosition",
-        "<xodr_file> ToRoadPosition x y z",
+        "ToRoadPosition x y z",
         {"Obtains the RoadPosition of the point in the RoadGeometry manifold",
          "which is, in the world frame, closest to an (x, y, z) InertialPosition."},
-        5}},
+        4}},
       {"ToLanePosition",
        {"ToLanePosition",
-        "<xodr_file> ToLanePosition lane_id x y z",
+        "ToLanePosition lane_id x y z",
         {"Obtains the LanePosition in a Lane, identified by lane_id, that is",
          "closest, in the world frame, to an (x, y, z) InertialPosition."},
-        6}},
+        5}},
       {"GetOrientation",
        {"GetOrientation",
-        "<xodr_file> GetOrientation lane_id s r h",
+        "GetOrientation lane_id s r h",
         {"Obtains the orientation in a Lane, identified by lane_id, that is",
          "closest, in the world frame, to an (s, r, h) LanePosition."},
-        6}},
+        5}},
       {"LaneToInertialPosition",
        {"LaneToInertialPosition",
-        "<xodr_file> LaneToInertialPosition lane_id s r h",
+        "LaneToInertialPosition lane_id s r h",
         {"Obtains the InertialPosition for an (s, r, h) LanePosition in a Lane,", "identified by lane_id."},
-        6}},
+        5}},
       {"GetMaxSpeedLimit",
        {"GetMaxSpeedLimit",
-        "<xodr_file> GetMaxSpeedLimit lane_id",
+        "GetMaxSpeedLimit lane_id",
         {"Obtains the maximum SpeedLimitRule for a Lane identified by lane_id.",
          "Rules are defined on the RoadRuleBook as loaded from a "
          "--road_rule_book_file."},
-        3}},
+        2}},
       {"GetDirectionUsage",
        {"GetDirectionUsage",
-        "<xodr_file> GetDirectionUsage lane_id",
+        "GetDirectionUsage lane_id",
         {"Obtains all DirectionUsageRules for a Lane identified by lane_id.",
          "Rules are defined on the RoadRuleBook as loaded from a "
          "--road_rule_book_file."},
-        3}},
+        2}},
       {"GetRightOfWay",
        {"GetRightOfWay",
-        "<xodr_file> GetRightOfWay lane_id start_s end_s",
+        "GetRightOfWay lane_id start_s end_s",
         {"Obtains all RightOfWayRules for a region [start_s, end_s] of a Lane,",
          "identified by lane_id. Rules are defined on the RoadRuleBook as loaded", "from a --road_rule_book_file."},
-        5}},
+        4}},
       {"GetPhaseRightOfWay",
        {"GetPhaseRightOfWay",
-        "<xodr_file> GetPhaseRightOfWay phase_ring_id phase_id",
+        "GetPhaseRightOfWay phase_ring_id phase_id",
         {"Obtains the state of RightOfWayRules for a Phase identified by"
          " phase_id",
          "in a PhaseRing identified by phase_ring_id.",
@@ -118,27 +118,27 @@ const std::map<const std::string, const Command> CommandsUsage() {
          "a --road_rule_book_file.",
          "Phases are defined on the PhaseRingBook as loaded from "
          "a --phase_ring_book_file."},
-        4}},
+        3}},
       {"GetDiscreteValueRules",
        {"GetDiscreteValueRules",
-        "<xodr_file> GetDiscreteValueRules lane_id start_s end_s",
+        "GetDiscreteValueRules lane_id start_s end_s",
         {"Obtains all DiscreteValueRule for a region [start_s, end_s] of a Lane,",
          "identified by lane_id. Rules are defined on the RoadRuleBook as loaded",
          "from a --road_rule_book_file or the xodr itself."},
-        5}},
+        4}},
       {"GetRangeValueRules",
        {"GetRangeValueRules",
-        "<xodr_file> GetRangeValueRules lane_id start_s end_s",
+        "GetRangeValueRules lane_id start_s end_s",
         {"Obtains all RangeValueRules for a region [start_s, end_s] of a Lane,",
          "identified by lane_id. Rules are defined on the RoadRuleBook as loaded",
          "from a --road_rule_book_file or the xodr itself."},
-        5}},
+        4}},
       {"GetLaneBounds",
        {"GetLaneBounds",
-        "<xodr_file> GetLaneBounds lane_id s",
+        "GetLaneBounds lane_id s",
         {"Obtains the segment and lane bounds of lane_id at s position. Return strings would be: ",
          "[segment_bounds.min, lane_bounds.min, lane_bounds.max, segment_bounds.max]."},
-        4}},
+        3}},
   };
 }
 
@@ -636,11 +636,11 @@ double SFromCLI(char** argv) {
 int Main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
   gflags::SetUsageMessage(GetUsageMessage());
-  if (argc < 3) {
+  if (argc < 2) {
     gflags::ShowUsageWithFlags(argv[0]);
     return 1;
   }
-  const Command command = CommandsUsage().find(argv[2])->second;
+  const Command command = CommandsUsage().find(argv[1])->second;
   if (argc != command.num_arguments + 1) {
     gflags::ShowUsageWithFlags(argv[0]);
     return 1;
@@ -671,57 +671,57 @@ int Main(int argc, char* argv[]) {
   std::cout << "Geometry Loaded" << std::endl;
 
   if (command.name.compare("FindRoadPositions") == 0) {
-    const maliput::api::InertialPosition inertial_position = InertialPositionFromCLI(&(argv[3]));
-    const double radius = RadiusFromCLI(&(argv[6]));
+    const maliput::api::InertialPosition inertial_position = InertialPositionFromCLI(&(argv[2]));
+    const double radius = RadiusFromCLI(&(argv[5]));
 
     query.FindRoadPositions(inertial_position, radius);
   } else if (command.name.compare("ToRoadPosition") == 0) {
-    const maliput::api::InertialPosition inertial_position = InertialPositionFromCLI(&(argv[3]));
+    const maliput::api::InertialPosition inertial_position = InertialPositionFromCLI(&(argv[2]));
 
     query.ToRoadPosition(inertial_position);
   } else if (command.name.compare("ToLanePosition") == 0) {
-    const maliput::api::LaneId lane_id = LaneIdFromCLI(&(argv[3]));
-    const maliput::api::InertialPosition inertial_position = InertialPositionFromCLI(&(argv[4]));
+    const maliput::api::LaneId lane_id = LaneIdFromCLI(&(argv[2]));
+    const maliput::api::InertialPosition inertial_position = InertialPositionFromCLI(&(argv[3]));
 
     query.ToLanePosition(lane_id, inertial_position);
   } else if (command.name.compare("GetOrientation") == 0) {
-    const maliput::api::LaneId lane_id = LaneIdFromCLI(&(argv[3]));
-    const maliput::api::LanePosition lane_position = LanePositionFromCLI(&(argv[4]));
+    const maliput::api::LaneId lane_id = LaneIdFromCLI(&(argv[2]));
+    const maliput::api::LanePosition lane_position = LanePositionFromCLI(&(argv[3]));
 
     query.GetOrientation(lane_id, lane_position);
   } else if (command.name.compare("LaneToInertialPosition") == 0) {
-    const maliput::api::LaneId lane_id = LaneIdFromCLI(&(argv[3]));
-    const maliput::api::LanePosition lane_position = LanePositionFromCLI(&(argv[4]));
+    const maliput::api::LaneId lane_id = LaneIdFromCLI(&(argv[2]));
+    const maliput::api::LanePosition lane_position = LanePositionFromCLI(&(argv[3]));
 
     query.ToInertialPosition(lane_id, lane_position);
   } else if (command.name.compare("GetMaxSpeedLimit") == 0) {
-    const maliput::api::LaneId lane_id = LaneIdFromCLI(&(argv[3]));
+    const maliput::api::LaneId lane_id = LaneIdFromCLI(&(argv[2]));
 
     query.GetMaxSpeedLimit(lane_id);
   } else if (command.name.compare("GetDirectionUsage") == 0) {
-    const maliput::api::LaneId lane_id = LaneIdFromCLI(&(argv[3]));
+    const maliput::api::LaneId lane_id = LaneIdFromCLI(&(argv[2]));
 
     query.GetDirectionUsage(lane_id);
   } else if (command.name.compare("GetRightOfWay") == 0) {
-    const maliput::api::LaneSRange lane_s_range = LaneSRangeFromCLI(&(argv[3]));
+    const maliput::api::LaneSRange lane_s_range = LaneSRangeFromCLI(&(argv[2]));
 
     query.GetRightOfWay(lane_s_range);
   } else if (command.name.compare("GetPhaseRightOfWay") == 0) {
-    const maliput::api::rules::PhaseRing::Id phase_ring_id = PhaseRingIdFromCLI(&(argv[3]));
-    const maliput::api::rules::Phase::Id phase_id = PhaseIdFromCLI(&(argv[4]));
+    const maliput::api::rules::PhaseRing::Id phase_ring_id = PhaseRingIdFromCLI(&(argv[2]));
+    const maliput::api::rules::Phase::Id phase_id = PhaseIdFromCLI(&(argv[3]));
 
     query.GetPhaseRightOfWay(phase_ring_id, phase_id);
   } else if (command.name.compare("GetDiscreteValueRules") == 0) {
-    const maliput::api::LaneSRange lane_s_range = LaneSRangeFromCLI(&(argv[3]));
+    const maliput::api::LaneSRange lane_s_range = LaneSRangeFromCLI(&(argv[2]));
 
     query.GetDiscreteValueRule(lane_s_range);
   } else if (command.name.compare("GetRangeValueRules") == 0) {
-    const maliput::api::LaneSRange lane_s_range = LaneSRangeFromCLI(&(argv[3]));
+    const maliput::api::LaneSRange lane_s_range = LaneSRangeFromCLI(&(argv[2]));
 
     query.GetRangeValueRule(lane_s_range);
   } else if (command.name.compare("GetLaneBounds") == 0) {
-    const maliput::api::LaneId lane_id = LaneIdFromCLI(&(argv[3]));
-    const double s = SFromCLI(&(argv[4]));
+    const maliput::api::LaneId lane_id = LaneIdFromCLI(&(argv[2]));
+    const double s = SFromCLI(&(argv[3]));
 
     query.GetLaneBounds(lane_id, s);
   }
