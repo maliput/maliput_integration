@@ -139,6 +139,7 @@ const std::map<const std::string, const Command> CommandsUsage() {
         {"Obtains the segment and lane bounds of lane_id at s position. Return strings would be: ",
          "[segment_bounds.min, lane_bounds.min, lane_bounds.max, segment_bounds.max]."},
         3}},
+      {"GetLaneLength", {"GetLaneLength", "GetLaneLength lane_id", {"Obtains the length of the lane."}, 2}},
   };
 }
 
@@ -519,6 +520,16 @@ class RoadNetworkQuery {
             << segment_bounds.max() << "]" << std::endl;
   }
 
+  /// Gets the lane length for `lane_id`.
+  void GetLaneLength(const maliput::api::LaneId& lane_id) {
+    const maliput::api::Lane* lane = rn_->road_geometry()->ById().GetLane(lane_id);
+    if (lane == nullptr) {
+      std::cerr << " Could not find lane. " << std::endl;
+      return;
+    }
+    (*out_) << "Lane length for  " << lane_id.string() << ":    [" << lane->length() << "]" << std::endl;
+  }
+
  private:
   // Finds QueryResults of Rules for `lane_id`.
   maliput::api::rules::RoadRulebook::QueryResults FindRulesFor(const maliput::api::LaneId& lane_id) {
@@ -724,6 +735,10 @@ int Main(int argc, char* argv[]) {
     const double s = SFromCLI(&(argv[3]));
 
     query.GetLaneBounds(lane_id, s);
+  } else if (command.name.compare("GetLaneLength") == 0) {
+    const maliput::api::LaneId lane_id = LaneIdFromCLI(&(argv[2]));
+
+    query.GetLaneLength(lane_id);
   }
 
   return 0;
