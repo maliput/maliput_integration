@@ -105,10 +105,14 @@ int Main(int argc, char* argv[]) {
       "Plugin type: {}",
       (maliput_plugin->GetType() == maliput::plugin::MaliputPluginType::kRoadNetworkLoader ? "RoadNetworkLoader"
                                                                                            : "unknown"));
-  // create an instance of the class
-  std::unique_ptr<maliput::plugin::RoadNetworkLoader> road_network_loader =
-      maliput_plugin->ExecuteSymbol<std::unique_ptr<maliput::plugin::RoadNetworkLoader>>(
+  // Creates an instance of the RoadNetwork loader.
+  maliput::plugin::RoadNetworkLoaderPtr rn_loader_ptr =
+      maliput_plugin->ExecuteSymbol<maliput::plugin::RoadNetworkLoaderPtr>(
           maliput::plugin::RoadNetworkLoader::GetEntryPoint());
+  std::unique_ptr<maliput::plugin::RoadNetworkLoader> road_network_loader{
+      reinterpret_cast<maliput::plugin::RoadNetworkLoader*>(rn_loader_ptr)};
+
+  // Generates the maliput::api::RoadNetwork.
   std::unique_ptr<const maliput::api::RoadNetwork> rn = (*road_network_loader)(parameters);
 
   if (rn == nullptr) {
