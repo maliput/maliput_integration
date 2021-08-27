@@ -527,7 +527,8 @@ class RoadNetworkQuery {
       std::cerr << " Could not find lane. " << std::endl;
       return;
     }
-    (*out_) << "Lane length for  " << lane_id.string() << ":    [" << lane->length() << "]" << std::endl;
+    (*out_) << "Lane length for  " << lane_id.string() << ":    [" << std::to_string(lane->length()) << " m]"
+            << std::endl;
   }
 
  private:

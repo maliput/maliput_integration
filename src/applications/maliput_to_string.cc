@@ -34,7 +34,7 @@ MALIPUT_APPLICATION_DEFINE_LOG_LEVEL_FLAG();
 
 DEFINE_string(maliput_backend, "malidrive",
               "Whether to use <dragway>, <multilane> or <malidrive>. Default is malidrive.");
-
+DEFINE_bool(check_invariants, false, "Whether to enable maliput invariants verification.");
 // Gflags to select options for serialization.
 DEFINE_bool(include_type_labels, false, "Whether to include type labels in the output string");
 DEFINE_bool(include_road_geometry_id, false, "Whether to include road geometry IDs in the output string");
@@ -61,6 +61,15 @@ int Main(int argc, char* argv[]) {
        FLAGS_road_rule_book_file, FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file,
        FLAGS_intersection_book_file});
   log()->info("RoadNetwork loaded successfully.");
+  if (FLAGS_check_invariants) {
+    log()->info("Checking invariants...");
+    const auto violations = rn->road_geometry()->CheckInvariants();
+    violations.empty() ? log()->info("No invariant violations were found.")
+                       : log()->warn("{} invariant violations were found: ", violations.size());
+    for (const auto& v : violations) {
+      log()->warn(v);
+    }
+  }
 
   const maliput::utility::GenerateStringOptions options{FLAGS_include_type_labels,  FLAGS_include_road_geometry_id,
                                                         FLAGS_include_junction_ids, FLAGS_include_segment_ids,
