@@ -64,9 +64,10 @@ int Main(int argc, char* argv[]) {
   if (FLAGS_check_invariants) {
     log()->info("Checking invariants...");
     const auto violations = rn->road_geometry()->CheckInvariants();
-    log()->info("{} violations were found: ", violations.size());
+    violations.empty() ? log()->info("No invariant violations were found.")
+                       : log()->warn("{} invariant violations were found: ", violations.size());
     for (const auto& v : violations) {
-      std::cout << v << std::endl;
+      log()->warn(v);
     }
   }
 
