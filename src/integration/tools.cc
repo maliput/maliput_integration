@@ -17,7 +17,6 @@
 #include <maliput/common/logger.h>
 #include <maliput/common/maliput_abort.h>
 #include <maliput_dragway/road_geometry.h>
-#include <maliput_malidrive/base/inertial_to_lane_mapping_config.h>
 #include <maliput_malidrive/builder/road_network_builder.h>
 #include <maliput_malidrive/loader/loader.h>
 #include <maliput_multilane/builder.h>
@@ -118,8 +117,6 @@ std::unique_ptr<const api::RoadNetwork> CreateMalidriveRoadNetwork(const Malidri
       malidrive::constants::kAngularTolerance,
       malidrive::constants::kScaleLength,
       maliput::math::Vector3(0, 0, 0),
-      malidrive::InertialToLaneMappingConfig(malidrive::constants::kExplorationRadius,
-                                             malidrive::constants::kNumIterations),
       {malidrive::builder::BuildPolicy::FromStrToType(build_properties.build_policy),
        build_properties.number_of_threads == 0 ? std::nullopt : std::make_optional(build_properties.number_of_threads)},
       malidrive::builder::RoadGeometryConfiguration::FromStrToSimplificationPolicy(
