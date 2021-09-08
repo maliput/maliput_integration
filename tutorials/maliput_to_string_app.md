@@ -17,8 +17,6 @@ Depending on the maliput backend that is selected different flags related to the
  - maliput_dragway backend: See DRAGWAY_PROPERTIES_FLAGS().
 
 
-Let's see some examples:
-
 ### Using maliput_malidrive backend
 
 ```bash
@@ -62,7 +60,7 @@ Output:
 ```
 All the maliput::api::Lane IDs are printed as `--include_lane_ids` flag was added.
 
-_Note: To increase verbosity the log level could be adjust to `TRACE` by adding the `--log_level=trace` flag._
+_Note: To increase verbosity the log level could be adjusted to `TRACE` by adding the `--log_level=trace` flag._
 
 ### Using maliput_multilane backend
 
@@ -137,8 +135,8 @@ Dragway_Lane_2
 
 ## More available options
 
-As mentioned before, `maliput_to_string` application has several arguments that can be used. All of them can be accessed by doing `--help`
+As mentioned before, `maliput_to_string` application has several arguments that can be used. All of them can be accessed by running `maliput_to_string --help`.
 
-`--check_invariants`: *Whether to enable maliput invariants verification. See maliput::api::RoadGeometry::CheckInvariants()*
+Use `--check_invariants` to enable maliput invariants verification. See maliput::api::RoadGeometry::CheckInvariants() .
 
-`--log_level`: *Sets the log output threshold; possible values: maliput::common::logger::level. By default set to `unchanged`.*
+Use `--log_level` to set the log output See possible values at maliput::common::logger::level. By default set to `unchanged`.
