@@ -646,8 +646,8 @@ double SFromCLI(char** argv) {
 }
 
 int Main(int argc, char* argv[]) {
-  gflags::ParseCommandLineFlags(&argc, &argv, true);
   gflags::SetUsageMessage(GetUsageMessage());
+  gflags::ParseCommandLineFlags(&argc, &argv, true);
   if (argc < 2) {
     gflags::ShowUsageWithFlags(argv[0]);
     return 1;
@@ -662,11 +662,6 @@ int Main(int argc, char* argv[]) {
 
   log()->info("Loading road network using {} backend implementation...", FLAGS_maliput_backend);
   const MaliputImplementation maliput_implementation{StringToMaliputImplementation(FLAGS_maliput_backend)};
-  // TODO(#): Extend this app to support other implementations than malidrive.
-  if (maliput_implementation != MaliputImplementation::kMalidrive) {
-    log()->error("maliput_query app only supports malidrive implementation for now.");
-    return 1;
-  }
   auto rn = LoadRoadNetwork(
       maliput_implementation,
       {FLAGS_num_lanes, FLAGS_length, FLAGS_lane_width, FLAGS_shoulder_width, FLAGS_maximum_height}, {FLAGS_yaml_file},
