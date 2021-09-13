@@ -230,6 +230,7 @@ std::ostream& operator<<(std::ostream& out, const maliput::api::rules::RightOfWa
 std::string GetUsageMessage() {
   std::stringstream ss;
   ss << "CLI for easy Malidrive road networks querying" << std::endl << std::endl;
+  ss << "  maliput_query -- <command> <arg1> <arg2> ... <argN> " << std::endl << std::endl;
   ss << "  Supported commands:" << std::endl;
   const std::map<const std::string, const Command> command_usage = CommandsUsage();
   for (auto it = command_usage.begin(); it != command_usage.end(); ++it) {
@@ -239,6 +240,14 @@ std::string GetUsageMessage() {
     }
     ss << std::endl;
   }
+  ss << "  Examples of use: " << std::endl;
+  ss << "    $ maliput_query --maliput_backend=malidrive --xodr_file_path=TShapeRoad.xodr -- GetLaneLength 1_0_1"
+     << std::endl;
+  ss << "    $ maliput_query --maliput_backend=malidrive --xodr_file_path=TShapeRoad.xodr -- ToRoadPosition 0.0 -1.5 "
+        "2.0"
+     << std::endl
+     << std::endl;
+
   return ss.str();
 }
 
