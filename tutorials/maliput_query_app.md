@@ -4,6 +4,10 @@
 
 `maliput_query` application has several commands that can be selected to perform queries to the maliput::api::RoadGeometry. The backends that can be selected are `maliput_malidrive`, `maliput_multilane` and `maliput_dragway`.
 
+```bash
+  maliput_query -- <command> <arg1> <arg2> ... <argN>
+```
+
 The application helps you to obtain information of the maliput::api::RoadGeometry trough queries like:
 ```
 GetLaneBounds <lane_id> <s>: To obtains the segment and lane bounds of lane_id at s position.
@@ -13,7 +17,7 @@ LaneToInertialPosition <lane_id> <s> <r> <h>: To obtain the InertialPosition for
 ToLanePosition <lane_id> <x> <y> <z>: To obtains the LanePosition in a Lane, identified by lane_id, that is closest, in the world frame, to an (x, y, z) InertialPosition.
 ```
 
-**The full list of available commands can be obtained by running: **`maliput_query --help`
+**The full list of available commands can be obtained by running:** `maliput_query --help`
 
 Depending on the maliput backend that is selected different flags related to the RoadGeometry building process will be active.
  - maliput_malidrive backend: See MALIDRIVE_PROPERTIES_FLAGS().
@@ -25,13 +29,13 @@ Depending on the maliput backend that is selected different flags related to the
 Using `maliput_query` we can obtain information about the `Inertial`-Frame coordinate that matches a given maliput::api::LanePosition.
 
 ```bash
-maliput_query LaneToInertialPosition <lane_id> <s> <r> <h>
+maliput_query -- LaneToInertialPosition <lane_id> <s> <r> <h>
 ```
 
 ### Using maliput_malidrive backend
 
 ```bash
-$ maliput_query LaneToInertialPosition 1_0_1 5 0 0 --maliput_backend=malidrive --xodr_file_path=TShapeRoad.xodr --linear_tolerance=0.05
+$ maliput_query --maliput_backend=malidrive --xodr_file_path=TShapeRoad.xodr --linear_tolerance=0.05 -- LaneToInertialPosition 1_0_1 5 0 0
 ```
 
 Output:
@@ -53,7 +57,7 @@ _Note: To increase verbosity the log level could be adjusted to `TRACE` by addin
 Similarly, `maliput_multilane` can be used.
 
 ```bash
-$  maliput_query LaneToInertialPosition l:ew_intersection_segment_0 0 0 0 --maliput_backend=multilane --yaml_file=2x2_intersection.yaml
+$  maliput_query --maliput_backend=multilane --yaml_file=2x2_intersection.yaml -- LaneToInertialPosition l:ew_intersection_segment_0 0 0 0
 ```
 
 Output:
@@ -73,7 +77,7 @@ Geometry Loaded
 Similarly, `maliput_dragway` can be used.
 
 ```bash
-$ maliput_query LaneToInertialPosition Dragway_Lane_0 5 0 0 --maliput_backend=dragway --num_lanes=3 --length=5 --lane_width=3 --shoulder_width=0.5 --maximum_height=4
+$ maliput_query --maliput_backend=dragway --num_lanes=3 --length=5 --lane_width=3 --shoulder_width=0.5 --maximum_height=4 -- LaneToInertialPosition Dragway_Lane_0 5 0 0
 ```
 
 Output:
