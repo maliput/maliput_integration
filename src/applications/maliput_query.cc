@@ -625,14 +625,8 @@ class RoadNetworkQuery {
 
   /// Gets number of lanes in the RoadGeometry.
   void GetNumberOfLanes() {
-    unsigned int num_lanes{0};
     const auto start = std::chrono::high_resolution_clock::now();
-    for (int i = 0; i < rn_->road_geometry()->num_junctions(); ++i) {
-      const auto junction = rn_->road_geometry()->junction(i);
-      for (int j = 0; j < junction->num_segments(); ++j) {
-        num_lanes += junction->segment(j)->num_lanes();
-      }
-    }
+    const std::size_t num_lanes{rn_->road_geometry()->ById().GetLanes().size()};
     const auto end = std::chrono::high_resolution_clock::now();
     (*out_) << "Number of lanes in the RoadGeometry: " << num_lanes << std::endl;
     const std::chrono::duration<double> duration = (end - start);
