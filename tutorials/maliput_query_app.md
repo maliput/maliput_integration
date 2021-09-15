@@ -47,6 +47,7 @@ Geometry Loaded
               : Result: inertial_position:(x = 59, y = 1.75, z = 0)
               : Result round_trip inertial_position(x = 59, y = 1.75, z = 0), with distance: 0
               : RoadPosition: (lane: 1_0_1, lane_pos: (s = 5, r = 0, h = 0))
+Elapsed Query Time: 1.001e-05 s
 
 ```
 
@@ -69,6 +70,7 @@ Geometry Loaded
               : Result: inertial_position:(x = -9.375, y = -1.875, z = 0)
               : Result round_trip inertial_position(x = -9.375, y = -1.875, z = 0), with distance: 0
               : RoadPosition: (lane: l:ew_intersection_segment_0, lane_pos: (s = 0, r = 0, h = 0))
+Elapsed Query Time: 2.331e-06 s
 
 ```
 
@@ -89,6 +91,8 @@ Geometry Loaded
               : Result: inertial_position:(x = 5, y = -3, z = 0)
               : Result round_trip inertial_position(x = 5, y = -3, z = 0), with distance: 0
               : RoadPosition: (lane: Dragway_Lane_0, lane_pos: (s = 5, r = 0, h = 0))
+Elapsed Query Time: 2.042e-06 s
+
 ```
 
 ## More available options

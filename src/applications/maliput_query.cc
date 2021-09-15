@@ -15,8 +15,10 @@
 ///         -intersection_book_file
 /// 2. The level of the logger could be setted by: -log_level.
 
+#include <chrono>
 #include <iostream>
 #include <map>
+#include <optional>
 #include <ostream>
 #include <sstream>
 #include <string>
@@ -138,6 +140,12 @@ const std::map<const std::string, const Command> CommandsUsage() {
         "GetLaneBounds lane_id s",
         {"Obtains the segment and lane bounds of lane_id at s position. Return strings would be: ",
          "[segment_bounds.min, lane_bounds.min, lane_bounds.max, segment_bounds.max]."},
+        3}},
+      {"GetSegmentBounds",
+       {"GetSegmentBounds",
+        "GetSegmentBounds segment_id s",
+        {"Obtains the segment bounds of segment_id at s position. Return strings would be: ",
+         "[segment_bounds.min, segment_bounds.max]."},
         3}},
       {"GetLaneLength", {"GetLaneLength", "GetLaneLength lane_id", {"Obtains the length of the lane."}, 2}},
   };
@@ -269,27 +277,36 @@ class RoadNetworkQuery {
   }
 
   /// Redirects `inertial_position` and `radius` to RoadGeometry::FindRoadPosition().
-  void FindRoadPositions(const maliput::api::InertialPosition& inertial_position, double radius) {
+  /// @returns The time in seconds that the query takes.
+  std::optional<double> FindRoadPositions(const maliput::api::InertialPosition& inertial_position, double radius) {
+    const auto start = std::chrono::high_resolution_clock::now();
     const std::vector<maliput::api::RoadPositionResult> results =
         rn_->road_geometry()->FindRoadPositions(inertial_position, radius);
+    const auto end = std::chrono::high_resolution_clock::now();
 
     (*out_) << "FindRoadPositions(inertial_position:" << inertial_position << ", radius: " << radius << ")"
             << std::endl;
     for (const maliput::api::RoadPositionResult& result : results) {
       (*out_) << "              : Result: " << result << std::endl;
     }
+    const std::chrono::duration<double> duration = (end - start);
+    return duration.count();
   }
 
   /// Redirects `lane_position` to `lane_id`'s Lane::ToInertialPosition().
-  void ToInertialPosition(const maliput::api::LaneId& lane_id, const maliput::api::LanePosition& lane_position) {
+  /// @returns The time in seconds that the query takes.
+  std::optional<double> ToInertialPosition(const maliput::api::LaneId& lane_id,
+                                           const maliput::api::LanePosition& lane_position) {
     const maliput::api::Lane* lane = rn_->road_geometry()->ById().GetLane(lane_id);
 
     if (lane == nullptr) {
       (*out_) << "              : Result: Could not find lane. " << std::endl;
-      return;
+      return std::nullopt;
     }
 
+    const auto start = std::chrono::high_resolution_clock::now();
     const maliput::api::InertialPosition inertial_position = lane->ToInertialPosition(lane_position);
+    const auto end = std::chrono::high_resolution_clock::now();
 
     (*out_) << "(" << lane_id.string() << ")->ToInertialPosition(lane_position: " << lane_position << ")" << std::endl;
     (*out_) << "              : Result: inertial_position:" << inertial_position << std::endl;
@@ -300,52 +317,73 @@ class RoadNetworkQuery {
     (*out_) << "              : Result round_trip inertial_position" << result.nearest_position
             << ", with distance: " << result.distance << std::endl;
     (*out_) << "              : RoadPosition: " << result.road_position << std::endl;
+    const std::chrono::duration<double> duration = (end - start);
+    return duration.count();
   }
 
   /// Redirects `inertial_position` to `lane_id`'s Lane::ToLanePosition().
-  void ToLanePosition(const maliput::api::LaneId& lane_id, const maliput::api::InertialPosition& inertial_position) {
+  /// @returns The time in seconds that the query takes.
+  std::optional<double> ToLanePosition(const maliput::api::LaneId& lane_id,
+                                       const maliput::api::InertialPosition& inertial_position) {
     const maliput::api::Lane* lane = rn_->road_geometry()->ById().GetLane(lane_id);
     if (lane == nullptr) {
       (*out_) << "              : Result: Could not find lane. " << std::endl;
-      return;
+      return std::nullopt;
     }
 
+    const auto start = std::chrono::high_resolution_clock::now();
     const maliput::api::LanePositionResult lane_position_result = lane->ToLanePosition(inertial_position);
+    const auto end = std::chrono::high_resolution_clock::now();
 
     (*out_) << "(" << lane_id.string() << ")->ToLanePosition(inertial_position: " << inertial_position << ")"
             << std::endl;
     (*out_) << "              : Result: lane_pos:" << lane_position_result.lane_position
             << ", nearest_pos: " << lane_position_result.nearest_position
             << ", with distance: " << lane_position_result.distance << std::endl;
+    const std::chrono::duration<double> duration = (end - start);
+    return duration.count();
   }
 
   /// Redirects `lane_position` to `lane_id`'s Lane::GetOrientation().
-  void GetOrientation(const maliput::api::LaneId& lane_id, const maliput::api::LanePosition& lane_position) {
+  /// @returns The time in seconds that the query takes.
+  std::optional<double> GetOrientation(const maliput::api::LaneId& lane_id,
+                                       const maliput::api::LanePosition& lane_position) {
     const maliput::api::Lane* lane = rn_->road_geometry()->ById().GetLane(lane_id);
 
     if (lane == nullptr) {
       (*out_) << "              : Result: Could not find lane. " << std::endl;
-      return;
+      return std::nullopt;
     }
 
+    const auto start = std::chrono::high_resolution_clock::now();
     const maliput::api::Rotation rotation = lane->GetOrientation(lane_position);
+    const auto end = std::chrono::high_resolution_clock::now();
 
     (*out_) << "(" << lane_id.string() << ")->GetOrientation(lane_position: " << lane_position << ")" << std::endl;
     (*out_) << "              : Result: orientation:" << rotation << std::endl;
+    const std::chrono::duration<double> duration = (end - start);
+    return duration.count();
   }
 
   /// Redirects `inertial_position` to RoadGeometry::ToRoadPosition().
-  void ToRoadPosition(const maliput::api::InertialPosition& inertial_position) {
+  /// @returns The time in seconds that the query takes.
+  std::optional<double> ToRoadPosition(const maliput::api::InertialPosition& inertial_position) {
+    const auto start = std::chrono::high_resolution_clock::now();
     const maliput::api::RoadPositionResult result = rn_->road_geometry()->ToRoadPosition(inertial_position);
+    const auto end = std::chrono::high_resolution_clock::now();
 
     (*out_) << "ToRoadPosition(inertial_position: " << inertial_position << ")" << std::endl;
     (*out_) << "              : Result: nearest_pos:" << result.nearest_position
             << " with distance: " << result.distance << std::endl;
     (*out_) << "                RoadPosition: " << result.road_position << std::endl;
+    const std::chrono::duration<double> duration = (end - start);
+    return duration.count();
   }
 
   /// Looks for all the maximum speed limits allowed at `lane_id`.
-  void GetMaxSpeedLimit(const maliput::api::LaneId& lane_id) {
+  /// @returns The time in seconds that the query takes.
+  std::optional<double> GetMaxSpeedLimit(const maliput::api::LaneId& lane_id) {
+    const auto start = std::chrono::high_resolution_clock::now();
     const maliput::api::rules::RoadRulebook::QueryResults query_result = FindRulesFor(lane_id);
 
     const int n_speed_limits = static_cast<int>(query_result.speed_limit.size());
@@ -363,10 +401,15 @@ class RoadNetworkQuery {
     } else {
       (*out_) << "There is no speed limit found for this lane" << std::endl;
     }
+    const auto end = std::chrono::high_resolution_clock::now();
+    const std::chrono::duration<double> duration = (end - start);
+    return duration.count();
   }
 
   /// Looks for all the direction usages at `lane_id`.
-  void GetDirectionUsage(const maliput::api::LaneId& lane_id) {
+  /// @returns The time in seconds that the query takes.
+  std::optional<double> GetDirectionUsage(const maliput::api::LaneId& lane_id) {
+    const auto start = std::chrono::high_resolution_clock::now();
     const maliput::api::rules::RoadRulebook::QueryResults query_result = FindRulesFor(lane_id);
 
     const int n_rules = static_cast<int>(query_result.direction_usage.size());
@@ -379,7 +422,7 @@ class RoadNetworkQuery {
           const int state_type = int(state.second.type());
           if (state_type < 0 || state_type >= int(direction_usage_names.size())) {
             (*out_) << "              : Result: Invalid direction usage rule. " << std::endl;
-            return;
+            return std::nullopt;
           }
 
           (*out_) << "              : Result: Rule (" << direction_rule.second.id().string()
@@ -390,10 +433,15 @@ class RoadNetworkQuery {
       (*out_) << "              : Result: There is no direction usage rules "
               << "found for this lane" << std::endl;
     }
+    const auto end = std::chrono::high_resolution_clock::now();
+    const std::chrono::duration<double> duration = (end - start);
+    return duration.count();
   }
 
   /// Gets all right-of-way rules for the given `lane_s_range`.
-  void GetRightOfWay(const maliput::api::LaneSRange& lane_s_range) {
+  /// @returns The time in seconds that the query takes.
+  std::optional<double> GetRightOfWay(const maliput::api::LaneSRange& lane_s_range) {
+    const auto start = std::chrono::high_resolution_clock::now();
     const maliput::api::rules::RoadRulebook::QueryResults results = rn_->rulebook()->FindRules({lane_s_range}, 0.);
     maliput::api::rules::RightOfWayRuleStateProvider* right_of_way_rule_state_provider =
         rn_->right_of_way_rule_state_provider();
@@ -418,10 +466,15 @@ class RoadNetworkQuery {
       }
       (*out_) << ", static: " << (rule.second.is_static() ? "yes" : "no") << ")" << std::endl << std::endl;
     }
+    const auto end = std::chrono::high_resolution_clock::now();
+    const std::chrono::duration<double> duration = (end - start);
+    return duration.count();
   }
 
   /// Gets all discrete-value-rules rules for the given `lane_s_range`.
-  void GetDiscreteValueRule(const maliput::api::LaneSRange& lane_s_range) {
+  /// @returns The time in seconds that the query takes.
+  std::optional<double> GetDiscreteValueRule(const maliput::api::LaneSRange& lane_s_range) {
+    const auto start = std::chrono::high_resolution_clock::now();
     const maliput::api::rules::RoadRulebook::QueryResults results = rn_->rulebook()->FindRules({lane_s_range}, 0.);
     maliput::api::rules::DiscreteValueRuleStateProvider* state_provider = rn_->discrete_value_rule_state_provider();
     (*out_) << "DiscreteValueRules for " << lane_s_range << ":" << std::endl;
@@ -444,10 +497,15 @@ class RoadNetworkQuery {
 
       (*out_) << ")" << std::endl << std::endl;
     }
+    const auto end = std::chrono::high_resolution_clock::now();
+    const std::chrono::duration<double> duration = (end - start);
+    return duration.count();
   }
 
   /// Gets all range-value-rules rules for the given `lane_s_range`.
-  void GetRangeValueRule(const maliput::api::LaneSRange& lane_s_range) {
+  /// @returns The time in seconds that the query takes.
+  std::optional<double> GetRangeValueRule(const maliput::api::LaneSRange& lane_s_range) {
+    const auto start = std::chrono::high_resolution_clock::now();
     const maliput::api::rules::RoadRulebook::QueryResults results = rn_->rulebook()->FindRules({lane_s_range}, 0.);
     maliput::api::rules::RangeValueRuleStateProvider* state_provider = rn_->range_value_rule_state_provider();
     (*out_) << "RangeValueRules for " << lane_s_range << ":" << std::endl;
@@ -471,35 +529,40 @@ class RoadNetworkQuery {
 
       (*out_) << ")" << std::endl << std::endl;
     }
+    const auto end = std::chrono::high_resolution_clock::now();
+    const std::chrono::duration<double> duration = (end - start);
+    return duration.count();
   }
 
   /// Gets all right-of-way rules' states for a given phase in a given phase
   /// ring.
-  void GetPhaseRightOfWay(const maliput::api::rules::PhaseRing::Id& phase_ring_id,
-                          const maliput::api::rules::Phase::Id& phase_id) {
+  /// @returns The time in seconds that the query takes.
+  std::optional<double> GetPhaseRightOfWay(const maliput::api::rules::PhaseRing::Id& phase_ring_id,
+                                           const maliput::api::rules::Phase::Id& phase_id) {
+    const auto start = std::chrono::high_resolution_clock::now();
     const maliput::api::rules::PhaseRingBook* phase_ring_book = rn_->phase_ring_book();
     if (phase_ring_book == nullptr) {
       (*out_) << "Road network has no phase ring book" << std::endl;
-      return;
+      return std::nullopt;
     }
 
     const maliput::api::rules::RoadRulebook* road_rule_book = rn_->rulebook();
     if (road_rule_book == nullptr) {
       (*out_) << "Road network has no road rule book" << std::endl;
-      return;
+      return std::nullopt;
     }
 
     std::optional<maliput::api::rules::PhaseRing> phase_ring = phase_ring_book->GetPhaseRing(phase_ring_id);
     if (!phase_ring.has_value()) {
       (*out_) << "'" << phase_ring_id.string() << "' is not a known phase ring" << std::endl;
-      return;
+      return std::nullopt;
     }
 
     auto it = phase_ring->phases().find(phase_id);
     if (it == phase_ring->phases().end()) {
       (*out_) << "'" << phase_id.string() << "' is not a phase in phase ring '" << phase_ring_id.string() << "'"
               << std::endl;
-      return;
+      return std::nullopt;
     }
 
     const maliput::api::rules::Phase& phase = it->second;
@@ -513,31 +576,66 @@ class RoadNetworkQuery {
               << std::endl
               << std::endl;
     }
+    const auto end = std::chrono::high_resolution_clock::now();
+    const std::chrono::duration<double> duration = (end - start);
+    return duration.count();
   }
 
   /// Gets a lane boundaries for `lane_id` at `s`.
-  void GetLaneBounds(const maliput::api::LaneId& lane_id, double s) {
+  /// @returns The time in seconds that the query takes.
+  std::optional<double> GetLaneBounds(const maliput::api::LaneId& lane_id, double s) {
     const maliput::api::Lane* lane = rn_->road_geometry()->ById().GetLane(lane_id);
     if (lane == nullptr) {
       std::cerr << " Could not find lane. " << std::endl;
-      return;
+      return std::nullopt;
     }
     const maliput::api::RBounds segment_bounds = lane->segment_bounds(s);
+
+    const auto start = std::chrono::high_resolution_clock::now();
     const maliput::api::RBounds lane_bounds = lane->lane_bounds(s);
+    const auto end = std::chrono::high_resolution_clock::now();
+
     (*out_) << "Lateral boundaries for  " << lane_id.string() << ":" << std::endl
             << "    [" << segment_bounds.min() << "; " << lane_bounds.min() << "; " << lane_bounds.max() << "; "
             << segment_bounds.max() << "]" << std::endl;
+    const std::chrono::duration<double> duration = (end - start);
+    return duration.count();
+  }
+
+  /// Gets a segment boundary for `segment_id` at `s`.
+  /// @returns The time in seconds that the query takes.
+  std::optional<double> GetSegmentBounds(const maliput::api::SegmentId& segment_id, double s) {
+    const maliput::api::Segment* segment = rn_->road_geometry()->ById().GetSegment(segment_id);
+    if (segment == nullptr) {
+      std::cerr << " Could not find segment. " << std::endl;
+      return std::nullopt;
+    }
+    // Segments bounds are computed from a Lane.
+    const auto start = std::chrono::high_resolution_clock::now();
+    const maliput::api::RBounds segment_bounds = segment->lane(0)->segment_bounds(s);
+    const auto end = std::chrono::high_resolution_clock::now();
+
+    (*out_) << "Segment boundaries for segment " << segment_id.string() << ":" << std::endl
+            << "    [" << segment_bounds.min() << "; " << segment_bounds.max() << "]" << std::endl;
+
+    const std::chrono::duration<double> duration = (end - start);
+    return duration.count();
   }
 
   /// Gets the lane length for `lane_id`.
-  void GetLaneLength(const maliput::api::LaneId& lane_id) {
+  /// @returns The time in seconds that the query takes.
+  std::optional<double> GetLaneLength(const maliput::api::LaneId& lane_id) {
     const maliput::api::Lane* lane = rn_->road_geometry()->ById().GetLane(lane_id);
+    const auto start = std::chrono::high_resolution_clock::now();
+    const double length = lane->length();
+    const auto end = std::chrono::high_resolution_clock::now();
     if (lane == nullptr) {
       std::cerr << " Could not find lane. " << std::endl;
-      return;
+      return std::nullopt;
     }
-    (*out_) << "Lane length for  " << lane_id.string() << ":    [" << std::to_string(lane->length()) << " m]"
-            << std::endl;
+    (*out_) << "Lane length for  " << lane_id.string() << ":    [" << std::to_string(length) << " m]" << std::endl;
+    const std::chrono::duration<double> duration = (end - start);
+    return duration.count();
   }
 
  private:
@@ -566,6 +664,14 @@ class RoadNetworkQuery {
 maliput::api::LaneId LaneIdFromCLI(char** argv) {
   MALIPUT_DEMAND(argv != nullptr);
   return maliput::api::LaneId(std::string(*argv));
+}
+
+/// @return A SegmentId whose string representation is `*argv`.
+/// @pre `argv` is not nullptr.
+/// @warning This function will abort if preconditions are not met.
+maliput::api::SegmentId SegmentIdFromCLI(char** argv) {
+  MALIPUT_DEMAND(argv != nullptr);
+  return maliput::api::SegmentId(std::string(*argv));
 }
 
 /// @return A PhaseRing::Id whose string representation is `*argv`.
@@ -654,16 +760,30 @@ double SFromCLI(char** argv) {
   return s;
 }
 
+/// Prints the elapsed query time which is contained at @p sec.
+/// Wheb @p sec is nullopt no time is printed.
+void PrintQueryTime(std::optional<double> sec) {
+  if (sec.has_value()) {
+    std::cout << "Elapsed Query Time: " << sec.value() << " s" << std::endl;
+  }
+}
+
 int Main(int argc, char* argv[]) {
   gflags::SetUsageMessage(GetUsageMessage());
   gflags::ParseCommandLineFlags(&argc, &argv, true);
   if (argc < 2) {
-    gflags::ShowUsageWithFlags(argv[0]);
+    maliput::log()->error("Not valid command provided.\nRun 'maliput_query --help' for help.\n");
     return 1;
   }
-  const Command command = CommandsUsage().find(argv[1])->second;
+  const auto commands_usage = CommandsUsage();
+  const auto command_it = commands_usage.find(argv[1]);
+  if (command_it == commands_usage.end()) {
+    maliput::log()->error("Not valid command provided: {}\nRun 'maliput_query --help' for help.\n", argv[1]);
+    return 1;
+  }
+  const Command command = command_it->second;
   if (argc != command.num_arguments + 1) {
-    gflags::ShowUsageWithFlags(argv[0]);
+    maliput::log()->error("Missing arguments for command: {}\nRun 'maliput_query --help' for help.\n", command.usage);
     return 1;
   }
 
@@ -678,72 +798,75 @@ int Main(int argc, char* argv[]) {
        FLAGS_tolerance_selection_policy, FLAGS_standard_strictness_policy, FLAGS_omit_nondrivable_lanes,
        FLAGS_road_rule_book_file, FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file,
        FLAGS_intersection_book_file});
-  log()->info("RoadNetwork loaded successfully.");
-
   MALIPUT_DEMAND(rn != nullptr);
+  log()->info("RoadNetwork loaded successfully.");
 
   auto rn_ptr = rn.get();
   RoadNetworkQuery query(&std::cout, const_cast<maliput::api::RoadNetwork*>(rn_ptr));
-  std::cout << "Geometry Loaded" << std::endl;
 
   if (command.name.compare("FindRoadPositions") == 0) {
     const maliput::api::InertialPosition inertial_position = InertialPositionFromCLI(&(argv[2]));
     const double radius = RadiusFromCLI(&(argv[5]));
 
-    query.FindRoadPositions(inertial_position, radius);
+    PrintQueryTime(query.FindRoadPositions(inertial_position, radius));
   } else if (command.name.compare("ToRoadPosition") == 0) {
     const maliput::api::InertialPosition inertial_position = InertialPositionFromCLI(&(argv[2]));
 
-    query.ToRoadPosition(inertial_position);
+    PrintQueryTime(query.ToRoadPosition(inertial_position));
   } else if (command.name.compare("ToLanePosition") == 0) {
     const maliput::api::LaneId lane_id = LaneIdFromCLI(&(argv[2]));
     const maliput::api::InertialPosition inertial_position = InertialPositionFromCLI(&(argv[3]));
 
-    query.ToLanePosition(lane_id, inertial_position);
+    PrintQueryTime(query.ToLanePosition(lane_id, inertial_position));
   } else if (command.name.compare("GetOrientation") == 0) {
     const maliput::api::LaneId lane_id = LaneIdFromCLI(&(argv[2]));
     const maliput::api::LanePosition lane_position = LanePositionFromCLI(&(argv[3]));
 
-    query.GetOrientation(lane_id, lane_position);
+    PrintQueryTime(query.GetOrientation(lane_id, lane_position));
   } else if (command.name.compare("LaneToInertialPosition") == 0) {
     const maliput::api::LaneId lane_id = LaneIdFromCLI(&(argv[2]));
     const maliput::api::LanePosition lane_position = LanePositionFromCLI(&(argv[3]));
 
-    query.ToInertialPosition(lane_id, lane_position);
+    PrintQueryTime(query.ToInertialPosition(lane_id, lane_position));
   } else if (command.name.compare("GetMaxSpeedLimit") == 0) {
     const maliput::api::LaneId lane_id = LaneIdFromCLI(&(argv[2]));
 
-    query.GetMaxSpeedLimit(lane_id);
+    PrintQueryTime(query.GetMaxSpeedLimit(lane_id));
   } else if (command.name.compare("GetDirectionUsage") == 0) {
     const maliput::api::LaneId lane_id = LaneIdFromCLI(&(argv[2]));
 
-    query.GetDirectionUsage(lane_id);
+    PrintQueryTime(query.GetDirectionUsage(lane_id));
   } else if (command.name.compare("GetRightOfWay") == 0) {
     const maliput::api::LaneSRange lane_s_range = LaneSRangeFromCLI(&(argv[2]));
 
-    query.GetRightOfWay(lane_s_range);
+    PrintQueryTime(query.GetRightOfWay(lane_s_range));
   } else if (command.name.compare("GetPhaseRightOfWay") == 0) {
     const maliput::api::rules::PhaseRing::Id phase_ring_id = PhaseRingIdFromCLI(&(argv[2]));
     const maliput::api::rules::Phase::Id phase_id = PhaseIdFromCLI(&(argv[3]));
 
-    query.GetPhaseRightOfWay(phase_ring_id, phase_id);
+    PrintQueryTime(query.GetPhaseRightOfWay(phase_ring_id, phase_id));
   } else if (command.name.compare("GetDiscreteValueRules") == 0) {
     const maliput::api::LaneSRange lane_s_range = LaneSRangeFromCLI(&(argv[2]));
 
-    query.GetDiscreteValueRule(lane_s_range);
+    PrintQueryTime(query.GetDiscreteValueRule(lane_s_range));
   } else if (command.name.compare("GetRangeValueRules") == 0) {
     const maliput::api::LaneSRange lane_s_range = LaneSRangeFromCLI(&(argv[2]));
 
-    query.GetRangeValueRule(lane_s_range);
+    PrintQueryTime(query.GetRangeValueRule(lane_s_range));
   } else if (command.name.compare("GetLaneBounds") == 0) {
     const maliput::api::LaneId lane_id = LaneIdFromCLI(&(argv[2]));
     const double s = SFromCLI(&(argv[3]));
 
-    query.GetLaneBounds(lane_id, s);
+    PrintQueryTime(query.GetLaneBounds(lane_id, s));
+  } else if (command.name.compare("GetSegmentBounds") == 0) {
+    const maliput::api::SegmentId segment_id = SegmentIdFromCLI(&(argv[2]));
+    const double s = SFromCLI(&(argv[3]));
+
+    PrintQueryTime(query.GetSegmentBounds(segment_id, s));
   } else if (command.name.compare("GetLaneLength") == 0) {
     const maliput::api::LaneId lane_id = LaneIdFromCLI(&(argv[2]));
 
-    query.GetLaneLength(lane_id);
+    PrintQueryTime(query.GetLaneLength(lane_id));
   }
 
   return 0;
