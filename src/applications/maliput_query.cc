@@ -148,6 +148,8 @@ const std::map<const std::string, const Command> CommandsUsage() {
         {"Obtains the segment bounds of segment_id at s position. Return strings would be: ",
          "[segment_bounds.min, segment_bounds.max]."},
         3}},
+      {"GetNumberOfLanes",
+       {"GetNumberOfLanes", "GetNumberOfLanes", {"Obtains number of lanes in the RoadGeometry."}, 1}},
   };
 }
 
@@ -621,6 +623,16 @@ class RoadNetworkQuery {
     PrintQueryTime(duration.count());
   }
 
+  /// Gets number of lanes in the RoadGeometry.
+  void GetNumberOfLanes() {
+    const auto start = std::chrono::high_resolution_clock::now();
+    const std::size_t num_lanes{rn_->road_geometry()->ById().GetLanes().size()};
+    const auto end = std::chrono::high_resolution_clock::now();
+    (*out_) << "Number of lanes in the RoadGeometry: " << num_lanes << std::endl;
+    const std::chrono::duration<double> duration = (end - start);
+    PrintQueryTime(duration.count());
+  }
+
  private:
   // Prints "Elapsed Query Time: < @p sec >".
   static void PrintQueryTime(double sec) { std::cout << "Elapsed Query Time: " << sec << " s" << std::endl; }
@@ -845,6 +857,8 @@ int Main(int argc, char* argv[]) {
     const maliput::api::LaneId lane_id = LaneIdFromCLI(&(argv[2]));
 
     query.GetLaneLength(lane_id);
+  } else if (command.name.compare("GetNumberOfLanes") == 0) {
+    query.GetNumberOfLanes();
   }
 
   return 0;
