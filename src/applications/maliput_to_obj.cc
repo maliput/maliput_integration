@@ -14,7 +14,8 @@
 ///         -xodr_file_path -linear_tolerance.
 /// 2. The applications possesses flags to modify the OBJ file builder:
 ///      -obj_dir, -obj_file, -max_grid_unit, -min_grid_resolution, -draw_elevation_bounds, -simplify_mesh_threshold
-/// 3. The level of the logger could be setted by: -log_level.
+/// 3. An urdf file can also be created by passing -urdf flag.
+/// 4. The level of the logger could be setted by: -log_level.
 
 #include <limits>
 #include <string>
@@ -24,6 +25,7 @@
 #include <maliput/common/logger.h>
 #include <maliput/common/maliput_abort.h>
 #include <maliput/utilities/generate_obj.h>
+#include <maliput/utilities/generate_urdf.h>
 #include <yaml-cpp/yaml.h>
 
 #include "integration/tools.h"
@@ -35,6 +37,9 @@ MALIDRIVE_PROPERTIES_FLAGS();
 MALIPUT_APPLICATION_DEFINE_LOG_LEVEL_FLAG();
 
 DEFINE_string(maliput_backend, "dragway", "Whether to use <dragway>, <multilane> or <malidrive>. Default is dragway.");
+
+// Gflag to enable .urdf file creation.
+DEFINE_bool(urdf, false, "Enable URDF file creation.");
 
 // Gflags for output files.
 DEFINE_string(dirpath, ".", "Directory to contain rendered road surface");
@@ -90,12 +95,13 @@ int Main(int argc, char* argv[]) {
   features.simplify_mesh_threshold = FLAGS_simplify_mesh_threshold;
 
   const common::Path my_path = common::Filesystem::get_cwd();
-  FLAGS_dirpath == "." ? log()->info("OBJ files location: {}.", my_path.get_path())
-                       : log()->info("OBJ files location: {}.", FLAGS_dirpath);
+  FLAGS_dirpath == "." ? log()->info("OBJ{} files location: {}.", FLAGS_urdf ? "/URDF" : "", my_path.get_path())
+                       : log()->info("OBJ{} files location: {}.", FLAGS_urdf ? "/URDF" : "", FLAGS_dirpath);
 
-  log()->info("Generating OBJ...");
-  GenerateObjFile(rn->road_geometry(), FLAGS_dirpath, FLAGS_file_name_root, features);
-  log()->info("OBJ creation has finished.");
+  log()->info("Generating OBJ{} ...", FLAGS_urdf ? "/URDF" : "");
+  FLAGS_urdf ? GenerateUrdfFile(rn->road_geometry(), FLAGS_dirpath, FLAGS_file_name_root, features)
+             : GenerateObjFile(rn->road_geometry(), FLAGS_dirpath, FLAGS_file_name_root, features);
+  log()->info("OBJ{} creation has finished.", FLAGS_urdf ? "/URDF" : "");
 
   return 0;
 }
