@@ -36,6 +36,13 @@ Then we can open `maliput_to_obj_tutorial.obj` using any free software for visua
 $ meshlab maliput_to_obj_tutorial.obj
 ```
 
+#### Optional: Create URDF file.
+An `.urdf` file can also be created when the `--urdf` flag is passed:
+```
+$ maliput_to_obj --max_grid_unit=1 --draw_elevation_bounds=false --dirpath="." --file_name_root=maliput_to_obj_tutorial --urdf
+```
+Therefore, a `maliput_to_obj_tutorial.urdf` file will be created at the same location than the other files.
+
 ### Using maliput_malidrive backend
 
 ```bash
