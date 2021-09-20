@@ -1,20 +1,6 @@
 ##############################################################################
 # Sources
 ##############################################################################
-add_executable(maliput_to_urdf
-  maliput_to_urdf.cc
-)
-
-target_link_libraries(maliput_to_urdf
-    gflags
-    integration
-    maliput::common
-    maliput::utilities
-    maliput_dragway::maliput_dragway
-    maliput_malidrive::loader
-    maliput_multilane::maliput_multilane
-)
-
 add_executable(maliput_to_obj
   maliput_to_obj.cc
 )
@@ -111,7 +97,6 @@ install(
     maliput_to_obj
     maliput_to_string
     maliput_to_string_with_plugin
-    maliput_to_urdf
   EXPORT ${PROJECT_NAME}-targets
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
