@@ -27,7 +27,6 @@
 #include <gflags/gflags.h>
 #include <maliput/common/logger.h>
 #include <maliput/common/maliput_abort.h>
-#include <maliput_malidrive/builder/road_network_configuration.h>
 #include <maliput_malidrive/constants.h>
 #include <maliput_malidrive/utility/file_tools.h>
 
