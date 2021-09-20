@@ -20,7 +20,7 @@ Depending on the maliput backend that is selected different flags related to the
 
 A description of all the available flags can be seen by running `maliput_to_obj --help`.
 
-_Note_: This application consumes methods that are publicly provided by `maliput` package to generate OBJ files, so please refer to maliput::utilities::generate_obj.h for further information if needed.
+_Note_: This application consumes methods that are publicly provided by `maliput` package to generate OBJ files, so please refer to maliput::utility::GenerateObjFile() for further information if needed.
 
 Let's use the default values of the OBJ builder configuration flags except for `--max_grid_unit` and `--draw_elevation_bounds`, which will be disabled to better see the meshes`.
 ```
