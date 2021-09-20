@@ -4,10 +4,12 @@
 
 `maliput_to_obj` application allows to create an OBJ file from a maliput::api::RoadGeometry. The backends that can be selected to build the RoadGeometry are `maliput_malidrive`, `maliput_multilane` and `maliput_dragway`.
 
-The application possesses flags to modify the OBJ file builder configuration so as for example to select the maximum size of a grid unit in the rendered mesh or whether to draw the elevation bounds of the lanes.
+The application possesses flags to modify the OBJ mesh output. For example: the maximum size of a grid unit or whether to draw the elevation boundaries of lanes.
 
 ```
---max_grid_unit, --min_grid_resolution, --draw_elevation_bounds,
+--max_grid_unit
+--min_grid_resolution
+--draw_elevation_bounds
 --simplify_mesh_threshold
 ```
 
