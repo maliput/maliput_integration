@@ -93,8 +93,9 @@ int Main(int argc, char* argv[]) {
   FLAGS_dirpath == "." ? log()->info("OBJ files location: {}.", my_path.get_path())
                        : log()->info("OBJ files location: {}.", FLAGS_dirpath);
 
-  log()->info("Generating OBJ.");
+  log()->info("Generating OBJ...");
   GenerateObjFile(rn->road_geometry(), FLAGS_dirpath, FLAGS_file_name_root, features);
+  log()->info("OBJ creation has finished.");
 
   return 0;
 }

@@ -10,3 +10,4 @@ FILE_PATTERNS          = *.c \
                          *.hpp \
                          *.h++ \
                          */tutorials/*.md
+IMAGE_PATH             = @INPUT_DIRECTORY@/tutorials/img
