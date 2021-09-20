@@ -18,6 +18,7 @@
 #include <maliput/common/maliput_abort.h>
 #include <maliput_dragway/road_geometry.h>
 #include <maliput_malidrive/builder/road_network_builder.h>
+#include <maliput_malidrive/constants.h>
 #include <maliput_malidrive/loader/loader.h>
 #include <maliput_multilane/builder.h>
 #include <maliput_multilane/loader.h>
@@ -110,35 +111,37 @@ std::unique_ptr<const api::RoadNetwork> CreateMultilaneRoadNetwork(const Multila
 
 std::unique_ptr<const api::RoadNetwork> CreateMalidriveRoadNetwork(const MalidriveBuildProperties& build_properties) {
   maliput::log()->debug("Building malidrive RoadNetwork.");
-  const malidrive::builder::RoadGeometryConfiguration road_geometry_configuration{
-      maliput::api::RoadGeometryId("malidrive_rg"),
-      build_properties.xodr_file_path,
-      build_properties.linear_tolerance,
-      malidrive::constants::kAngularTolerance,
-      malidrive::constants::kScaleLength,
-      maliput::math::Vector3(0, 0, 0),
-      {malidrive::builder::BuildPolicy::FromStrToType(build_properties.build_policy),
-       build_properties.number_of_threads == 0 ? std::nullopt : std::make_optional(build_properties.number_of_threads)},
-      malidrive::builder::RoadGeometryConfiguration::FromStrToSimplificationPolicy(
-          build_properties.simplification_policy),
-      malidrive::builder::RoadGeometryConfiguration::FromStrToToleranceSelectionPolicy(
-          build_properties.tolerance_selection_policy),
-      malidrive::builder::RoadGeometryConfiguration::FromStrToStandardStrictnessPolicy(
-          build_properties.standard_strictness_policy),
-      build_properties.omit_nondrivable_lanes};
-  if (road_geometry_configuration.opendrive_file.empty()) {
-    MALIPUT_ABORT_MESSAGE("opendrive_file cannot be empty.");
+  MALIPUT_VALIDATE(!build_properties.xodr_file_path.empty(), "opendrive_file cannot be empty.");
+
+  std::map<std::string, std::string> road_network_configuration;
+  road_network_configuration.emplace("road_geometry_id", "malidrive_rg");
+  road_network_configuration.emplace("opendrive_file", build_properties.xodr_file_path);
+  road_network_configuration.emplace("linear_tolerance", std::to_string(build_properties.linear_tolerance));
+  road_network_configuration.emplace("angular_tolerance", std::to_string(malidrive::constants::kAngularTolerance));
+  road_network_configuration.emplace("scale_length", std::to_string(malidrive::constants::kScaleLength));
+  road_network_configuration.emplace("inertial_to_backend_frame_translation", "{0., 0., 0.}");
+  road_network_configuration.emplace("build_policy", build_properties.build_policy);
+  if (build_properties.number_of_threads != 0) {
+    road_network_configuration.emplace("num_threads", std::to_string(build_properties.number_of_threads));
   }
-  const malidrive::builder::RoadNetworkConfiguration road_network_configuration{
-      road_geometry_configuration,
-      build_properties.road_rule_book_file.empty() ? std::nullopt
-                                                   : std::make_optional(build_properties.road_rule_book_file),
-      build_properties.traffic_light_book_file.empty() ? std::nullopt
-                                                       : std::make_optional(build_properties.traffic_light_book_file),
-      build_properties.phase_ring_book_file.empty() ? std::nullopt
-                                                    : std::make_optional(build_properties.phase_ring_book_file),
-      build_properties.intersection_book_file.empty() ? std::nullopt
-                                                      : std::make_optional(build_properties.intersection_book_file)};
+  road_network_configuration.emplace("simplification_policy", build_properties.simplification_policy);
+  road_network_configuration.emplace("tolerance_selection_policy", build_properties.tolerance_selection_policy);
+  road_network_configuration.emplace("standard_strictness_policy", build_properties.standard_strictness_policy);
+  road_network_configuration.emplace("omit_nondrivable_lanes",
+                                     build_properties.omit_nondrivable_lanes ? "true" : "false");
+  if (!build_properties.road_rule_book_file.empty()) {
+    road_network_configuration.emplace("road_rule_book", build_properties.road_rule_book_file);
+  }
+  if (!build_properties.traffic_light_book_file.empty()) {
+    road_network_configuration.emplace("traffic_light_book", build_properties.traffic_light_book_file);
+  }
+  if (!build_properties.phase_ring_book_file.empty()) {
+    road_network_configuration.emplace("phase_ring_book", build_properties.phase_ring_book_file);
+  }
+  if (!build_properties.intersection_book_file.empty()) {
+    road_network_configuration.emplace("intersection_book", build_properties.intersection_book_file);
+  }
+
   return malidrive::loader::Load<malidrive::builder::RoadNetworkBuilder>(road_network_configuration);
 }
 
