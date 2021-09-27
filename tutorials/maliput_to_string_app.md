@@ -140,3 +140,123 @@ As mentioned before, `maliput_to_string` application has several arguments that 
 Use `--check_invariants` to enable maliput invariants verification. See maliput::api::RoadGeometry::CheckInvariants() .
 
 Use `--log_level` to set the log output See possible values at maliput::common::logger::level. By default set to `unchanged`.
+
+## Other maliput_to_string implementations
+
+There are two more variants of `maliput_to_string` app that you can find within `maliput_integration` package.
+
+They are reduced versions of `maliput_to_string` however they were meant to exemplify how to use maliput and its backend using the plugin architecture. (See maliput::plugin::MaliputPlugin())
+
+
+### maliput_to_string_with_plugin:
+
+Based on the plugin architecture that maliput provides for loading the RoadNetwork the application lets you to indicate which plugin (backend) you want to use.
+
+
+For example using `--plugin_name=maliput_malidrive`
+```bash
+maliput_to_string_with_plugin --plugin_name=maliput_malidrive --include_lane_ids --opendrive_file=TShapeRoad.xodr
+```
+
+Output:
+```
+[INFO] Creating MaliputPluginManager instance...
+[INFO] Plugin Id: maliput_multilane was correctly loaded.
+[INFO] Plugin Id: maliput_malidrive was correctly loaded.
+[INFO] Plugin Id: maliput_dragway was correctly loaded.
+[INFO] Number of plugins loaded: 3
+[INFO] Plugins loading is completed.
+[INFO] maliput_malidrive plugin has been found.
+[INFO] Plugin id: maliput_malidrive
+[INFO] Plugin type: RoadNetworkLoader
+[INFO] RoadGeometry loaded successfully after iteration [0] using:
+	|__ linear_tolerance = 0.05
+	|__ angular_tolerance = 0.001
+	|__ scale_length = 1
+[INFO] RoadNetwork loaded successfully.
+0_0_-1
+0_0_1
+1_0_-1
+1_0_1
+2_0_-1
+2_0_1
+4_0_1
+5_0_-1
+6_0_-1
+7_0_-1
+8_0_-1
+9_0_-1
+```
+
+### maliput_to_string_with_plugin.py
+
+Similarly to `maliput_to_string_with_plugin` in which the plugin architecture is in between however in this case, python bindings are used.
+
+```bash
+maliput_to_string_with_plugin.py -plugin_name maliput_malidrive -opendrive_file=TShapeRoad.xodr
+```
+
+Output:
+```bash
+[INFO] Plugin Id: maliput_multilane was correctly loaded.
+[INFO] Plugin Id: maliput_malidrive was correctly loaded.
+[INFO] Plugin Id: maliput_dragway was correctly loaded.
+[INFO] Number of plugins loaded: 3
+[INFO] RoadGeometry loaded successfully after iteration [0] using:
+	|__ linear_tolerance = 0.05
+	|__ angular_tolerance = 0.01
+	|__ scale_length = 1
+
+Road Geometry ID:  maliput
+Number of junctions:
+	Junction  0
+		Number of segments  1
+		Segment  0
+			Number of lanes:  2
+			Lane id:  0_0_-1
+				length:  45.99999999999975
+			Lane id:  0_0_1
+				length:  45.99999999999975
+	Junction  1
+		Number of segments  1
+		Segment  0
+			Number of lanes:  2
+			Lane id:  1_0_-1
+				length:  45.99999999999975
+			Lane id:  1_0_1
+				length:  45.99999999999975
+	Junction  2
+		Number of segments  1
+		Segment  0
+			Number of lanes:  2
+			Lane id:  2_0_-1
+				length:  45.99999999999975
+			Lane id:  2_0_1
+				length:  45.99999999999975
+	Junction  3
+		Number of segments  6
+		Segment  0
+			Number of lanes:  1
+			Lane id:  4_0_1
+				length:  7.999999999999803
+		Segment  1
+			Number of lanes:  1
+			Lane id:  5_0_-1
+				length:  7.999999999999803
+		Segment  2
+			Number of lanes:  1
+			Lane id:  6_0_-1
+				length:  9.061381870907974
+		Segment  3
+			Number of lanes:  1
+			Lane id:  7_0_-1
+				length:  3.563590834716626
+		Segment  4
+			Number of lanes:  1
+			Lane id:  8_0_-1
+				length:  9.061381870907978
+		Segment  5
+			Number of lanes:  1
+			Lane id:  9_0_-1
+				length:  3.563590834715477
+```
