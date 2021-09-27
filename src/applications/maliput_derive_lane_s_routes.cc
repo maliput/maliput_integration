@@ -54,16 +54,16 @@ MALIPUT_APPLICATION_DEFINE_LOG_LEVEL_FLAG();
 
 DEFINE_string(maliput_backend, "malidrive",
               "Whether to use <dragway>, <multilane> or <malidrive>. Default is malidrive.");
-DEFINE_string(config_file, "", "Defines the XODR file, route max length, and waypoints.");
-DEFINE_bool(verbose, false,
-            "Whether to print the route-derivation input parameters and status "
-            "messages. Useful for debugging.");
+DEFINE_string(config_file, "", "YAML file that defines XODR file path, route max length, and start/end waypoints.");
+DEFINE_double(max_length, 1000, "Maximum length of the intermediate lanes between start and end waypoints.[m]");
+DEFINE_string(start_waypoint, "", "Start waypoint to calculate the routing from. Expected format: '{x0, y0, z0}' ");
+DEFINE_string(end_waypoint, "", "End waypoint to calculate the routing to. Expected format: '{x1, y1, z1}' ");
 
 namespace YAML {
 
 template <>
-struct convert<InertialPosition> {
-  static Node encode(const InertialPosition& rhs) {
+struct convert<maliput::math::Vector3> {
+  static Node encode(const maliput::math::Vector3& rhs) {
     Node node;
     node.push_back(rhs.x());
     node.push_back(rhs.y());
@@ -71,13 +71,13 @@ struct convert<InertialPosition> {
     return node;
   }
 
-  static bool decode(const Node& node, InertialPosition& rhs) {
+  static bool decode(const Node& node, maliput::math::Vector3& rhs) {
     if (!node.IsSequence() || node.size() != 3) {
       return false;
     }
-    rhs.set_x(node[0].as<double>());
-    rhs.set_y(node[1].as<double>());
-    rhs.set_z(node[2].as<double>());
+    rhs.x() = node[0].as<double>();
+    rhs.y() = node[1].as<double>();
+    rhs.z() = node[2].as<double>();
     return true;
   }
 };
@@ -88,113 +88,38 @@ namespace maliput {
 namespace integration {
 namespace {
 
-const char* kXodrFileKey = "xodr_file";
-const char* kMaxLengthKey = "max_length";
-const char* kWaypointKey = "waypoints";
+constexpr const char* kXodrFileKey = "xodr_file";
+constexpr const char* kYamlFileKey = "yaml_file";
+constexpr const char* kMaxLengthKey = "max_length";
+constexpr const char* kWaypointKey = "waypoints";
 // Distances that differ by less than this (in meters) are considered equal.
 constexpr double kDistanceTolerance = 0.01;
 
-int main(int argc, char* argv[]) {
-  gflags::ParseCommandLineFlags(&argc, &argv, true);
-
-  maliput::common::set_log_level(FLAGS_log_level);
-
-  if (FLAGS_config_file.empty()) {
-    maliput::log()->error("No config file specified.");
-    return 1;
-  }
-
-  const YAML::Node& root_node = YAML::LoadFile(FLAGS_config_file);
-
-  if (!root_node.IsMap()) {
-    maliput::log()->error("Invalid YAML file: Root node is not a map.");
-    return 1;
-  }
-  const MaliputImplementation maliput_implementation{StringToMaliputImplementation(FLAGS_maliput_backend)};
-  for (const auto& key : {kXodrFileKey, kMaxLengthKey, kWaypointKey}) {
-    if (!root_node[key].IsDefined()) {
-      if (key == kXodrFileKey && maliput_implementation != MaliputImplementation::kMalidrive) {
-        continue;
-      }
-      maliput::log()->error("YAML file missing \"{}\".", key);
-      return 1;
-    }
-  }
-
-  log()->info("Loading road network using {} backend implementation...", FLAGS_maliput_backend);
-  const std::string xodr_file =
-      FLAGS_xodr_file_path.empty() ? root_node[kXodrFileKey].as<std::string>() : FLAGS_xodr_file_path;
-  if (maliput_implementation == MaliputImplementation::kMalidrive) {
-    maliput::log()->info("xodr file path: {}", xodr_file);
-  } else if (maliput_implementation == MaliputImplementation::kMultilane) {
-    maliput::log()->info("yaml file path: {}", FLAGS_yaml_file);
-  }
-
-  auto rn = LoadRoadNetwork(
-      maliput_implementation,
-      {FLAGS_num_lanes, FLAGS_length, FLAGS_lane_width, FLAGS_shoulder_width, FLAGS_maximum_height}, {FLAGS_yaml_file},
-      {xodr_file, FLAGS_linear_tolerance, FLAGS_build_policy, FLAGS_num_threads, FLAGS_simplification_policy,
-       FLAGS_tolerance_selection_policy, FLAGS_standard_strictness_policy, FLAGS_omit_nondrivable_lanes,
-       FLAGS_road_rule_book_file, FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file,
-       FLAGS_intersection_book_file});
-  log()->info("RoadNetwork loaded successfully.");
-
-  const double max_length = root_node[kMaxLengthKey].as<double>();
-  maliput::log()->info("Max length: {}", max_length);
-
-  const YAML::Node& waypoints_node = root_node[kWaypointKey];
-  if (!waypoints_node.IsSequence()) {
-    maliput::log()->error("Waypoints node is not a sequence.");
-    return 1;
-  }
-
-  std::vector<InertialPosition> waypoints;
-  for (const YAML::Node& waypoint_node : waypoints_node) {
-    waypoints.push_back(waypoint_node.as<InertialPosition>());
-  }
-
-  maliput::log()->info("Waypoints:");
-  for (const auto& waypoint : waypoints) {
-    maliput::log()->info("  - {}", waypoint);
-  }
-
-  // TODO(liang.fok) Add support for more than two waypoints.
-  if (waypoints.size() != 2) {
-    maliput::log()->error("Currently, only two waypoints are supported.");
-    return 1;
-  }
-
-  const InertialPosition& start_inertial = waypoints.front();
-  const InertialPosition& end_inertial = waypoints.back();
-  const double start_end_dist = (start_inertial - end_inertial).length();
-  if (start_end_dist > max_length) {
-    maliput::log()->error("Distance between first and last waypoint ({})  exceeds max length ({}).", start_end_dist,
-                          max_length);
-    return 1;
-  }
-
-  const RoadGeometry* road_geometry = rn->road_geometry();
-  const RoadPositionResult start = road_geometry->ToRoadPosition(start_inertial);
-  const RoadPositionResult end = road_geometry->ToRoadPosition(end_inertial);
+// Derives and returns a set of LaneSRoute objects that go from @p start to
+// @p end . If no routes are found, a vector of length zero is returned.
+// Parameter @p max_length is the maximum length of the intermediate lanes
+// between @p start and @p end. See the description of maliput::routing::DeriveLaneSRoutes() for
+// more details. If @p start and @p end are the same lane, a route consisting
+// of one lane is returned regardless of @p max_length.
+std::vector<LaneSRoute> GetRoutes(const InertialPosition& start, const InertialPosition& end, const double max_length,
+                                  const RoadGeometry* road_geometry) {
+  const RoadPositionResult start_rp = road_geometry->ToRoadPosition(start);
+  const RoadPositionResult end_rp = road_geometry->ToRoadPosition(end);
 
   maliput::log()->info("Start RoadPosition:");
-  maliput::log()->info("  - Lane: {}", start.road_position.lane->id().string());
-  maliput::log()->info("  - s,r,h: ({}, {}, {})", start.road_position.pos.s(), start.road_position.pos.r(),
-                       start.road_position.pos.h());
+  maliput::log()->info("  - Lane: {}", start_rp.road_position.lane->id().string());
+  maliput::log()->info("  - s,r,h: ({}, {}, {})", start_rp.road_position.pos.s(), start_rp.road_position.pos.r(),
+                       start_rp.road_position.pos.h());
   maliput::log()->info("End RoadPosition:");
-  maliput::log()->info("  - Lane: {}", end.road_position.lane->id().string());
-  maliput::log()->info("  - s,r,h: ({}, {}, {})", end.road_position.pos.s(), end.road_position.pos.r(),
-                       end.road_position.pos.h());
+  maliput::log()->info("  - Lane: {}", end_rp.road_position.lane->id().string());
+  maliput::log()->info("  - s,r,h: ({}, {}, {})", end_rp.road_position.pos.s(), end_rp.road_position.pos.r(),
+                       end_rp.road_position.pos.h());
 
-  const std::vector<LaneSRoute> routes = DeriveLaneSRoutes(start.road_position, end.road_position, max_length);
+  return DeriveLaneSRoutes(start_rp.road_position, end_rp.road_position, max_length);
+}
 
-  maliput::log()->info("Number of routes: {}", routes.size());
-
-  if (routes.empty()) {
-    maliput::log()->error("No routes found.");
-    return 1;
-  }
-
+// Serializes the @p routes computed by using the GetRoutes() method into a std::string.
+std::string SerializeLaneSRoutes(const std::vector<LaneSRoute>& routes, const RoadGeometry* road_geometry) {
   std::stringstream buffer;
   for (size_t i = 0; i < routes.size(); ++i) {
     const auto& route = routes.at(i);
@@ -206,10 +131,8 @@ int main(int argc, char* argv[]) {
       const double s1 = range.s_range().s1();
       const double lane_length = road_geometry->ById().GetLane(range.lane_id())->length();
       const double lane_length_delta = std::abs(std::abs(s1 - s0) - lane_length);
-      if (FLAGS_verbose) {
-        std::cout << "Lane " << range.lane_id().string() << ", |s1 - s0| = " << std::abs(s1 - s0)
-                  << ", lane length = " << lane_length << ", delta = " << lane_length_delta << std::endl;
-      }
+      maliput::log()->trace("Lane {}, |s1 - s0| = {}, lane length = {}, delta = {}", range.lane_id().string(),
+                            std::abs(s1 - s0), lane_length, lane_length_delta);
       if (lane_length_delta > kDistanceTolerance) {
         YAML::Node s_range_node;
         s_range_node.SetStyle(YAML::EmitterStyle::Flow);
@@ -227,8 +150,162 @@ int main(int argc, char* argv[]) {
       buffer << "\n";
     }
   }
+  return buffer.str();
+}
 
-  maliput::log()->info(buffer.str());
+// Resolves the configuration parameters. Routing configuration can be loaded by using a configuration file or gflags.
+// @param[in] maliput_implementation Selected maliput backend.
+// @param[in] flag_config_file Configuration file path passed as gflags to the app.
+// @param[in] flag_xodr_file_path If backend is malidrive, the XODR file passed as gflags to the app.
+// @param[in] flag_yaml_file YAML If backend is multilane, the YAML file passed as gflags to the app.
+// @param[in] flag_start_waypoint Start waypoint passed as gflags to the app.
+// @param[in] flag_end_waypoint End waypoint passed as gflags to the app.
+// @param[in] flag_max_length Max_length passed as gflags to the app.
+// @param[out] waypoints Start and end waypoints to be used.
+// @param[out] max_length Max length to be used.
+// @param[out] xodr_file XODR file path to be used when using malidrive backend.
+// @param[out] yaml_file YAML file path to be used when using multilane backend.
+// @returns False when parameters can't be resolved, True otherwise.
+bool ResolveConfigFields(const MaliputImplementation& maliput_implementation, const std::string& flag_config_file,
+                         const std::string& flag_xodr_file_path, const std::string& flag_yaml_file,
+                         const std::string& flag_start_waypoint, const std::string& flag_end_waypoint,
+                         const double flag_max_length, std::vector<maliput::math::Vector3>& waypoints,
+                         double& max_length, std::string& xodr_file, std::string& yaml_file) {
+  // If configuration file is passed, check the YAML fields.
+  if (!FLAGS_config_file.empty()) {
+    maliput::log()->info("Configuration file is passed: {}", FLAGS_config_file);
+    const YAML::Node& root_node = YAML::LoadFile(FLAGS_config_file);
+    if (!root_node.IsMap()) {
+      maliput::log()->error("Invalid YAML file: Root node is not a map.");
+      return false;
+    }
+    for (const auto& key : {kXodrFileKey, kMaxLengthKey, kWaypointKey, kYamlFileKey}) {
+      if (!root_node[key].IsDefined()) {
+        if (key == kXodrFileKey && maliput_implementation != MaliputImplementation::kMalidrive) {
+          continue;
+        }
+        if (key == kYamlFileKey && maliput_implementation != MaliputImplementation::kMultilane) {
+          continue;
+        }
+        maliput::log()->error("YAML file missing \"{}\".", key);
+        return false;
+      }
+    }
+    // Get map file path if necessary.
+    if (maliput_implementation == MaliputImplementation::kMalidrive) {
+      xodr_file = root_node[kXodrFileKey].as<std::string>();
+    } else if (maliput_implementation == MaliputImplementation::kMultilane) {
+      yaml_file = root_node[kYamlFileKey].as<std::string>();
+    }
+    // Get max_length from config file.
+    max_length = root_node[kMaxLengthKey].as<double>();
+
+    // Get waypoints from config file.
+    const YAML::Node& waypoints_node = root_node[kWaypointKey];
+    if (!waypoints_node.IsSequence()) {
+      maliput::log()->error("Waypoints node is not a sequence.");
+      return false;
+    }
+    for (const YAML::Node& waypoint_node : waypoints_node) {
+      waypoints.push_back(waypoint_node.as<maliput::math::Vector3>());
+    }
+    if (waypoints.size() != 2) {
+      maliput::log()->error("Currently, only two waypoints are supported.");
+      return false;
+    }
+  } else {
+    maliput::log()->info("Configuration loaded from flags as configuration file flag isn't used.");
+    // Get XODR/YAML files from flags if correspond.
+    if (maliput_implementation == MaliputImplementation::kMalidrive) {
+      if (FLAGS_xodr_file_path.empty()) {
+        maliput::log()->error(
+            "For malidrive backend, '--xodr_file_path' flag must be used when configuration file is missing.");
+        return false;
+      }
+      xodr_file = FLAGS_xodr_file_path;
+    } else if (maliput_implementation == MaliputImplementation::kMultilane) {
+      if (FLAGS_yaml_file.empty()) {
+        maliput::log()->error(
+            "For multilane backend, '--yaml_file' flag must be used when configuration file is missing.");
+        return false;
+      }
+      yaml_file = FLAGS_yaml_file;
+    }
+
+    // Get max_length from flags.
+    max_length = flag_max_length;
+
+    // Get waypoints from flags.
+    if (FLAGS_start_waypoint.empty()) {
+      maliput::log()->error("'--start_waypoint; flag must be used when configuration file is missing.");
+      return false;
+    }
+    waypoints.push_back(maliput::math::Vector3::FromStr(FLAGS_start_waypoint));
+    if (FLAGS_end_waypoint.empty()) {
+      maliput::log()->error("'--end_waypoint; flag must be used when configuration file is missing.");
+      return false;
+    }
+    waypoints.push_back(maliput::math::Vector3::FromStr(FLAGS_end_waypoint));
+  }
+  return true;
+}
+
+int main(int argc, char* argv[]) {
+  gflags::ParseCommandLineFlags(&argc, &argv, true);
+
+  maliput::common::set_log_level(FLAGS_log_level);
+
+  // Get maliput implementation: Dragway, Malidrive or Multilane.
+  const MaliputImplementation maliput_implementation{StringToMaliputImplementation(FLAGS_maliput_backend)};
+
+  // Initialize configuration fields.
+  std::vector<maliput::math::Vector3> waypoints;
+  double max_length;
+  std::string xodr_file{""};
+  std::string yaml_file{""};
+
+  if (!ResolveConfigFields(maliput_implementation, FLAGS_config_file, FLAGS_xodr_file_path, FLAGS_yaml_file,
+                           FLAGS_start_waypoint, FLAGS_end_waypoint, FLAGS_max_length, waypoints, max_length, xodr_file,
+                           yaml_file)) {
+    return 1;
+  }
+
+  maliput::log()->info("Max length: {}", max_length);
+  maliput::log()->info("Waypoints:");
+  for (const auto& waypoint : waypoints) {
+    maliput::log()->info("  - {}", waypoint);
+  }
+
+  maliput::log()->info("Loading road network using {} backend implementation...", FLAGS_maliput_backend);
+
+  if (maliput_implementation == MaliputImplementation::kMalidrive) {
+    maliput::log()->info("xodr file path: {}", xodr_file);
+  } else if (maliput_implementation == MaliputImplementation::kMultilane) {
+    maliput::log()->info("yaml file path: {}", yaml_file);
+  }
+
+  auto rn = LoadRoadNetwork(
+      maliput_implementation,
+      {FLAGS_num_lanes, FLAGS_length, FLAGS_lane_width, FLAGS_shoulder_width, FLAGS_maximum_height}, {yaml_file},
+      {xodr_file, FLAGS_linear_tolerance, FLAGS_build_policy, FLAGS_num_threads, FLAGS_simplification_policy,
+       FLAGS_tolerance_selection_policy, FLAGS_standard_strictness_policy, FLAGS_omit_nondrivable_lanes,
+       FLAGS_road_rule_book_file, FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file,
+       FLAGS_intersection_book_file});
+  log()->info("RoadNetwork loaded successfully.");
+
+  const RoadGeometry* road_geometry = rn->road_geometry();
+  const std::vector<LaneSRoute> routes =
+      GetRoutes(InertialPosition::FromXyz(waypoints.front()), InertialPosition::FromXyz(waypoints.back()), max_length,
+                road_geometry);
+
+  maliput::log()->info("Number of routes: {}", routes.size());
+
+  if (routes.empty()) {
+    maliput::log()->error("No routes found.");
+    return 1;
+  }
+
+  std::cout << SerializeLaneSRoutes(routes, road_geometry) << std::endl;
   return 0;
 }
 
