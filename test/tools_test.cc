@@ -5,7 +5,6 @@
 #include <maliput_dragway/road_geometry.h>
 #include <maliput_multilane/builder.h>
 #include <maliput_multilane/loader.h>
-#include <maliput_multilane/road_geometry.h>
 
 namespace maliput {
 namespace integration {
@@ -14,6 +13,7 @@ namespace {
 constexpr char MULTILANE_RESOURCE_VAR[] = "MULTILANE_RESOURCE_ROOT";
 constexpr char MALIPUT_MALIDRIVE_RESOURCE_VAR[] = "MALIPUT_MALIDRIVE_RESOURCE_ROOT";
 constexpr char kYamlFileName[] = "/2x2_intersection.yaml";
+constexpr char kYamlFileRoadGeometryId[] = "basic_two_lane_x_intersection";
 constexpr char kXodrFileName[] = "/resources/odr/ArcLane.xodr";
 constexpr int kNumLanes{2};
 constexpr double kLength{10.};
@@ -38,7 +38,7 @@ GTEST_TEST(CreateRoadNetwork, MultilaneRoadNetwork) {
   std::unique_ptr<const api::RoadNetwork> dut = CreateMultilaneRoadNetwork({kFilePath});
   EXPECT_NE(nullptr, dut);
   EXPECT_NE(nullptr, dut->road_geometry());
-  EXPECT_NE(nullptr, dynamic_cast<const multilane::RoadGeometry*>(dut->road_geometry()));
+  EXPECT_EQ(dut->road_geometry()->id(), maliput::api::RoadGeometryId{kYamlFileRoadGeometryId});
 }
 
 GTEST_TEST(CreateRoadNetwork, DragwayRoadNetwork) {
