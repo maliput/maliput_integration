@@ -36,10 +36,6 @@ def generate_string(road_geometry):
 def parse_args():
     """Parse args"""
     my_parser = argparse.ArgumentParser()
-    my_parser.add_argument('plugin_name',
-                           metavar='plugin_name',
-                           type=str,
-                           help='Name of the .so library')
     my_parser.add_argument('-plugin_name', action='store')
     my_parser.add_argument('-num_lanes', action='store')
     my_parser.add_argument('-length', action='store')

@@ -4,7 +4,7 @@
 
 install(
   PROGRAMS
-    maliput_loader.py
+    maliput_to_string_with_plugin.py
   DESTINATION
     bin
 )
