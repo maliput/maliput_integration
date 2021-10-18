@@ -45,7 +45,7 @@ struct MultilaneBuildProperties {
 /// Contains the attributes needed for building a malidrive::RoadNetwork.
 struct MalidriveBuildProperties {
   std::string xodr_file_path{""};
-  double linear_tolerance{5e-2};
+  std::optional<double> linear_tolerance{std::nullopt};
   std::optional<double> max_linear_tolerance{std::nullopt};
   std::string build_policy{"sequential"};
   int number_of_threads{0};

@@ -61,6 +61,11 @@
   DEFINE_string(traffic_light_book_file, "", "YAML file defining a Maliput traffic lights book");                      \
   DEFINE_string(phase_ring_book_file, "", "YAML file defining a Maliput phase ring book");                             \
   DEFINE_string(intersection_book_file, "", "YAML file defining a Maliput intersection book");                         \
+  std::optional<double> GetLinearToleranceFlag() {                                                                     \
+    return gflags::GetCommandLineFlagInfoOrDie("linear_tolerance").is_default                                          \
+               ? std::nullopt                                                                                          \
+               : std::make_optional<double>(FLAGS_linear_tolerance);                                                   \
+  }                                                                                                                    \
   std::optional<double> GetMaxLinearToleranceFlag() {                                                                  \
     return gflags::GetCommandLineFlagInfoOrDie("max_linear_tolerance").is_default                                      \
                ? std::nullopt                                                                                          \

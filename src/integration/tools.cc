@@ -116,7 +116,9 @@ std::unique_ptr<const api::RoadNetwork> CreateMalidriveRoadNetwork(const Malidri
   std::map<std::string, std::string> road_network_configuration;
   road_network_configuration.emplace("road_geometry_id", "malidrive_rg");
   road_network_configuration.emplace("opendrive_file", build_properties.xodr_file_path);
-  road_network_configuration.emplace("linear_tolerance", std::to_string(build_properties.linear_tolerance));
+  if (build_properties.linear_tolerance.has_value()) {
+    road_network_configuration.emplace("linear_tolerance", std::to_string(build_properties.linear_tolerance.value()));
+  }
   if (build_properties.max_linear_tolerance.has_value()) {
     road_network_configuration.emplace("max_linear_tolerance",
                                        std::to_string(build_properties.max_linear_tolerance.value()));
