@@ -83,8 +83,8 @@ int Main(int argc, char* argv[]) {
         MeasureLoadTime(maliput_implementation,
                         {FLAGS_num_lanes, FLAGS_length, FLAGS_lane_width, FLAGS_shoulder_width, FLAGS_maximum_height},
                         {FLAGS_yaml_file},
-                        {FLAGS_xodr_file_path, FLAGS_linear_tolerance, FLAGS_build_policy, FLAGS_num_threads,
-                         FLAGS_simplification_policy, FLAGS_tolerance_selection_policy,
+                        {FLAGS_xodr_file_path, GetLinearToleranceFlag(), GetMaxLinearToleranceFlag(),
+                         FLAGS_build_policy, FLAGS_num_threads, FLAGS_simplification_policy,
                          FLAGS_standard_strictness_policy, FLAGS_omit_nondrivable_lanes, FLAGS_road_rule_book_file,
                          FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file, FLAGS_intersection_book_file}));
   }

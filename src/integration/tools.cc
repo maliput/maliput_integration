@@ -116,7 +116,13 @@ std::unique_ptr<const api::RoadNetwork> CreateMalidriveRoadNetwork(const Malidri
   std::map<std::string, std::string> road_network_configuration;
   road_network_configuration.emplace("road_geometry_id", "malidrive_rg");
   road_network_configuration.emplace("opendrive_file", build_properties.xodr_file_path);
-  road_network_configuration.emplace("linear_tolerance", std::to_string(build_properties.linear_tolerance));
+  if (build_properties.linear_tolerance.has_value()) {
+    road_network_configuration.emplace("linear_tolerance", std::to_string(build_properties.linear_tolerance.value()));
+  }
+  if (build_properties.max_linear_tolerance.has_value()) {
+    road_network_configuration.emplace("max_linear_tolerance",
+                                       std::to_string(build_properties.max_linear_tolerance.value()));
+  }
   road_network_configuration.emplace("angular_tolerance", std::to_string(malidrive::constants::kAngularTolerance));
   road_network_configuration.emplace("scale_length", std::to_string(malidrive::constants::kScaleLength));
   road_network_configuration.emplace("inertial_to_backend_frame_translation", "{0., 0., 0.}");
@@ -125,7 +131,6 @@ std::unique_ptr<const api::RoadNetwork> CreateMalidriveRoadNetwork(const Malidri
     road_network_configuration.emplace("num_threads", std::to_string(build_properties.number_of_threads));
   }
   road_network_configuration.emplace("simplification_policy", build_properties.simplification_policy);
-  road_network_configuration.emplace("tolerance_selection_policy", build_properties.tolerance_selection_policy);
   road_network_configuration.emplace("standard_strictness_policy", build_properties.standard_strictness_policy);
   road_network_configuration.emplace("omit_nondrivable_lanes",
                                      build_properties.omit_nondrivable_lanes ? "true" : "false");

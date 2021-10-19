@@ -1,6 +1,8 @@
 // Copyright 2020 Toyota Research Institute
 #pragma once
 
+#include <optional>
+
 #include <gflags/gflags.h>
 
 #ifndef MALIPUT_APPLICATION_DEFINE_LOG_LEVEL_FLAG
@@ -46,11 +48,10 @@
 #define MALIDRIVE_PROPERTIES_FLAGS()                                                                                   \
   DEFINE_string(xodr_file_path, "", "XODR file path.");                                                                \
   DEFINE_double(linear_tolerance, 5e-2, "Linear tolerance used to load the map.");                                     \
+  DEFINE_double(max_linear_tolerance, -1., "Maximum linear tolerance used to load the map.");                          \
   DEFINE_string(build_policy, "sequential", "Build policy, it could be `sequential` or `parallel`.");                  \
   DEFINE_int32(num_threads, 0, "Number of threads to create the Road Geometry.");                                      \
   DEFINE_string(simplification_policy, "none", "Geometries simplification policy, it could be `none` or `simplify`."); \
-  DEFINE_string(tolerance_selection_policy, "manual",                                                                  \
-                "Tolerance selection policy, it could be `manual` or `automatic`.");                                   \
   DEFINE_string(                                                                                                       \
       standard_strictness_policy, "permissive",                                                                        \
       "OpenDrive standard strictness, it could be `permissive`, `allow_schema_errors`, `allow_semantic_errors` or "    \
@@ -59,5 +60,15 @@
   DEFINE_string(road_rule_book_file, "", "YAML file defining a Maliput road rule book");                               \
   DEFINE_string(traffic_light_book_file, "", "YAML file defining a Maliput traffic lights book");                      \
   DEFINE_string(phase_ring_book_file, "", "YAML file defining a Maliput phase ring book");                             \
-  DEFINE_string(intersection_book_file, "", "YAML file defining a Maliput intersection book");
+  DEFINE_string(intersection_book_file, "", "YAML file defining a Maliput intersection book");                         \
+  std::optional<double> GetLinearToleranceFlag() {                                                                     \
+    return gflags::GetCommandLineFlagInfoOrDie("linear_tolerance").is_default                                          \
+               ? std::nullopt                                                                                          \
+               : std::make_optional<double>(FLAGS_linear_tolerance);                                                   \
+  }                                                                                                                    \
+  std::optional<double> GetMaxLinearToleranceFlag() {                                                                  \
+    return gflags::GetCommandLineFlagInfoOrDie("max_linear_tolerance").is_default                                      \
+               ? std::nullopt                                                                                          \
+               : std::make_optional<double>(FLAGS_max_linear_tolerance);                                               \
+  }
 #endif  // MALIDRIVE_PROPERTIES_FLAGS
