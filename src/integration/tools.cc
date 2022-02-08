@@ -134,6 +134,9 @@ std::unique_ptr<const api::RoadNetwork> CreateMalidriveRoadNetwork(const Malidri
   road_network_configuration.emplace("standard_strictness_policy", build_properties.standard_strictness_policy);
   road_network_configuration.emplace("omit_nondrivable_lanes",
                                      build_properties.omit_nondrivable_lanes ? "true" : "false");
+  if (!build_properties.rule_registry_file.empty()) {
+    road_network_configuration.emplace("rule_registry", build_properties.rule_registry_file);
+  }
   if (!build_properties.road_rule_book_file.empty()) {
     road_network_configuration.emplace("road_rule_book", build_properties.road_rule_book_file);
   }

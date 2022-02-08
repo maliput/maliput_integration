@@ -57,6 +57,7 @@
       "OpenDrive standard strictness, it could be `permissive`, `allow_schema_errors`, `allow_semantic_errors` or "    \
       "`strict`. Union of policies are also allowed: 'allow_schema_errors|allow_semantic_errors'");                    \
   DEFINE_bool(omit_nondrivable_lanes, false, "If true, builder omits non-drivable lanes when building.");              \
+  DEFINE_string(rule_registry_file, "", "YAML file defining a Maliput rule registry");                                 \
   DEFINE_string(road_rule_book_file, "", "YAML file defining a Maliput road rule book");                               \
   DEFINE_string(traffic_light_book_file, "", "YAML file defining a Maliput traffic lights book");                      \
   DEFINE_string(phase_ring_book_file, "", "YAML file defining a Maliput phase ring book");                             \

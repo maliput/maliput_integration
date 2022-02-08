@@ -52,6 +52,7 @@ struct MalidriveBuildProperties {
   std::string simplification_policy{"none"};
   std::string standard_strictness_policy{"permissive"};
   bool omit_nondrivable_lanes{"true"};
+  std::string rule_registry_file{""};
   std::string road_rule_book_file{""};
   std::string traffic_light_book_file{""};
   std::string phase_ring_book_file{""};
