@@ -289,7 +289,7 @@ int main(int argc, char* argv[]) {
       {FLAGS_num_lanes, FLAGS_length, FLAGS_lane_width, FLAGS_shoulder_width, FLAGS_maximum_height}, {yaml_file},
       {xodr_file, GetLinearToleranceFlag(), GetMaxLinearToleranceFlag(), FLAGS_build_policy, FLAGS_num_threads,
        FLAGS_simplification_policy, FLAGS_standard_strictness_policy, FLAGS_omit_nondrivable_lanes,
-       FLAGS_road_rule_book_file, FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file,
+       FLAGS_rule_registry_file, FLAGS_road_rule_book_file, FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file,
        FLAGS_intersection_book_file});
   log()->info("RoadNetwork loaded successfully.");
 
