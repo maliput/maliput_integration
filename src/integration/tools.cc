@@ -90,7 +90,7 @@ std::unique_ptr<const api::RoadNetwork> CreateMultilaneRoadNetwork(const Multila
   auto rulebook = LoadRoadRulebookFromFile(rg.get(), build_properties.yaml_file);
   auto traffic_light_book = LoadTrafficLightBookFromFile(build_properties.yaml_file);
   auto phase_ring_book =
-      LoadPhaseRingBookFromFile(rulebook.get(), traffic_light_book.get(), build_properties.yaml_file);
+      LoadPhaseRingBookFromFileOldRules(rulebook.get(), traffic_light_book.get(), build_properties.yaml_file);
   std::unique_ptr<ManualPhaseProvider> phase_provider = std::make_unique<ManualPhaseProvider>();
   auto intersection_book =
       LoadIntersectionBookFromFile(build_properties.yaml_file, *rulebook, *phase_ring_book, phase_provider.get());
