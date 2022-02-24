@@ -85,6 +85,19 @@ target_link_libraries(maliput_to_string_with_plugin
   maliput::utilities
 )
 
+add_executable(maliput_dynamic_environment
+  maliput_dynamic_environment.cc
+)
+
+target_link_libraries(maliput_dynamic_environment
+  gflags
+  integration
+  maliput::api
+  maliput::plugin
+  maliput::common
+  maliput::utilities
+)
+
 ##############################################################################
 # Install
 ##############################################################################
@@ -92,6 +105,7 @@ target_link_libraries(maliput_to_string_with_plugin
 install(
   TARGETS
     maliput_derive_lane_s_routes
+    maliput_dynamic_environment
     maliput_measure_load_time
     maliput_query
     maliput_to_obj
