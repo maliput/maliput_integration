@@ -27,7 +27,7 @@ std::unique_ptr<DynamicEnvironmentHandler> CreateDynamicEnvironmentHandler(const
       break;
 
     default:
-      MALIPUT_THROW_MESSAGE("Not identified DynamicEnvironmentHandler type.");
+      MALIPUT_THROW_MESSAGE("Unknown DynamicEnvironmentHandlerType value.");
       break;
   }
 }

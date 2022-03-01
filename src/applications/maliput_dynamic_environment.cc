@@ -1,5 +1,5 @@
 // Copyright 2022 Toyota Research Institute.
-/// @file maliput_to_string.cc
+/// @file maliput_dynamic_environment.cc
 ///
 /// Builds an api::RoadNetwork and lists the rules which states change on a time basis.
 /// Possible backends are `dragway`, `multilane` and `malidrive`.
@@ -13,15 +13,19 @@
 ///           -yaml_file.
 ///      - "malidrive": xodr file path must be provided and the tolerance is optional:
 ///           -xodr_file_path -linear_tolerance.
-///   2. The application allows to select the duration of each phase.
-///      `-phase_duration`
+///   2. The application allows to select:
+///      `-phase_duration`: the duration of each phase.
+///      `-timeout`: the duration of the simulation.
 ///   3. The level of the logger is selected with `-log_level`.
 
+#include <map>
 #include <memory>
 #include <string>
 #include <thread>
 
 #include <gflags/gflags.h>
+#include <maliput/base/rule_filter.h>
+#include <maliput/base/rule_registry.h>
 #include <maliput/common/logger.h>
 #include <maliput/common/maliput_abort.h>
 
@@ -40,47 +44,96 @@ MALIPUT_APPLICATION_DEFINE_LOG_LEVEL_FLAG();
 DEFINE_string(maliput_backend, "malidrive",
               "Whether to use <dragway>, <multilane> or <malidrive>. Default is dragway.");
 DEFINE_double(phase_duration, 2, "Duration of the phase in seconds.");
+DEFINE_double(timeout, 20., "Timeout for calling off the simulation in seconds.");
 
 namespace maliput {
 namespace integration {
 namespace {
 
+using maliput::api::rules::DiscreteValueRule;
+using maliput::api::rules::RangeValueRule;
+
 // Obtains all the monostate DiscreteValueRules.
 // @param rulebook RoadRulebook pointer.
-std::vector<maliput::api::rules::DiscreteValueRule> GetStaticDiscreteRules(
+std::map<DiscreteValueRule::Id, DiscreteValueRule> GetStaticDiscreteRules(
     const maliput::api::rules::RoadRulebook* rulebook) {
-  std::vector<maliput::api::rules::DiscreteValueRule> static_rules;
   const auto rules = rulebook->Rules();
   const auto discrete_value_rules = rules.discrete_value_rules;
-  std::for_each(discrete_value_rules.begin(), discrete_value_rules.end(),
-                [&static_rules](const std::pair<maliput::api::rules::DiscreteValueRule::Id,
-                                                maliput::api::rules::DiscreteValueRule>& discrete_value_rule) {
-                  if (discrete_value_rule.second.values().size() == 1) {
-                    static_rules.push_back(discrete_value_rule.second);
-                  }
-                });
-  return static_rules;
+  const auto filtered_rules = maliput::FilterRules(
+      rulebook->Rules(), {[](const DiscreteValueRule& dvr) { return dvr.values().size() == 1; }}, {});
+  return filtered_rules.discrete_value_rules;
 }
 
 // Obtains all the monostate RangeValueRules.
 // @param rulebook RoadRulebook pointer.
-std::vector<maliput::api::rules::RangeValueRule> GetStaticRangeRules(
-    const maliput::api::rules::RoadRulebook* rulebook) {
+std::map<RangeValueRule::Id, RangeValueRule> GetStaticRangeRules(const maliput::api::rules::RoadRulebook* rulebook) {
   std::vector<maliput::api::rules::RangeValueRule> static_rules;
   const auto rules = rulebook->Rules();
   const auto range_value_rules = rules.range_value_rules;
-  std::for_each(range_value_rules.begin(), range_value_rules.end(),
-                [&static_rules](const std::pair<maliput::api::rules::RangeValueRule::Id,
-                                                maliput::api::rules::RangeValueRule>& range_value_rule) {
-                  if (range_value_rule.second.ranges().size() == 1) {
-                    static_rules.push_back(range_value_rule.second);
-                  }
-                });
-  return static_rules;
+  const auto filtered_rules =
+      maliput::FilterRules(rulebook->Rules(), {}, {[](const RangeValueRule& rvr) { return rvr.ranges().size() == 1; }});
+  return filtered_rules.range_value_rules;
 }
 
-// Generates an OBJ file from a YAML file path or from
-// configurable values given as CLI arguments.
+// Prints the states of all the static DiscreteValueRules: Rules with only one state.
+// @param rn RoadNetwork pointer.
+void PrintStaticDiscreteRulesStates(maliput::api::RoadNetwork* rn) {
+  std::cout << "Static DiscreteValueRules" << std::endl;
+  const auto static_discrete_value_rules = GetStaticDiscreteRules(rn->rulebook());
+  // As there is only one state we could directly check the value of the DiscreteValueRule's values, however we use the
+  // state provider instead in order to exercise good practices.
+  const auto discrete_state_provider = rn->discrete_value_rule_state_provider();
+  for (const auto& static_discrete_value_rule : static_discrete_value_rules) {
+    std::cout << "\tDiscrete Value Rule: " << static_discrete_value_rule.first
+              << " | State: " << discrete_state_provider->GetState(static_discrete_value_rule.first)->state.value
+              << std::endl;
+  }
+}
+
+// Prints the states of all the static RangeValueRules: Rules with only one state.
+// @param rn RoadNetwork pointer.
+void PrintStaticRangeRulesStates(maliput::api::RoadNetwork* rn) {
+  std::cout << "Static RangeValueRules" << std::endl;
+  const auto static_range_value_rules = GetStaticRangeRules(rn->rulebook());
+  // As there is only one state we could directly check the value of the RangeValueRule's ranges, however we use the
+  // state provider instead in order to exercise good practices.
+  const auto range_state_provider = rn->range_value_rule_state_provider();
+  for (const auto& static_range_value_rule : static_range_value_rules) {
+    std::cout << "\tRange Value Rule: " << static_range_value_rule.first << " | State: ["
+              << range_state_provider->GetState(static_range_value_rule.first)->state.min << ", "
+              << range_state_provider->GetState(static_range_value_rule.first)->state.max << "]" << std::endl;
+  }
+}
+
+// Prints the phase and the current states of Right-Of-Way rules and bulbs that are present in the phase rings.
+// @param rn RoadNetwork pointer.
+void PrintPhaseRingsCurrentStates(maliput::api::RoadNetwork* rn) {
+  // Obtains Phases via PhaseRingBook and their respectives Right-Of-Way DiscreteValueRules and BulbStates.
+  for (const auto& phase_ring_id : rn->phase_ring_book()->GetPhaseRings()) {
+    const auto current_phase_id{rn->phase_provider()->GetPhase(phase_ring_id)->state};
+    std::cout << "PhaseRingId: " << phase_ring_id << " | Current Phase: " << current_phase_id << std::endl;
+    const auto current_phase = rn->phase_ring_book()->GetPhaseRing(phase_ring_id)->GetPhase(current_phase_id);
+    for (const auto& discrete_value_rule_state : current_phase->discrete_value_rule_states()) {
+      std::cout << "\tDiscrete Value Rule: " << discrete_value_rule_state.first.string()
+                << " | State: " << discrete_value_rule_state.second.value << std::endl;
+    }
+    for (const auto& bulb_state : current_phase->bulb_states().value()) {
+      std::cout << "\tBulbUniqueId: " << bulb_state.first.string()
+                << " | State: " << (bulb_state.second == maliput::api::rules::BulbState::kOn ? "On" : "Off")
+                << std::endl;
+    }
+  }
+  // Obtaining the phase and other sensitive information via Intersection Book is recommended however you must have
+  // define the intersections in the intersection book yaml file first.
+  // @code{cpp}
+  //   for (const auto& intersection : rn->intersection_book()->GetIntersections()) {
+  //     const auto current_phase = intersection->Phase();
+  //     const auto bulb_states = intersection->bulb_states();
+  //     ...
+  //   }
+  // @endcode
+}
+
 int Main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
   common::set_log_level(FLAGS_log_level);
@@ -96,53 +149,22 @@ int Main(int argc, char* argv[]) {
        FLAGS_intersection_book_file});
   log()->info("RoadNetwork loaded successfully.");
 
-  const std::unique_ptr<Timer> timer = CreateTimer(TimerType::kChronoTimer);
-  std::unique_ptr<DynamicEnvironmentHandler> deh = CreateDynamicEnvironmentHandler(
+  const std::unique_ptr<const Timer> timer = CreateTimer(TimerType::kChronoTimer);
+  const std::unique_ptr<DynamicEnvironmentHandler> deh = CreateDynamicEnvironmentHandler(
       DynamicEnvironmentHandlerType::kFixedPhaseIterationHandler, timer.get(), rn.get(), FLAGS_phase_duration);
 
   // Obtains static rules.
-  std::cout << "Static DiscreteValueRules" << std::endl;
-  const auto static_discrete_value_rules = GetStaticDiscreteRules(rn->rulebook());
-  for (const auto& static_discrete_value_rule : static_discrete_value_rules) {
-    std::cout << "\tDiscrete Value Rule: " << static_discrete_value_rule.id()
-              << " | State: " << static_discrete_value_rule.values()[0].value << std::endl;
-  }
-  std::cout << "Static RangeValueRules" << std::endl;
-  const auto static_range_value_rules = GetStaticRangeRules(rn->rulebook());
-  for (const auto& static_range_value_rule : static_range_value_rules) {
-    std::cout << "\tRange Value Rule: " << static_range_value_rule.id() << " | State: ["
-              << static_range_value_rule.ranges()[0].min << ", " << static_range_value_rule.ranges()[0].max << "]"
-              << std::endl;
-  }
+  PrintStaticDiscreteRulesStates(rn.get());
+  PrintStaticRangeRulesStates(rn.get());
 
-  while (true) {
+  // Dynamics rules can also be queried via `DiscreteValueRuleStateProvider` and `RangeValueRuleStateProvider`.
+  // In particular for the intersections, maliput provides some convenient classes to obtain the current phase which
+  // matches with current states in the Right-Of-Way Rule Type rules and bulb states that are present.
+  while (timer->Elapsed() <= FLAGS_timeout) {
     std::this_thread::sleep_for(std::chrono::milliseconds(250));
     std::cout << "Time: " << timer->Elapsed() << std::endl;
     deh->Update();
-    // Obtains Phases via PhaseRingBook and their respectives Right-Of-Way DiscreteValueRules and BulbStates.
-    for (const auto& phase_ring_id : rn->phase_ring_book()->GetPhaseRings()) {
-      const auto current_phase_id{rn->phase_provider()->GetPhase(phase_ring_id)->state};
-      std::cout << "PhaseRingId: " << phase_ring_id << " | Current Phase: " << current_phase_id << std::endl;
-      const auto current_phase = rn->phase_ring_book()->GetPhaseRing(phase_ring_id)->GetPhase(current_phase_id);
-      for (const auto& discrete_value_rule_state : current_phase->discrete_value_rule_states()) {
-        std::cout << "\tDiscrete Value Rule: " << discrete_value_rule_state.first.string()
-                  << " | State: " << discrete_value_rule_state.second.value << std::endl;
-      }
-      for (const auto& bulb_state : current_phase->bulb_states().value()) {
-        std::cout << "\tBulbUniqueId: " << bulb_state.first.string()
-                  << " | State: " << (bulb_state.second == maliput::api::rules::BulbState::kOn ? "On" : "Off")
-                  << std::endl;
-      }
-    }
-    // Obtaining the phase and other sensitive information via Intersection Book is recommended however you must have
-    // define the intersections in the intersection book yaml file first.
-    // @code{cpp}
-    //   for (const auto& intersection : rn->intersection_book()->GetIntersections()) {
-    //     const auto current_phase = intersection->Phase();
-    //     const auto bulb_states = intersection->bulb_states();
-    //     ...
-    //   }
-    // @endcode
+    PrintPhaseRingsCurrentStates(rn.get());
   }
 
   return 0;

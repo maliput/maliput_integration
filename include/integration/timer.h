@@ -13,13 +13,17 @@ class Timer {
   virtual ~Timer() = default;
 
   /// Reset Timer.
-  virtual void Reset() = 0;
+  void Reset() { DoReset(); };
 
   /// @returns elapsed time in seconds.
-  virtual double Elapsed() const = 0;
+  virtual double Elapsed() const { return DoElapsed(); }
 
  protected:
   Timer() = default;
+
+ private:
+  virtual void DoReset() = 0;
+  virtual double DoElapsed() const = 0;
 };
 
 }  // namespace integration

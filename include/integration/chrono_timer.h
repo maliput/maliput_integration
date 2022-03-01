@@ -1,6 +1,7 @@
 // Copyright 2022 Toyota Research Institute.
 #pragma once
 
+#include <chrono>
 #include <memory>
 
 #include <maliput/common/maliput_copyable.h>
@@ -9,9 +10,6 @@
 
 namespace maliput {
 namespace integration {
-
-/// Forward Declaration.
-class ChronoTimerImpl;
 
 /// Timer implementation based on STL chrono library.
 class ChronoTimer : public Timer {
@@ -22,16 +20,13 @@ class ChronoTimer : public Timer {
   ChronoTimer();
 
   /// Destructor.
-  ~ChronoTimer() override;
-
-  /// Documentation inherithed.
-  void Reset() override;
-
-  /// Documentation inherithed.
-  double Elapsed() const override;
+  ~ChronoTimer() override = default;
 
  private:
-  std::unique_ptr<ChronoTimerImpl> impl_;
+  void DoReset() override;
+  double DoElapsed() const override;
+
+  std::chrono::high_resolution_clock::time_point start_{};
 };
 
 }  // namespace integration
