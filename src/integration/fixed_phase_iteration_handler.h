@@ -22,7 +22,9 @@ class FixedPhaseIterationHandler : public DynamicEnvironmentHandler {
   /// @param road_network maliput::api::RoadNetwork pointer.
   /// @param phase_duration The duration of the rule's states in seconds.
   FixedPhaseIterationHandler(const Timer* timer, api::RoadNetwork* road_network, double phase_duration)
-      : DynamicEnvironmentHandler(timer, road_network), phase_duration_(phase_duration) {}
+      : DynamicEnvironmentHandler(timer, road_network), phase_duration_(phase_duration) {
+    MALIPUT_THROW_UNLESS(phase_duration > 0.);
+  }
 
   ~FixedPhaseIterationHandler() override = default;
 

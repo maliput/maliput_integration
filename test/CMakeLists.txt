@@ -34,3 +34,24 @@ ament_add_gtest(create_timer_test create_timer_test.cc)
 target_link_libraries(create_timer_test
     integration
 )
+
+# dynamic_environment_handler_test
+ament_add_gtest(dynamic_environment_handler_test dynamic_environment_handler_test.cc)
+target_link_libraries(dynamic_environment_handler_test
+    integration
+    maliput::test_utilities
+)
+
+# create_dynamic_environment_handler_test
+ament_add_gtest(create_dynamic_environment_handler_test create_dynamic_environment_handler_test.cc)
+target_link_libraries(create_dynamic_environment_handler_test
+    integration
+    maliput::test_utilities
+)
+
+# fixed_phase_iteration_handler_test
+ament_add_gtest(fixed_phase_iteration_handler_test fixed_phase_iteration_handler_test.cc)
+target_link_libraries(fixed_phase_iteration_handler_test
+    integration
+    maliput::api
+)

@@ -4,6 +4,7 @@
 #include <memory>
 
 #include <gtest/gtest.h>
+#include <maliput/test_utilities/mock.h>
 
 #include "integration/chrono_timer.h"
 
