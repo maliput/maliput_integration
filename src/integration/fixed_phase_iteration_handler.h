@@ -10,12 +10,20 @@
 namespace maliput {
 namespace integration {
 
+/// DynamicEnvironmentHandler class implementation.
+/// Each rule state is expected to last a fixed amount of time.
 class FixedPhaseIterationHandler : public DynamicEnvironmentHandler {
  public:
   MALIPUT_NO_COPY_NO_MOVE_NO_ASSIGN(FixedPhaseIterationHandler)
   FixedPhaseIterationHandler() = delete;
+
+  /// Constructs a FixedPhaseIterationHandler.
+  /// @param timer Timer implementation pointer.
+  /// @param road_network maliput::api::RoadNetwork pointer.
+  /// @param phase_duration The duration of the rule's states in seconds.
   FixedPhaseIterationHandler(const Timer* timer, api::RoadNetwork* road_network, double phase_duration)
       : DynamicEnvironmentHandler(timer, road_network), phase_duration_(phase_duration) {}
+
   ~FixedPhaseIterationHandler() override = default;
 
   void Update() override;

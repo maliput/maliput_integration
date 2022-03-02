@@ -16,8 +16,9 @@ enum class DynamicEnvironmentHandlerType {
 
 /// Create Timer.
 /// @param type A DynamicEnvironmentHandlerType.
+/// @param args Arguments to be forwarded to the selected implementation.
 /// @returns A DynamicEnvironmentHandler instance based on the selected implementation.
-/// @tparam Args Arguments to be forwarded to the selected implementation.
+/// @tparam Args Type of the arguments to be forwarded to the selected implementation.
 template <typename... Args>
 std::unique_ptr<DynamicEnvironmentHandler> CreateDynamicEnvironmentHandler(const DynamicEnvironmentHandlerType& type,
                                                                            Args&&... args) {
