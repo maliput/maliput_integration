@@ -8,10 +8,6 @@ add_dependencies(maliput_to_obj_test maliput_to_obj)
 endif()
 
 ament_add_gtest(tools_test tools_test.cc)
-target_include_directories(tools_test
-  PRIVATE
-    ${PROJECT_SOURCE_DIR}/include
-)
 
 target_link_libraries(tools_test
     integration
