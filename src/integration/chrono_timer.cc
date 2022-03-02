@@ -11,8 +11,9 @@ ChronoTimer::ChronoTimer() : Timer(), start_(std::chrono::high_resolution_clock:
 void ChronoTimer::DoReset() { start_ = std::chrono::high_resolution_clock::now(); }
 
 double ChronoTimer::DoElapsed() const {
-  return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start_)
-             .count() /
+  return static_cast<double>(
+             std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start_)
+                 .count()) /
          1000.;
 }
 
