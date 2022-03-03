@@ -1,3 +1,4 @@
+// Copyright 2022 Toyota Research Institute.
 #pragma once
 
 #include <memory>
@@ -62,21 +63,21 @@ struct MalidriveBuildProperties {
 /// Builds an api::RoadNetwork based on Dragway implementation.
 /// @param build_properties Holds the properties to build the RoadNetwork.
 /// @return A maliput::api::RoadNetwork.
-std::unique_ptr<const api::RoadNetwork> CreateDragwayRoadNetwork(const DragwayBuildProperties& build_properties);
+std::unique_ptr<api::RoadNetwork> CreateDragwayRoadNetwork(const DragwayBuildProperties& build_properties);
 
 /// Builds an api::RoadNetwork based on Multilane implementation.
 /// @param build_properties Holds the properties to build the RoadNetwork.
 /// @return A maliput::api::RoadNetwork.
 ///
 /// @throw maliput::common::assertion_error When `build_properties.yaml_file` is empty.
-std::unique_ptr<const api::RoadNetwork> CreateMultilaneRoadNetwork(const MultilaneBuildProperties& build_properties);
+std::unique_ptr<api::RoadNetwork> CreateMultilaneRoadNetwork(const MultilaneBuildProperties& build_properties);
 
 /// Builds an api::RoadNetwork based on Malidrive implementation.
 /// @param build_properties Holds the properties to build the RoadNetwork.
 /// @return A maliput::api::RoadNetwork.
 ///
 /// @throw maliput::common::assertion_error When `build_properties.xodr_file_path` is empty.
-std::unique_ptr<const api::RoadNetwork> CreateMalidriveRoadNetwork(const MalidriveBuildProperties& build_properties);
+std::unique_ptr<api::RoadNetwork> CreateMalidriveRoadNetwork(const MalidriveBuildProperties& build_properties);
 
 /// Builds an api::RoadNetwork using the implementation that `maliput_implementation` describes.
 /// @param maliput_implementation One of MaliputImplementation. (kDragway, kMultilane, kMalidrive).
@@ -86,10 +87,10 @@ std::unique_ptr<const api::RoadNetwork> CreateMalidriveRoadNetwork(const Malidri
 /// @return A maliput::api::RoadNetwork.
 ///
 /// @throw maliput::common::assertion_error When `maliput_implementation` is unknown.
-std::unique_ptr<const api::RoadNetwork> LoadRoadNetwork(MaliputImplementation maliput_implementation,
-                                                        const DragwayBuildProperties& dragway_build_properties,
-                                                        const MultilaneBuildProperties& multilane_build_properties,
-                                                        const MalidriveBuildProperties& malidrive_build_properties);
+std::unique_ptr<api::RoadNetwork> LoadRoadNetwork(MaliputImplementation maliput_implementation,
+                                                  const DragwayBuildProperties& dragway_build_properties,
+                                                  const MultilaneBuildProperties& multilane_build_properties,
+                                                  const MalidriveBuildProperties& malidrive_build_properties);
 
 }  // namespace integration
 }  // namespace maliput

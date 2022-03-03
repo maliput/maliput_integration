@@ -2,12 +2,16 @@
 # Sources
 ##############################################################################
 
-add_library(integration tools.cc)
+add_library(integration
+  chrono_timer.cc
+  create_timer.cc
+  fixed_phase_iteration_handler.cc
+  tools.cc
+)
 
 target_include_directories(integration
   PUBLIC
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
 )
 
 target_link_libraries(integration

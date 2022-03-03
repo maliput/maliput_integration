@@ -1,3 +1,4 @@
+// Copyright 2022 Toyota Research Institute.
 #include "integration/tools.h"
 
 #include <map>
@@ -53,7 +54,7 @@ MaliputImplementation StringToMaliputImplementation(const std::string& maliput_i
   return string_to_maliput_impl.at(maliput_impl);
 }
 
-std::unique_ptr<const api::RoadNetwork> CreateDragwayRoadNetwork(const DragwayBuildProperties& build_properties) {
+std::unique_ptr<api::RoadNetwork> CreateDragwayRoadNetwork(const DragwayBuildProperties& build_properties) {
   maliput::log()->debug("Building dragway RoadNetwork.");
   auto rg = std::make_unique<dragway::RoadGeometry>(
       api::RoadGeometryId{"Dragway with " + std::to_string(build_properties.num_lanes) + " lanes."},
@@ -81,7 +82,7 @@ std::unique_ptr<const api::RoadNetwork> CreateDragwayRoadNetwork(const DragwayBu
                                             std::move(range_value_rule_state_provider));
 }
 
-std::unique_ptr<const api::RoadNetwork> CreateMultilaneRoadNetwork(const MultilaneBuildProperties& build_properties) {
+std::unique_ptr<api::RoadNetwork> CreateMultilaneRoadNetwork(const MultilaneBuildProperties& build_properties) {
   maliput::log()->debug("Building multilane RoadNetwork.");
   if (build_properties.yaml_file.empty()) {
     MALIPUT_ABORT_MESSAGE("yaml_file cannot be empty.");
@@ -109,7 +110,7 @@ std::unique_ptr<const api::RoadNetwork> CreateMultilaneRoadNetwork(const Multila
                                             std::move(range_value_rule_state_provider));
 }
 
-std::unique_ptr<const api::RoadNetwork> CreateMalidriveRoadNetwork(const MalidriveBuildProperties& build_properties) {
+std::unique_ptr<api::RoadNetwork> CreateMalidriveRoadNetwork(const MalidriveBuildProperties& build_properties) {
   maliput::log()->debug("Building malidrive RoadNetwork.");
   MALIPUT_VALIDATE(!build_properties.xodr_file_path.empty(), "opendrive_file cannot be empty.");
 
@@ -153,10 +154,10 @@ std::unique_ptr<const api::RoadNetwork> CreateMalidriveRoadNetwork(const Malidri
   return malidrive::loader::Load<malidrive::builder::RoadNetworkBuilder>(road_network_configuration);
 }
 
-std::unique_ptr<const api::RoadNetwork> LoadRoadNetwork(MaliputImplementation maliput_implementation,
-                                                        const DragwayBuildProperties& dragway_build_properties,
-                                                        const MultilaneBuildProperties& multilane_build_properties,
-                                                        const MalidriveBuildProperties& malidrive_build_properties) {
+std::unique_ptr<api::RoadNetwork> LoadRoadNetwork(MaliputImplementation maliput_implementation,
+                                                  const DragwayBuildProperties& dragway_build_properties,
+                                                  const MultilaneBuildProperties& multilane_build_properties,
+                                                  const MalidriveBuildProperties& malidrive_build_properties) {
   switch (maliput_implementation) {
     case MaliputImplementation::kDragway:
       return CreateDragwayRoadNetwork(dragway_build_properties);
