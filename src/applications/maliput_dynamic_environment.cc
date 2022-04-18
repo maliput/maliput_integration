@@ -60,7 +60,7 @@ std::map<DiscreteValueRule::Id, DiscreteValueRule> GetStaticDiscreteRules(
   const auto rules = rulebook->Rules();
   const auto discrete_value_rules = rules.discrete_value_rules;
   const auto filtered_rules = maliput::FilterRules(
-      rulebook->Rules(), {[](const DiscreteValueRule& dvr) { return dvr.values().size() == 1; }}, {});
+      rulebook->Rules(), {[](const DiscreteValueRule& dvr) { return dvr.states().size() == 1; }}, {});
   return filtered_rules.discrete_value_rules;
 }
 
@@ -71,7 +71,7 @@ std::map<RangeValueRule::Id, RangeValueRule> GetStaticRangeRules(const maliput::
   const auto rules = rulebook->Rules();
   const auto range_value_rules = rules.range_value_rules;
   const auto filtered_rules =
-      maliput::FilterRules(rulebook->Rules(), {}, {[](const RangeValueRule& rvr) { return rvr.ranges().size() == 1; }});
+      maliput::FilterRules(rulebook->Rules(), {}, {[](const RangeValueRule& rvr) { return rvr.states().size() == 1; }});
   return filtered_rules.range_value_rules;
 }
 
