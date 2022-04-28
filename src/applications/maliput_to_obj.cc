@@ -24,8 +24,8 @@
 #include <maliput/common/filesystem.h>
 #include <maliput/common/logger.h>
 #include <maliput/common/maliput_abort.h>
-#include <maliput/utilities/generate_obj.h>
-#include <maliput/utilities/generate_urdf.h>
+#include <maliput/utility/generate_obj.h>
+#include <maliput/utility/generate_urdf.h>
 #include <yaml-cpp/yaml.h>
 
 #include "integration/tools.h"
