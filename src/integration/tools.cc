@@ -67,7 +67,7 @@ std::unique_ptr<api::RoadNetwork> CreateDragwayRoadNetwork(const DragwayBuildPro
   std::unique_ptr<api::rules::RuleRegistry> rule_registry = std::make_unique<api::rules::RuleRegistry>();
   std::unique_ptr<ManualPhaseRingBook> phase_ring_book = std::make_unique<ManualPhaseRingBook>();
   std::unique_ptr<ManualPhaseProvider> phase_provider = std::make_unique<ManualPhaseProvider>();
-  std::unique_ptr<IntersectionBook> intersection_book = std::make_unique<IntersectionBook>();
+  std::unique_ptr<IntersectionBook> intersection_book = std::make_unique<IntersectionBook>(rg.get());
 
   std::unique_ptr<ManualRightOfWayRuleStateProvider> right_of_way_rule_state_provider =
       std::make_unique<ManualRightOfWayRuleStateProvider>();
@@ -93,8 +93,8 @@ std::unique_ptr<api::RoadNetwork> CreateMultilaneRoadNetwork(const MultilaneBuil
   auto phase_ring_book =
       LoadPhaseRingBookFromFileOldRules(rulebook.get(), traffic_light_book.get(), build_properties.yaml_file);
   std::unique_ptr<ManualPhaseProvider> phase_provider = std::make_unique<ManualPhaseProvider>();
-  auto intersection_book =
-      LoadIntersectionBookFromFile(build_properties.yaml_file, *rulebook, *phase_ring_book, phase_provider.get());
+  auto intersection_book = LoadIntersectionBookFromFile(build_properties.yaml_file, *rulebook, *phase_ring_book,
+                                                        rg.get(), phase_provider.get());
   std::unique_ptr<api::rules::RuleRegistry> rule_registry = std::make_unique<api::rules::RuleRegistry>();
 
   std::unique_ptr<ManualRightOfWayRuleStateProvider> right_of_way_rule_state_provider =
