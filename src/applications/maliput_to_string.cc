@@ -22,7 +22,7 @@
 
 #include <gflags/gflags.h>
 #include <maliput/common/logger.h>
-#include <maliput/utilities/generate_string.h>
+#include <maliput/utility/generate_string.h>
 
 #include "integration/tools.h"
 #include "maliput_gflags.h"

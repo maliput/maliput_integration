@@ -33,7 +33,7 @@
 #include <maliput/api/road_network.h>
 #include <maliput/common/logger.h>
 #include <maliput/routing/derive_lane_s_routes.h>
-#include <maliput/utilities/generate_string.h>
+#include <maliput/utility/generate_string.h>
 #include <yaml-cpp/yaml.h>
 
 #include "integration/tools.h"

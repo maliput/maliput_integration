@@ -9,7 +9,7 @@ target_link_libraries(maliput_to_obj
     gflags
     integration
     maliput::common
-    maliput::utilities
+    maliput::utility
     maliput_dragway::maliput_dragway
     maliput_malidrive::loader
     maliput_multilane::maliput_multilane
@@ -23,7 +23,7 @@ target_link_libraries(maliput_to_string
     gflags
     integration
     maliput::common
-    maliput::utilities
+    maliput::utility
     maliput_dragway::maliput_dragway
     maliput_malidrive::loader
     maliput_multilane::maliput_multilane
@@ -37,7 +37,7 @@ target_link_libraries(maliput_query
     gflags
     integration
     maliput::common
-    maliput::utilities
+    maliput::utility
     maliput_dragway::maliput_dragway
     maliput_malidrive::loader
     maliput_multilane::maliput_multilane
@@ -52,7 +52,7 @@ target_link_libraries(maliput_derive_lane_s_routes
     integration
     maliput::common
     maliput::routing
-    maliput::utilities
+    maliput::utility
     maliput_dragway::maliput_dragway
     maliput_malidrive::loader
     maliput_multilane::maliput_multilane
@@ -67,7 +67,7 @@ target_link_libraries(maliput_measure_load_time
     integration
     maliput::common
     maliput::routing
-    maliput::utilities
+    maliput::utility
     maliput_dragway::maliput_dragway
     maliput_malidrive::loader
     maliput_multilane::maliput_multilane
@@ -82,7 +82,7 @@ target_link_libraries(maliput_to_string_with_plugin
   maliput::api
   maliput::plugin
   maliput::common
-  maliput::utilities
+  maliput::utility
 )
 
 add_executable(maliput_dynamic_environment
@@ -95,7 +95,7 @@ target_link_libraries(maliput_dynamic_environment
   maliput::api
   maliput::plugin
   maliput::common
-  maliput::utilities
+  maliput::utility
 )
 
 ##############################################################################
