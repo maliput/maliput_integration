@@ -1,6 +1,22 @@
 ##############################################################################
 # Sources
 ##############################################################################
+add_executable(maliput_object_query
+  maliput_object_query.cc
+)
+
+target_link_libraries(maliput_object_query
+    gflags
+    integration
+    maliput::common
+    maliput::utility
+    maliput_dragway::maliput_dragway
+    maliput_malidrive::loader
+    maliput_multilane::maliput_multilane
+    maliput_object::api
+    maliput_object::base
+)
+
 add_executable(maliput_to_obj
   maliput_to_obj.cc
 )
@@ -107,6 +123,7 @@ install(
     maliput_derive_lane_s_routes
     maliput_dynamic_environment
     maliput_measure_load_time
+    maliput_object_query
     maliput_query
     maliput_to_obj
     maliput_to_string

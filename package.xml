@@ -16,6 +16,7 @@
   <depend>maliput_dragway</depend>
   <depend>maliput_malidrive</depend>
   <depend>maliput_multilane</depend>
+  <depend>maliput_object</depend>
   <depend>maliput_py</depend>
   <depend>yaml-cpp</depend>
 
