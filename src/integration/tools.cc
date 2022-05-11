@@ -15,6 +15,7 @@
 #include <maliput/base/road_rulebook_loader.h>
 #include <maliput/base/traffic_light_book.h>
 #include <maliput/base/traffic_light_book_loader.h>
+#include <maliput/common/filesystem.h>
 #include <maliput/common/logger.h>
 #include <maliput/common/maliput_abort.h>
 #include <maliput_dragway/road_geometry.h>
@@ -29,6 +30,9 @@ namespace maliput {
 namespace integration {
 namespace {
 
+constexpr char MALIPUT_MALIDRIVE_RESOURCE_ROOT[] = "MALIPUT_MALIDRIVE_RESOURCE_ROOT";
+constexpr char MULTILANE_RESOURCE_ROOT[] = "MULTILANE_RESOURCE_ROOT";
+
 // Holds the conversions from MaliputImplementation to std::string.
 const std::map<MaliputImplementation, std::string> maliput_impl_to_string{
     {MaliputImplementation::kDragway, "dragway"},
@@ -42,6 +46,16 @@ const std::map<std::string, MaliputImplementation> string_to_maliput_impl{
     {"malidrive", MaliputImplementation::kMalidrive},
     {"multilane", MaliputImplementation::kMultilane},
 };
+
+// @returns @p file_name 's path located at @p env path. If not located, an empty string is returned.
+// @throws maliput::common::assertion_error When @p file_name is an absolute path.
+std::string GetFilePathFromEnv(const std::string& file_name, const std::string& env) {
+  MALIPUT_THROW_UNLESS(!maliput::common::Path{file_name}.is_absolute());
+  maliput::common::Path file_path = maliput::common::Filesystem::get_env_path(env);
+  file_path.append(file_name);
+  // Returns empty string if file_path doesn't match any existing file.
+  return file_path.exists() ? file_path.get_path() : "";
+}
 
 }  // namespace
 
@@ -87,14 +101,14 @@ std::unique_ptr<api::RoadNetwork> CreateMultilaneRoadNetwork(const MultilaneBuil
   if (build_properties.yaml_file.empty()) {
     MALIPUT_ABORT_MESSAGE("yaml_file cannot be empty.");
   }
-  auto rg = maliput::multilane::LoadFile(maliput::multilane::BuilderFactory(), build_properties.yaml_file);
-  auto rulebook = LoadRoadRulebookFromFile(rg.get(), build_properties.yaml_file);
-  auto traffic_light_book = LoadTrafficLightBookFromFile(build_properties.yaml_file);
-  auto phase_ring_book =
-      LoadPhaseRingBookFromFileOldRules(rulebook.get(), traffic_light_book.get(), build_properties.yaml_file);
+  const std::string yaml_file_path = GetMultilaneResource(build_properties.yaml_file);
+  auto rg = maliput::multilane::LoadFile(maliput::multilane::BuilderFactory(), yaml_file_path);
+  auto rulebook = LoadRoadRulebookFromFile(rg.get(), yaml_file_path);
+  auto traffic_light_book = LoadTrafficLightBookFromFile(yaml_file_path);
+  auto phase_ring_book = LoadPhaseRingBookFromFileOldRules(rulebook.get(), traffic_light_book.get(), yaml_file_path);
   std::unique_ptr<ManualPhaseProvider> phase_provider = std::make_unique<ManualPhaseProvider>();
-  auto intersection_book = LoadIntersectionBookFromFile(build_properties.yaml_file, *rulebook, *phase_ring_book,
-                                                        rg.get(), phase_provider.get());
+  auto intersection_book =
+      LoadIntersectionBookFromFile(yaml_file_path, *rulebook, *phase_ring_book, rg.get(), phase_provider.get());
   std::unique_ptr<api::rules::RuleRegistry> rule_registry = std::make_unique<api::rules::RuleRegistry>();
 
   std::unique_ptr<ManualRightOfWayRuleStateProvider> right_of_way_rule_state_provider =
@@ -116,7 +130,7 @@ std::unique_ptr<api::RoadNetwork> CreateMalidriveRoadNetwork(const MalidriveBuil
 
   std::map<std::string, std::string> road_network_configuration;
   road_network_configuration.emplace("road_geometry_id", "malidrive_rg");
-  road_network_configuration.emplace("opendrive_file", build_properties.xodr_file_path);
+  road_network_configuration.emplace("opendrive_file", GetMalidriveResource(build_properties.xodr_file_path));
   if (build_properties.linear_tolerance.has_value()) {
     road_network_configuration.emplace("linear_tolerance", std::to_string(build_properties.linear_tolerance.value()));
   }
@@ -136,19 +150,21 @@ std::unique_ptr<api::RoadNetwork> CreateMalidriveRoadNetwork(const MalidriveBuil
   road_network_configuration.emplace("omit_nondrivable_lanes",
                                      build_properties.omit_nondrivable_lanes ? "true" : "false");
   if (!build_properties.rule_registry_file.empty()) {
-    road_network_configuration.emplace("rule_registry", build_properties.rule_registry_file);
+    road_network_configuration.emplace("rule_registry", GetMalidriveResource(build_properties.rule_registry_file));
   }
   if (!build_properties.road_rule_book_file.empty()) {
-    road_network_configuration.emplace("road_rule_book", build_properties.road_rule_book_file);
+    road_network_configuration.emplace("road_rule_book", GetMalidriveResource(build_properties.road_rule_book_file));
   }
   if (!build_properties.traffic_light_book_file.empty()) {
-    road_network_configuration.emplace("traffic_light_book", build_properties.traffic_light_book_file);
+    road_network_configuration.emplace("traffic_light_book",
+                                       GetMalidriveResource(build_properties.traffic_light_book_file));
   }
   if (!build_properties.phase_ring_book_file.empty()) {
-    road_network_configuration.emplace("phase_ring_book", build_properties.phase_ring_book_file);
+    road_network_configuration.emplace("phase_ring_book", GetMalidriveResource(build_properties.phase_ring_book_file));
   }
   if (!build_properties.intersection_book_file.empty()) {
-    road_network_configuration.emplace("intersection_book", build_properties.intersection_book_file);
+    road_network_configuration.emplace("intersection_book",
+                                       GetMalidriveResource(build_properties.intersection_book_file));
   }
 
   return malidrive::loader::Load<malidrive::builder::RoadNetworkBuilder>(road_network_configuration);
@@ -168,6 +184,18 @@ std::unique_ptr<api::RoadNetwork> LoadRoadNetwork(MaliputImplementation maliput_
     default:
       MALIPUT_ABORT_MESSAGE("Error loading RoadNetwork. Unknown implementation.");
   }
+}
+
+std::string GetMalidriveResource(const std::string& resource_name) {
+  if (maliput::common::Path{resource_name}.is_absolute()) return resource_name;
+  const std::string file_path = GetFilePathFromEnv("resources/odr/" + resource_name, MALIPUT_MALIDRIVE_RESOURCE_ROOT);
+  return file_path.empty() ? resource_name : file_path;
+}
+
+std::string GetMultilaneResource(const std::string& resource_name) {
+  if (maliput::common::Path{resource_name}.is_absolute()) return resource_name;
+  const std::string file_path = GetFilePathFromEnv(resource_name, MULTILANE_RESOURCE_ROOT);
+  return file_path.empty() ? resource_name : file_path;
 }
 
 }  // namespace integration

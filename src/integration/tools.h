@@ -92,5 +92,27 @@ std::unique_ptr<api::RoadNetwork> LoadRoadNetwork(MaliputImplementation maliput_
                                                   const MultilaneBuildProperties& multilane_build_properties,
                                                   const MalidriveBuildProperties& malidrive_build_properties);
 
+/// Obtains the correspondent path to the @p resource_name located at
+/// `${MALIPUT_MALIDRIVE_RESOURCES_ROOT}/resources/odr` if exists, otherwise it returns @p resource_name .
+///
+/// @param resource_name Name of the resource.
+/// @returns
+///  - @p resource_name when @p resource_name is an absolute path.
+///  - The full path to @p resource_name when @p resource_name is relative path and it is found at the malidrive
+///  resource folder
+///  - @p resource_name when @p resource_name is relative path but it isn't found at the malidrive resource folder.
+std::string GetMalidriveResource(const std::string& resource_name);
+
+/// Obtains the correspondent path to the @p resource_name located at
+/// `${MULTILANE_RESOURCES_ROOT}` if exists, otherwise it returns @p resource_name .
+///
+/// @param resource_name Name of the resource.
+/// @returns
+///  - @p resource_name when @p resource_name is an absolute path.
+///  - The full path to @p resource_name when @p resource_name is relative path and it is found at the multilane
+///  resource folder
+///  - @p resource_name when @p resource_name is relative path but it isn't found at the multilane resource folder.
+std::string GetMultilaneResource(const std::string& resource_name);
+
 }  // namespace integration
 }  // namespace maliput
