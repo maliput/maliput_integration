@@ -165,13 +165,15 @@ const std::map<const std::string, const Command> CommandsUsage() {
         " - Disjointed: Returns all the lanes that does not have any points inside the bounding region.",
         " -  Contained: Returns all the lanes that have all the their points inside the bounding region.",
         "As for the Bounding Region, it will create a Bounding Box as default with s_x, s_y, s_z sizes,",
-        "p_x, p_y, p_z positions and roll, pitch, roll orientation."},
+        "p_x, p_y, p_z positions and roll, pitch, yaw orientation."},
         11}},
       {"Route",
        {"Route",
         "Route s_x_1 s_y_1 s_z_1 p_x_1 p_y_1 p_z_1 roll_1 pitch_1 yaw_1  s_x_2 s_y_2 s_z_2 p_x_2 p_y_2 p_z_2 roll_2 pitch_2 yaw_2",
         {"Obtains, the sequence of lanes need in order to get from",
-         "Point A to Point B."},
+         "Object 1 to Object 2. The Objects have a region according to",
+         "a Bounding Box as default and each object requires s_x, s_y, s_z sizes,"
+         "p_x, p_y, p_z positions and roll, pitch, yaw orientation."},
         19}},
   };
 }
@@ -698,6 +700,7 @@ class RoadNetworkQuery {
 
   //Prints the Object properties (size, position and orientation).
   static void PrintObjectProperties(const maliput::object::api::Object<maliput::math::Vector3>* object_ptr){
+    //TODO Add size and orientation from the bounding region to the print.
     std::cout << "  Object Id: "<< object_ptr->id()<<std::endl;
     //std::cout << "Size: "<< object_ptr->bounding_region().box_size() <<std::endl;
     std::cout << "  Position: "<< object_ptr->position() <<std::endl;
