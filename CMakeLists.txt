@@ -17,6 +17,7 @@ find_package(maliput REQUIRED)
 find_package(maliput_dragway REQUIRED)
 find_package(maliput_malidrive REQUIRED)
 find_package(maliput_multilane REQUIRED)
+find_package(maliput_object REQUIRED)
 find_package(maliput_py REQUIRED)
 find_package(yaml-cpp REQUIRED)
 
@@ -60,7 +61,7 @@ if(BUILD_DOCS)
   find_package(ament_cmake_doxygen REQUIRED)
   ament_doxygen_generate(doxygen_maliput_integration
     CONFIG_OVERLAY doc/Doxyfile.overlay.in
-    DEPENDENCIES maliput maliput_py maliput_malidrive maliput_dragway maliput_multilane
+    DEPENDENCIES maliput maliput_py maliput_malidrive maliput_dragway maliput_multilane maliput_object
     TEST_ON_WARNS
   )
   add_definitions(-DBUILD_DOCS)
