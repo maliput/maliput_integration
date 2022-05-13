@@ -18,19 +18,18 @@
 #include <chrono>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <optional>
 #include <ostream>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <memory>
 
 #include <gflags/gflags.h>
 #include <maliput/common/logger.h>
 #include <maliput/common/maliput_abort.h>
 #include <maliput_malidrive/constants.h>
 #include <maliput_malidrive/utility/file_tools.h>
-
 #include <maliput_object/api/object.h>
 #include <maliput_object/api/overlapping_type.h>
 #include <maliput_object/base/bounding_box.h>
@@ -161,10 +160,10 @@ const std::map<const std::string, const Command> CommandsUsage() {
        {"FindOverlappingLanesIn",
         "FindOverlappingLanesIn overlapping_type box_length box_width box_height x y z roll pitch yaw",
         {"Obtains the Lanes that overlap with a Bounding Box of size [box_length, box_width, box_height]",
-          " with a pose [x, y, z, roll, pitch, yaw] according to the selected [overlapping_type]:",
-          " - intersected: Returns lanes that intersect the bounding box.",
-          " - disjointed: Returns lanes that don't intersect the bounding box.",
-          " - contained: Returns the lanes that are contained within the bounding box."},
+         "with a pose [x, y, z, roll, pitch, yaw] according to the selected [overlapping_type]:",
+         " - intersected: Returns lanes that intersect the bounding box.",
+         " - disjointed: Returns lanes that don't intersect the bounding box.",
+         " - contained: Returns the lanes that are contained within the bounding box."},
         11}},
       {"Route",
        {"Route",
@@ -303,7 +302,7 @@ class RoadNetworkQuery {
     MALIPUT_THROW_UNLESS(rn_ != nullptr);
 
     object_book_ = std::make_unique<maliput::object::ManualObjectBook<maliput::math::Vector3>>();
-    object_query_= std::make_unique<maliput::object::SimpleObjectQuery>(rn_, object_book_.get());
+    object_query_ = std::make_unique<maliput::object::SimpleObjectQuery>(rn_, object_book_.get());
   }
 
   /// Redirects `inertial_position` and `radius` to RoadGeometry::FindRoadPosition().
@@ -662,31 +661,40 @@ class RoadNetworkQuery {
   }
 
   /// Gets all the Lanes (according to the overlapping type) in respect to a BoundingRegion
-  void FindOverlappingLanesIn(const maliput::object::api::Object<maliput::math::Vector3>* bounding_object_ptr, const maliput::object::api::OverlappingType overlapping_type) {
+  void FindOverlappingLanesIn(const maliput::object::api::Object<maliput::math::Vector3>* bounding_object_ptr,
+                              const maliput::object::api::OverlappingType overlapping_type) {
+    static const std::map<maliput::object::api::OverlappingType, std::string> overlapping_type_to_string{
+        {maliput::object::api::OverlappingType::kDisjointed, "disjointed"},
+        {maliput::object::api::OverlappingType::kIntersected, "intersected"},
+        {maliput::object::api::OverlappingType::kContained, "contained"}};
     const auto start = std::chrono::high_resolution_clock::now();
-    const std::vector<const maliput::api::Lane*> overlapping_lanes = object_query_->FindOverlappingLanesIn(bounding_object_ptr, overlapping_type);
+    const std::vector<const maliput::api::Lane*> overlapping_lanes =
+        object_query_->FindOverlappingLanesIn(bounding_object_ptr, overlapping_type);
     const auto end = std::chrono::high_resolution_clock::now();
-    (*out_) << "The overlapping lanes for the object: " << std::endl;
+    (*out_) << "The " << overlapping_type_to_string.at(overlapping_type)
+            << " overlapping lanes for the object: " << std::endl;
     PrintObjectProperties(bounding_object_ptr);
     (*out_) << "Are the following: " << std::endl;
-    for (const auto& lane : overlapping_lanes){
+    for (const auto& lane : overlapping_lanes) {
       (*out_) << "  Lane Id: " << lane->id() << std::endl;
     };
     const std::chrono::duration<double> duration = (end - start);
-    PrintQueryTime(duration.count());   
+    PrintQueryTime(duration.count());
   }
 
   /// Gets all the lanes needed to get from the position of an Object to the position of another Object
-  void Route(const maliput::object::api::Object<maliput::math::Vector3>* bounding_object_1_ptr, const maliput::object::api::Object<maliput::math::Vector3>* bounding_object_2_ptr) {
+  void Route(const maliput::object::api::Object<maliput::math::Vector3>* bounding_object_1_ptr,
+             const maliput::object::api::Object<maliput::math::Vector3>* bounding_object_2_ptr) {
     const auto start = std::chrono::high_resolution_clock::now();
-    const std::optional<const maliput::api::LaneSRoute> route = object_query_->Route(bounding_object_1_ptr, bounding_object_2_ptr);
+    const std::optional<const maliput::api::LaneSRoute> route =
+        object_query_->Route(bounding_object_1_ptr, bounding_object_2_ptr);
     const auto end = std::chrono::high_resolution_clock::now();
-    if (route.has_value()){
-      (*out_) << "The Route from the object: "<< std::endl;
+    if (route.has_value()) {
+      (*out_) << "The Route from the object: " << std::endl;
       PrintObjectProperties(bounding_object_1_ptr);
-      (*out_) << "to the object: " << route.value() << std::endl;
+      (*out_) << "to the object: " << std::endl;
       PrintObjectProperties(bounding_object_2_ptr);
-      (*out_) << "is the following: " << route.value() << std::endl;
+      (*out_) << "is the following: \n" << route.value() << std::endl;
     } else {
       (*out_) << "There is no Route between object: " << std::endl;
       PrintObjectProperties(bounding_object_1_ptr);
@@ -697,23 +705,22 @@ class RoadNetworkQuery {
     PrintQueryTime(duration.count());
   }
 
-  /// @return 
-  maliput::object::ManualObjectBook<maliput::math::Vector3>* GetManualObjectBook(){
-    return object_book_.get();
-  }
+  /// @return the object_book_ variable.
+  maliput::object::ManualObjectBook<maliput::math::Vector3>* GetManualObjectBook() { return object_book_.get(); }
+
  private:
   // Prints "Elapsed Query Time: < @p sec >".
   static void PrintQueryTime(double sec) { std::cout << "Elapsed Query Time: " << sec << " s" << std::endl; }
 
-  //Prints the Object properties (size, position and orientation).
-  static void PrintObjectProperties(const maliput::object::api::Object<maliput::math::Vector3>* object_ptr){
-    //TODO Add size and orientation from the bounding region to the print.
-    //std::cout << "  Object Id: "<< object_ptr->id()<<std::endl;
-    const maliput::object::BoundingBox* bounding_box_ptr = dynamic_cast<const maliput::object::BoundingBox*>(&(object_ptr->bounding_region()));
-
-    std::cout << "  Size: "<< bounding_box_ptr->box_size() <<std::endl;
-    std::cout << "  Position:    "<< object_ptr->position() <<std::endl;
-    std::cout << "  Orientation: "<< bounding_box_ptr->get_orientation().vector() <<std::endl;
+  // Prints the Object properties (size, position and orientation).
+  static void PrintObjectProperties(const maliput::object::api::Object<maliput::math::Vector3>* object_ptr) {
+    // TODO Add size and orientation from the bounding region to the print.
+    // std::cout << "  Object Id: "<< object_ptr->id()<<std::endl;
+    const maliput::object::BoundingBox* bounding_box_ptr =
+        dynamic_cast<const maliput::object::BoundingBox*>(&(object_ptr->bounding_region()));
+    std::cout << "  Size:        " << bounding_box_ptr->box_size() << std::endl;
+    std::cout << "  Position:    " << object_ptr->position() << std::endl;
+    std::cout << "  Orientation: " << bounding_box_ptr->get_orientation().vector() << std::endl;
   }
 
   // Finds QueryResults of Rules for `lane_id`.
@@ -750,16 +757,15 @@ maliput::api::LaneId LaneIdFromCLI(char** argv) {
 /// @warning This function will abort if preconditions are not met.
 maliput::object::api::OverlappingType OverlappingTypeFromCLI(char** argv) {
   MALIPUT_DEMAND(argv != nullptr);
-  
-  static const std::map<std::string, maliput::object::api::OverlappingType> string_to_overlapping_type {
-        { "disjointed", maliput::object::api::OverlappingType::kDisjointed},
-        { "intersected", maliput::object::api::OverlappingType::kIntersected},
-        { "contained", maliput::object::api::OverlappingType::kContained}
-  };
+
+  static const std::map<std::string, maliput::object::api::OverlappingType> string_to_overlapping_type{
+      {"disjointed", maliput::object::api::OverlappingType::kDisjointed},
+      {"intersected", maliput::object::api::OverlappingType::kIntersected},
+      {"contained", maliput::object::api::OverlappingType::kContained}};
 
   const std::string overlapping_type_str = *argv;
   MALIPUT_DEMAND(string_to_overlapping_type.find(overlapping_type_str) != string_to_overlapping_type.end());
-  
+
   return string_to_overlapping_type.at(overlapping_type_str);
 }
 
@@ -785,7 +791,9 @@ std::unique_ptr<maliput::object::api::Object<maliput::math::Vector3>> ObjectFrom
   const double yaw = std::strtod(argv[8], nullptr);
   const maliput::math::RollPitchYaw orientation{roll, pitch, yaw};
 
-  return std::make_unique<maliput::object::api::Object<maliput::math::Vector3>>(maliput::object::api::Object<maliput::math::Vector3>::Id{id}, std::map<std::string, std::string>{}, std::make_unique<maliput::object::BoundingBox>(position, size, orientation, 1e-6));
+  return std::make_unique<maliput::object::api::Object<maliput::math::Vector3>>(
+      maliput::object::api::Object<maliput::math::Vector3>::Id{id}, std::map<std::string, std::string>{},
+      std::make_unique<maliput::object::BoundingBox>(position, size, orientation, 1e-6));
 }
 
 /// @return A SegmentId whose string representation is `*argv`.
@@ -985,21 +993,20 @@ int Main(int argc, char* argv[]) {
     query.GetNumberOfLanes();
 
   } else if (command.name.compare("FindOverlappingLanesIn") == 0) {
-
     const maliput::object::api::OverlappingType overlapping_type = OverlappingTypeFromCLI(&(argv[2]));
-    std::unique_ptr<maliput::object::api::Object<maliput::math::Vector3>> bounding_object_ptr = ObjectFromCLI(std::string {"Box_1"}, &(argv[3]));
-    query.GetManualObjectBook()->AddObject(ObjectFromCLI(std::string {"Box_1"}, &(argv[3])));
+    std::unique_ptr<maliput::object::api::Object<maliput::math::Vector3>> bounding_object_ptr =
+        ObjectFromCLI(std::string{"Box_1"}, &(argv[3]));
     query.FindOverlappingLanesIn(bounding_object_ptr.get(), overlapping_type);
+    query.GetManualObjectBook()->AddObject(std::move(bounding_object_ptr));
 
   } else if (command.name.compare("Route") == 0) {
-    //const std::string box_id_1 = "Box_1";
-    //const std::string box_id_2 = "Box_2";
-    std::unique_ptr<maliput::object::api::Object<maliput::math::Vector3>> bounding_object_1 = ObjectFromCLI(std::string {"Box_1"}, &(argv[3]));
-    std::unique_ptr<maliput::object::api::Object<maliput::math::Vector3>> bounding_object_2 = ObjectFromCLI(std::string {"Box_2"}, &(argv[3]));
-    query.GetManualObjectBook()->AddObject(ObjectFromCLI(std::string {"Box_1"} ,&(argv[2])));
-    query.GetManualObjectBook()->AddObject(ObjectFromCLI(std::string {"Box_2"}, &(argv[11])));
-
+    std::unique_ptr<maliput::object::api::Object<maliput::math::Vector3>> bounding_object_1 =
+        ObjectFromCLI(std::string{"Box_1"}, &(argv[3]));
+    std::unique_ptr<maliput::object::api::Object<maliput::math::Vector3>> bounding_object_2 =
+        ObjectFromCLI(std::string{"Box_2"}, &(argv[3]));
     query.Route(bounding_object_1.get(), bounding_object_2.get());
+    query.GetManualObjectBook()->AddObject(std::move(bounding_object_1));
+    query.GetManualObjectBook()->AddObject(std::move(bounding_object_2));
   }
 
   return 0;
