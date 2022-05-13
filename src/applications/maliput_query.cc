@@ -778,7 +778,7 @@ std::unique_ptr<maliput::object::api::Object<maliput::math::Vector3>> ObjectFrom
   const double s_x = std::strtod(argv[0], nullptr);
   const double s_y = std::strtod(argv[1], nullptr);
   const double s_z = std::strtod(argv[2], nullptr);
-  MALIPUT_DEMAND(s_x > 0 && s_y > 0 && s_z > 0);
+  MALIPUT_DEMAND(s_x >= 0 && s_y >= 0 && s_z >= 0);
   const maliput::math::Vector3 size{s_x, s_y, s_z};
 
   const double p_x = std::strtod(argv[3], nullptr);
@@ -994,19 +994,22 @@ int Main(int argc, char* argv[]) {
 
   } else if (command.name.compare("FindOverlappingLanesIn") == 0) {
     const maliput::object::api::OverlappingType overlapping_type = OverlappingTypeFromCLI(&(argv[2]));
-    std::unique_ptr<maliput::object::api::Object<maliput::math::Vector3>> bounding_object_ptr =
+    std::unique_ptr<maliput::object::api::Object<maliput::math::Vector3>> bounding_object =
         ObjectFromCLI(std::string{"Box_1"}, &(argv[3]));
-    query.FindOverlappingLanesIn(bounding_object_ptr.get(), overlapping_type);
-    query.GetManualObjectBook()->AddObject(std::move(bounding_object_ptr));
+    const maliput::object::api::Object<maliput::math::Vector3>* bounding_object_ptr = bounding_object.get();
+    query.GetManualObjectBook()->AddObject(std::move(bounding_object));
+    query.FindOverlappingLanesIn(bounding_object_ptr, overlapping_type);
 
   } else if (command.name.compare("Route") == 0) {
     std::unique_ptr<maliput::object::api::Object<maliput::math::Vector3>> bounding_object_1 =
         ObjectFromCLI(std::string{"Box_1"}, &(argv[3]));
     std::unique_ptr<maliput::object::api::Object<maliput::math::Vector3>> bounding_object_2 =
         ObjectFromCLI(std::string{"Box_2"}, &(argv[3]));
-    query.Route(bounding_object_1.get(), bounding_object_2.get());
+    const maliput::object::api::Object<maliput::math::Vector3>* bounding_object_ptr_1 = bounding_object_1.get();
+    const maliput::object::api::Object<maliput::math::Vector3>* bounding_object_ptr_2 = bounding_object_2.get();
     query.GetManualObjectBook()->AddObject(std::move(bounding_object_1));
     query.GetManualObjectBook()->AddObject(std::move(bounding_object_2));
+    query.Route(bounding_object_ptr_1, bounding_object_ptr_2);
   }
 
   return 0;
