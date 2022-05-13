@@ -41,6 +41,8 @@ target_link_libraries(maliput_query
     maliput_dragway::maliput_dragway
     maliput_malidrive::loader
     maliput_multilane::maliput_multilane
+    maliput_object::api
+    maliput_object::base
 )
 
 add_executable(maliput_derive_lane_s_routes
