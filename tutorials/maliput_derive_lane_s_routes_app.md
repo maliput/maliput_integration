@@ -14,9 +14,9 @@ The application provides two ways of setting up the routing process:
   # -*- yaml -*-
   ---
   # If using malidrive backend:
-  xodr_file: src/maliput_malidrive/maliput_malidrive/resources/TShapeRoad.xodr
+  xodr_file: TShapeRoad.xodr
   # If using multilane backend:
-  yaml_file: src/maliput_multilane/resources/2x2_intersection.yaml
+  yaml_file: 2x2_intersection.yaml
 
   max_length: 100
   waypoints:
@@ -30,9 +30,9 @@ The application provides two ways of setting up the routing process:
     --end_waypoint="{47.5, -49, 0}"
     --max_length=100
     # For malidrive backend
-    --xodr_file_path=src/maliput_malidrive/maliput_malidrive/resources/TShapeRoad.xodr
+    --xodr_file_path=TShapeRoad.xodr
     # For multilane backend
-    --yaml_file: src/maliput_multilane/maliput_multilane/resources/2x2_intersection.yaml
+    --yaml_file: 2x2_intersection.yaml
   ```
 
 _Note: The configuration file method will be prioritized when flags are mixed up._
@@ -68,7 +68,7 @@ with the configuration YAML file being:
   ```yaml
   # -*- yaml -*-
   ---
-  xodr_file: src/maliput_malidrive/maliput_malidrive/resources/TShapeRoad.xodr
+  xodr_file: TShapeRoad.xodr
   max_length: 100
   waypoints:
     - [0.0, -2.0, 0.0]
@@ -117,7 +117,7 @@ with the configuration YAML file being:
   ```yaml
   # -*- yaml -*-
   ---
-  yaml_file: src/maliput_multilane/resources/2x2_intersection.yaml
+  yaml_file: 2x2_intersection.yaml
   max_length: 100
   waypoints:
     - [-50.0, -2.0, 0.0]
