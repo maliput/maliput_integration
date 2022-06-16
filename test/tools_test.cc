@@ -29,6 +29,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "integration/tools.h"
 
+#include <stdlib.h>
+
 #include <gtest/gtest.h>
 #include <maliput_dragway/road_geometry.h>
 #include <maliput_multilane/builder.h>
@@ -47,7 +49,11 @@ constexpr double kLaneWidth{3.7};
 constexpr double kShoulderWidth{3.};
 constexpr double kMaximumHeight{5.2};
 
+constexpr char MALIPUT_MALIDRIVE_RESOURCE_ROOT[] = "MALIPUT_MALIDRIVE_RESOURCE_ROOT";
+constexpr char MULTILANE_RESOURCE_ROOT[] = "MULTILANE_RESOURCE_ROOT";
+
 GTEST_TEST(CreateRoadNetwork, MalidriveRoadNetwork) {
+  setenv(MALIPUT_MALIDRIVE_RESOURCE_ROOT, DEF_MALIDRIVE_RESOURCES, 1);
   std::unique_ptr<const api::RoadNetwork> dut = CreateMalidriveRoadNetwork({kXodrFileName, 5e-2});
   EXPECT_NE(nullptr, dut);
   EXPECT_NE(nullptr, dut->road_geometry());
@@ -58,6 +64,7 @@ GTEST_TEST(CreateRoadNetwork, MalidriveRoadNetwork) {
 }
 
 GTEST_TEST(CreateRoadNetwork, MultilaneRoadNetwork) {
+  setenv(MULTILANE_RESOURCE_ROOT, DEF_MULTILANE_RESOURCES, 1);
   std::unique_ptr<const api::RoadNetwork> dut = CreateMultilaneRoadNetwork({kYamlFileName});
   EXPECT_NE(nullptr, dut);
   EXPECT_NE(nullptr, dut->road_geometry());
