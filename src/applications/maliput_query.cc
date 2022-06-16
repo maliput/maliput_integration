@@ -486,6 +486,8 @@ class RoadNetworkQuery {
     PrintQueryTime(duration.count());
   }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   /// Gets all right-of-way rules for the given `lane_s_range`.
   void GetRightOfWay(const maliput::api::LaneSRange& lane_s_range) {
     const auto start = std::chrono::high_resolution_clock::now();
@@ -517,6 +519,7 @@ class RoadNetworkQuery {
     const std::chrono::duration<double> duration = (end - start);
     PrintQueryTime(duration.count());
   }
+#pragma GCC diagnostic pop
 
   /// Gets all discrete-value-rules rules for the given `lane_s_range`.
   void GetDiscreteValueRule(const maliput::api::LaneSRange& lane_s_range) {
@@ -611,6 +614,8 @@ class RoadNetworkQuery {
 
     const maliput::api::rules::Phase& phase = it->second;
     (*out_) << "Right of way for " << phase_id.string() << ":" << std::endl;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     for (const auto& rule_id_to_rule_state_id : phase.rule_states()) {
       const maliput::api::rules::RightOfWayRule rule = road_rule_book->GetRule(rule_id_to_rule_state_id.first);
       const maliput::api::rules::RightOfWayRule::State& rule_state = rule.states().at(rule_id_to_rule_state_id.second);
@@ -620,6 +625,7 @@ class RoadNetworkQuery {
               << std::endl
               << std::endl;
     }
+#pragma GCC diagnostic pop
     const auto end = std::chrono::high_resolution_clock::now();
     const std::chrono::duration<double> duration = (end - start);
     PrintQueryTime(duration.count());
