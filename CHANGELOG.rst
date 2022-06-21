@@ -2,8 +2,8 @@
 Changelog for package maliput_integration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.0 (2022-06-21)
+------------------
 * Updates package.xml file.
 * Several changes for ros build farm compatibility (`#118 <https://github.com/maliput/maliput_integration/issues/118>`_)
 * Uses compile definitions for the tests. (`#117 <https://github.com/maliput/maliput_integration/issues/117>`_)
