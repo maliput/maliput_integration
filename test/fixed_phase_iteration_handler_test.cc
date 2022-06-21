@@ -47,19 +47,12 @@ namespace maliput {
 namespace integration {
 namespace {
 
-constexpr char MALIPUT_MALIDRIVE_RESOURCE_VAR[] = "MALIPUT_MALIDRIVE_RESOURCE_ROOT";
-
 // Uses maliput_malidrive's SingleRoadPedestrianCrosswalk phase rings to evaluate the FixedPhaseIterationHandler
 // implementation.
 class FixedPhaseIterationHandlerTest : public ::testing::Test {
  public:
   static constexpr char kYamlFileName[] = "/resources/odr/SingleRoadPedestrianCrosswalk.yaml";
   static constexpr char kXodrFileName[] = "/resources/odr/SingleRoadPedestrianCrosswalk.xodr";
-  const std::string kXodrFilePath{maliput::common::Filesystem::get_env_path(MALIPUT_MALIDRIVE_RESOURCE_VAR) +
-                                  kXodrFileName};
-  const std::string kYamlFilePath{maliput::common::Filesystem::get_env_path(MALIPUT_MALIDRIVE_RESOURCE_VAR) +
-                                  kYamlFileName};
-  const double kPhaseDuration{0.5};
 
   void SetUp() override {
     MalidriveBuildProperties properties{};
@@ -76,6 +69,10 @@ class FixedPhaseIterationHandlerTest : public ::testing::Test {
     ASSERT_NE(timer_, nullptr);
   }
 
+  const std::string kMaliputMalidriveResourcePath{DEF_MALIDRIVE_RESOURCES};
+  const std::string kXodrFilePath{kMaliputMalidriveResourcePath + kXodrFileName};
+  const std::string kYamlFilePath{kMaliputMalidriveResourcePath + kYamlFileName};
+  const double kPhaseDuration{0.5};
   std::unique_ptr<api::RoadNetwork> rn_;
   std::unique_ptr<Timer> timer_;
 };
