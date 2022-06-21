@@ -11,8 +11,6 @@ ament_add_pytest_test(maliput_to_obj_test maliput_to_obj_test.py
   ENV "MULTILANE_RESOURCE_ROOT=${MALIPUT_MULTILANE_RESOURCE_PATH}"
 )
 
-message(STATUS "****** maliput_multilane: ${maliput_multilane_DIR}")
-
 if (TARGET maliput_to_obj_test)
 add_dependencies(maliput_to_obj_test maliput_to_obj)
 endif()
