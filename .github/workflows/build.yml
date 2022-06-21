@@ -93,7 +93,7 @@ jobs:
         . /opt/ros/${ROS_DISTRO}/setup.bash;
         colcon build --packages-up-to ${PACKAGE_NAME} \
           --event-handlers=console_direct+ \
-          --cmake-args -DBUILD_TESTING=OFF -DBUILD_DOCS=OFF;
+          --cmake-args -DBUILD_TESTING=ON -DBUILD_DOCS=OFF;
     # Build tests for current package.
     - name: colcon build tests
       shell: bash
@@ -111,24 +111,4 @@ jobs:
         . /opt/ros/${ROS_DISTRO}/setup.bash;
         . install/setup.bash;
         colcon test --packages-select ${PACKAGE_NAME} --event-handlers=console_direct+;
-        colcon test-result --verbose;
-    # Build documentation.
-    - name: colcon build doxygen documentation
-      shell: bash
-      working-directory: ${{ env.ROS_WS }}
-      run: |
-        . /opt/ros/${ROS_DISTRO}/setup.bash;
-        colcon build --packages-up-to ${PACKAGE_NAME} \
-            --event-handlers=console_direct+ \
-            --cmake-args -DBUILD_TESTING=OFF -DBUILD_DOCS=ON;
-    # Test doxygen documentation.
-    - name: colcon test doxygen documentation
-      shell: bash
-      working-directory: ${{ env.ROS_WS }}
-      run: |
-        . /opt/ros/${ROS_DISTRO}/setup.bash;
-        . install/setup.bash;
-        colcon test --packages-select ${PACKAGE_NAME} \
-            --ctest-args ' -R' ' maliput_integration_doxygen_warnings' \
-            --event-handlers=console_direct+;
         colcon test-result --verbose;
