@@ -36,7 +36,7 @@
 import argparse
 
 from maliput.plugin import (
-    create_road_network_from_plugin
+    create_road_network
 )
 
 
@@ -97,7 +97,7 @@ def main():
     """
     plugin_name, params = parse_args()
 
-    rn = create_road_network_from_plugin(plugin_name, params)
+    rn = create_road_network(plugin_name, params)
     rg = rn.road_geometry()
     generate_string(rg)
 
