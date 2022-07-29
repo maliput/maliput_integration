@@ -2,6 +2,13 @@
 Changelog for package maliput_integration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Matches change in create_road_network binding. (`#120 <https://github.com/maliput/maliput_integration/issues/120>`_)
+* Adds triage workflow. (`#121 <https://github.com/maliput/maliput_integration/issues/121>`_)
+* Improves README. (`#119 <https://github.com/maliput/maliput_integration/issues/119>`_)
+* Contributors: Franco Cipollone
+
 0.1.0 (2022-06-21)
 ------------------
 * Updates package.xml file.
