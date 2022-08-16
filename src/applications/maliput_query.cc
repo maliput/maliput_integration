@@ -57,11 +57,11 @@
 #include <gflags/gflags.h>
 #include <maliput/common/logger.h>
 #include <maliput/common/maliput_abort.h>
+#include <maliput/math/bounding_box.h>
+#include <maliput/math/overlapping_type.h>
 #include <maliput_malidrive/constants.h>
 #include <maliput_malidrive/utility/file_tools.h>
 #include <maliput_object/api/object.h>
-#include <maliput_object/api/overlapping_type.h>
-#include <maliput_object/base/bounding_box.h>
 #include <maliput_object/base/manual_object_book.h>
 #include <maliput_object/base/simple_object_query.h>
 
@@ -697,11 +697,11 @@ class RoadNetworkQuery {
 
   /// Gets all the Lanes (according to the overlapping type) in respect to a BoundingRegion
   void FindOverlappingLanesIn(const maliput::object::api::Object<maliput::math::Vector3>* bounding_object_ptr,
-                              const maliput::object::api::OverlappingType overlapping_type) {
-    static const std::map<maliput::object::api::OverlappingType, std::string> overlapping_type_to_string{
-        {maliput::object::api::OverlappingType::kDisjointed, "disjointed"},
-        {maliput::object::api::OverlappingType::kIntersected, "intersected"},
-        {maliput::object::api::OverlappingType::kContained, "contained"}};
+                              const maliput::math::OverlappingType overlapping_type) {
+    static const std::map<maliput::math::OverlappingType, std::string> overlapping_type_to_string{
+        {maliput::math::OverlappingType::kDisjointed, "disjointed"},
+        {maliput::math::OverlappingType::kIntersected, "intersected"},
+        {maliput::math::OverlappingType::kContained, "contained"}};
     const auto start = std::chrono::high_resolution_clock::now();
     const std::vector<const maliput::api::Lane*> overlapping_lanes =
         object_query_->FindOverlappingLanesIn(bounding_object_ptr, overlapping_type);
@@ -751,8 +751,8 @@ class RoadNetworkQuery {
   static void PrintObjectProperties(const maliput::object::api::Object<maliput::math::Vector3>* object_ptr) {
     // TODO Add size and orientation from the bounding region to the print.
     // std::cout << "  Object Id: "<< object_ptr->id()<<std::endl;
-    const maliput::object::BoundingBox* bounding_box_ptr =
-        dynamic_cast<const maliput::object::BoundingBox*>(&(object_ptr->bounding_region()));
+    const maliput::math::BoundingBox* bounding_box_ptr =
+        dynamic_cast<const maliput::math::BoundingBox*>(&(object_ptr->bounding_region()));
     std::cout << "  Size:        " << bounding_box_ptr->box_size() << std::endl;
     std::cout << "  Position:    " << object_ptr->position() << std::endl;
     std::cout << "  Orientation: " << bounding_box_ptr->get_orientation().vector() << std::endl;
@@ -790,13 +790,13 @@ maliput::api::LaneId LaneIdFromCLI(char** argv) {
 /// @return An OverlappingType according to the selected by `*argv`.
 /// @pre `argv` is not nullptr.
 /// @warning This function will abort if preconditions are not met.
-maliput::object::api::OverlappingType OverlappingTypeFromCLI(char** argv) {
+maliput::math::OverlappingType OverlappingTypeFromCLI(char** argv) {
   MALIPUT_DEMAND(argv != nullptr);
 
-  static const std::map<std::string, maliput::object::api::OverlappingType> string_to_overlapping_type{
-      {"disjointed", maliput::object::api::OverlappingType::kDisjointed},
-      {"intersected", maliput::object::api::OverlappingType::kIntersected},
-      {"contained", maliput::object::api::OverlappingType::kContained}};
+  static const std::map<std::string, maliput::math::OverlappingType> string_to_overlapping_type{
+      {"disjointed", maliput::math::OverlappingType::kDisjointed},
+      {"intersected", maliput::math::OverlappingType::kIntersected},
+      {"contained", maliput::math::OverlappingType::kContained}};
 
   const std::string overlapping_type_str = *argv;
   MALIPUT_DEMAND(string_to_overlapping_type.find(overlapping_type_str) != string_to_overlapping_type.end());
@@ -828,7 +828,7 @@ std::unique_ptr<maliput::object::api::Object<maliput::math::Vector3>> ObjectFrom
 
   return std::make_unique<maliput::object::api::Object<maliput::math::Vector3>>(
       maliput::object::api::Object<maliput::math::Vector3>::Id{id}, std::map<std::string, std::string>{},
-      std::make_unique<maliput::object::BoundingBox>(position, size, orientation, 1e-6));
+      std::make_unique<maliput::math::BoundingBox>(position, size, orientation, 1e-6));
 }
 
 /// @return A SegmentId whose string representation is `*argv`.
@@ -1028,7 +1028,7 @@ int Main(int argc, char* argv[]) {
     query.GetNumberOfLanes();
 
   } else if (command.name.compare("FindOverlappingLanesIn") == 0) {
-    const maliput::object::api::OverlappingType overlapping_type = OverlappingTypeFromCLI(&(argv[2]));
+    const maliput::math::OverlappingType overlapping_type = OverlappingTypeFromCLI(&(argv[2]));
     std::unique_ptr<maliput::object::api::Object<maliput::math::Vector3>> bounding_object =
         ObjectFromCLI(std::string{"Box_1"}, &(argv[3]));
     const maliput::object::api::Object<maliput::math::Vector3>* bounding_object_ptr = bounding_object.get();
