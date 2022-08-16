@@ -2,8 +2,8 @@
 Changelog for package maliput_integration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.2 (2022-08-16)
+------------------
 * Matches with BoundingRegion moving to maliput. (`#122 <https://github.com/maliput/maliput_integration/issues/122>`_)
 * Contributors: Franco Cipollone
 
