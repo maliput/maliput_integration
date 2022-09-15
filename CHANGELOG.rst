@@ -2,8 +2,8 @@
 Changelog for package maliput_integration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.3 (2022-09-15)
+------------------
 * Adds Lane::ToSegmentPosition query. (`#123 <https://github.com/maliput/maliput_integration/issues/123>`_)
 * Contributors: Franco Cipollone
 
