@@ -113,15 +113,21 @@ const std::map<const std::string, const Command> CommandsUsage() {
         {"Obtains the LanePosition in a Lane, identified by lane_id, that is",
          "closest, in the world frame, to an (x, y, z) InertialPosition."},
         5}},
+      {"ToSegmentPosition",
+       {"ToSegmentPosition",
+        "ToSegmentPosition lane_id x y z",
+        {"Obtains the LanePosition in a Lane within the segment's boundaries, identified by lane_id, that is",
+         "closest, in the world frame, to an (x, y, z) InertialPosition."},
+        5}},
       {"GetOrientation",
        {"GetOrientation",
         "GetOrientation lane_id s r h",
         {"Obtains the orientation in a Lane, identified by lane_id, that is",
          "closest, in the world frame, to an (s, r, h) LanePosition."},
         5}},
-      {"LaneToInertialPosition",
-       {"LaneToInertialPosition",
-        "LaneToInertialPosition lane_id s r h",
+      {"ToInertialPosition",
+       {"ToInertialPosition",
+        "ToInertialPosition lane_id s r h",
         {"Obtains the InertialPosition for an (s, r, h) LanePosition in a Lane,", "identified by lane_id."},
         5}},
       {"GetMaxSpeedLimit",
@@ -389,6 +395,27 @@ class RoadNetworkQuery {
     const auto end = std::chrono::high_resolution_clock::now();
 
     (*out_) << "(" << lane_id.string() << ")->ToLanePosition(inertial_position: " << inertial_position << ")"
+            << std::endl;
+    (*out_) << "              : Result: lane_pos:" << lane_position_result.lane_position
+            << ", nearest_pos: " << lane_position_result.nearest_position
+            << ", with distance: " << lane_position_result.distance << std::endl;
+    const std::chrono::duration<double> duration = (end - start);
+    PrintQueryTime(duration.count());
+  }
+
+  /// Redirects `inertial_position` to `lane_id`'s Lane::ToSegmentPosition().
+  void ToSegmentPosition(const maliput::api::LaneId& lane_id, const maliput::api::InertialPosition& inertial_position) {
+    const maliput::api::Lane* lane = rn_->road_geometry()->ById().GetLane(lane_id);
+    if (lane == nullptr) {
+      (*out_) << "              : Result: Could not find lane. " << std::endl;
+      return;
+    }
+
+    const auto start = std::chrono::high_resolution_clock::now();
+    const maliput::api::LanePositionResult lane_position_result = lane->ToSegmentPosition(inertial_position);
+    const auto end = std::chrono::high_resolution_clock::now();
+
+    (*out_) << "(" << lane_id.string() << ")->ToSegmentPosition(inertial_position: " << inertial_position << ")"
             << std::endl;
     (*out_) << "              : Result: lane_pos:" << lane_position_result.lane_position
             << ", nearest_pos: " << lane_position_result.nearest_position
@@ -975,12 +1002,17 @@ int Main(int argc, char* argv[]) {
     const maliput::api::InertialPosition inertial_position = InertialPositionFromCLI(&(argv[3]));
 
     query.ToLanePosition(lane_id, inertial_position);
+  } else if (command.name.compare("ToSegmentPosition") == 0) {
+    const maliput::api::LaneId lane_id = LaneIdFromCLI(&(argv[2]));
+    const maliput::api::InertialPosition inertial_position = InertialPositionFromCLI(&(argv[3]));
+
+    query.ToSegmentPosition(lane_id, inertial_position);
   } else if (command.name.compare("GetOrientation") == 0) {
     const maliput::api::LaneId lane_id = LaneIdFromCLI(&(argv[2]));
     const maliput::api::LanePosition lane_position = LanePositionFromCLI(&(argv[3]));
 
     query.GetOrientation(lane_id, lane_position);
-  } else if (command.name.compare("LaneToInertialPosition") == 0) {
+  } else if (command.name.compare("ToInertialPosition") == 0) {
     const maliput::api::LaneId lane_id = LaneIdFromCLI(&(argv[2]));
     const maliput::api::LanePosition lane_position = LanePositionFromCLI(&(argv[3]));
 
