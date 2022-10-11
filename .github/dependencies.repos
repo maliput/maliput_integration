@@ -27,7 +27,15 @@ repositories:
     type: git
     url: https://github.com/maliput/maliput_object
     version: main
+  maliput_osm:
+    type: git
+    url: https://github.com/maliput/maliput_osm
+    version: main
   maliput_py:
     type: git
     url: https://github.com/maliput/maliput_py
+    version: main
+  maliput_sparse:
+    type: git
+    url: https://github.com/maliput/maliput_sparse
     version: main

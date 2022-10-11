@@ -7,12 +7,9 @@ add_executable(maliput_to_obj
 
 target_link_libraries(maliput_to_obj
     gflags
-    integration
     maliput::common
     maliput::utility
-    maliput_dragway::maliput_dragway
-    maliput_malidrive::loader
-    maliput_multilane::maliput_multilane
+    maliput_integration::integration
 )
 
 add_executable(maliput_to_string
@@ -21,12 +18,9 @@ add_executable(maliput_to_string
 
 target_link_libraries(maliput_to_string
     gflags
-    integration
     maliput::common
     maliput::utility
-    maliput_dragway::maliput_dragway
-    maliput_malidrive::loader
-    maliput_multilane::maliput_multilane
+    maliput_integration::integration
 )
 
 add_executable(maliput_query
@@ -35,12 +29,10 @@ add_executable(maliput_query
 
 target_link_libraries(maliput_query
     gflags
-    integration
     maliput::common
     maliput::utility
-    maliput_dragway::maliput_dragway
     maliput_malidrive::loader
-    maliput_multilane::maliput_multilane
+    maliput_integration::integration
     maliput_object::api
     maliput_object::base
 )
@@ -51,13 +43,10 @@ add_executable(maliput_derive_lane_s_routes
 
 target_link_libraries(maliput_derive_lane_s_routes
     gflags
-    integration
     maliput::common
     maliput::routing
     maliput::utility
-    maliput_dragway::maliput_dragway
-    maliput_malidrive::loader
-    maliput_multilane::maliput_multilane
+    maliput_integration::integration
 )
 
 add_executable(maliput_measure_load_time
@@ -66,13 +55,10 @@ add_executable(maliput_measure_load_time
 
 target_link_libraries(maliput_measure_load_time
     gflags
-    integration
     maliput::common
     maliput::routing
     maliput::utility
-    maliput_dragway::maliput_dragway
-    maliput_malidrive::loader
-    maliput_multilane::maliput_multilane
+    maliput_integration::integration
 )
 
 add_executable(maliput_to_string_with_plugin
@@ -93,11 +79,11 @@ add_executable(maliput_dynamic_environment
 
 target_link_libraries(maliput_dynamic_environment
   gflags
-  integration
   maliput::api
   maliput::plugin
   maliput::common
   maliput::utility
+  maliput_integration::integration
 )
 
 ##############################################################################

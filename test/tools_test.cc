@@ -113,6 +113,34 @@ GTEST_TEST(CreateRoadNetwork, DragwayRoadNetwork) {
   EXPECT_NE(nullptr, dynamic_cast<const dragway::RoadGeometry*>(dut->road_geometry()));
 }
 
+class CreateMaliputOsmRoadNetworkTest : public ::testing::Test {
+ public:
+  static constexpr int kOverwrite{1};
+  static constexpr char MULTILANE_RESOURCE_ROOT[] = "MULTILANE_RESOURCE_ROOT";
+
+  void SetUp() override {
+    const auto env = getenv(MULTILANE_RESOURCE_ROOT);
+    if (env != NULL) env_back_up_ = env;
+    setenv(MULTILANE_RESOURCE_ROOT, DEF_MULTILANE_RESOURCES, kOverwrite);
+  }
+  void TearDown() override {
+    unsetenv(MULTILANE_RESOURCE_ROOT);
+    if (!env_back_up_.empty()) setenv(MULTILANE_RESOURCE_ROOT, env_back_up_.c_str(), kOverwrite);
+  }
+
+ private:
+  std::string env_back_up_{};
+};
+
+TEST_F(CreateMaliputOsmRoadNetworkTest, MaliputOsmRoadNetwork) {
+  static constexpr char kFileName[] = "straight_forward.osm";
+  static constexpr char kRoadGeometryId[] = "maliput_osm_rg";
+  std::unique_ptr<const api::RoadNetwork> dut = CreateMaliputOsmRoadNetwork({kFileName, 1e-3, 1e-3, {0., 0.}});
+  EXPECT_NE(nullptr, dut);
+  EXPECT_NE(nullptr, dut->road_geometry());
+  EXPECT_EQ(dut->road_geometry()->id(), maliput::api::RoadGeometryId{kRoadGeometryId});
+}
+
 }  // namespace
 }  // namespace integration
 }  // namespace maliput
