@@ -25,12 +25,6 @@ target_link_libraries(tools_test
     maliput_multilane::maliput_multilane
 )
 
-target_compile_definitions(tools_test
-  PRIVATE
-    DEF_MALIDRIVE_RESOURCES="${MALIPUT_MALIDRIVE_RESOURCE_PATH}"
-    DEF_MULTILANE_RESOURCES="${MALIPUT_MULTILANE_RESOURCE_PATH}"
-)
-
 # timer_test
 ament_add_gtest(timer_test timer_test.cc)
 target_link_libraries(timer_test

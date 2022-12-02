@@ -52,6 +52,7 @@
 #include <maliput_malidrive/loader/loader.h>
 #include <maliput_multilane/builder.h>
 #include <maliput_multilane/loader.h>
+#include <maliput_osm/builder/road_network_builder.h>
 #include <yaml-cpp/yaml.h>
 
 namespace maliput {
@@ -60,12 +61,14 @@ namespace {
 
 constexpr char MALIPUT_MALIDRIVE_RESOURCE_ROOT[] = "MALIPUT_MALIDRIVE_RESOURCE_ROOT";
 constexpr char MULTILANE_RESOURCE_ROOT[] = "MULTILANE_RESOURCE_ROOT";
+constexpr char MALIPUT_OSM_RESOURCE_ROOT[] = "MALIPUT_OSM_RESOURCE_ROOT";
 
 // Holds the conversions from MaliputImplementation to std::string.
 const std::map<MaliputImplementation, std::string> maliput_impl_to_string{
     {MaliputImplementation::kDragway, "dragway"},
     {MaliputImplementation::kMalidrive, "malidrive"},
     {MaliputImplementation::kMultilane, "multilane"},
+    {MaliputImplementation::kOsm, "osm"},
 };
 
 // Holds the conversions from std::string to MaliputImplementation.
@@ -73,6 +76,7 @@ const std::map<std::string, MaliputImplementation> string_to_maliput_impl{
     {"dragway", MaliputImplementation::kDragway},
     {"malidrive", MaliputImplementation::kMalidrive},
     {"multilane", MaliputImplementation::kMultilane},
+    {"osm", MaliputImplementation::kOsm},
 };
 
 // @returns @p file_name 's path located at @p env path. If not located, an empty string is returned.
@@ -208,10 +212,46 @@ std::unique_ptr<api::RoadNetwork> CreateMalidriveRoadNetwork(const MalidriveBuil
   return malidrive::loader::Load<malidrive::builder::RoadNetworkBuilder>(road_network_configuration);
 }
 
+std::unique_ptr<api::RoadNetwork> CreateMaliputOsmRoadNetwork(const MaliputOsmBuildProperties& build_properties) {
+  maliput::log()->debug("Building maliput_osm RoadNetwork.");
+  MALIPUT_VALIDATE(!build_properties.osm_file.empty(), "osm_file cannot be empty.");
+
+  std::map<std::string, std::string> build_configuration;
+  build_configuration.emplace("road_geometry_id", "maliput_osm_rg");
+  build_configuration.emplace("osm_file", GetResource(MaliputImplementation::kOsm, build_properties.osm_file));
+  build_configuration.emplace("linear_tolerance", std::to_string(build_properties.linear_tolerance));
+  build_configuration.emplace("angular_tolerance", std::to_string(build_properties.angular_tolerance));
+  build_configuration.emplace("inertial_to_backend_frame_translation", "{0., 0., 0.}");
+  build_configuration.emplace("origin", build_properties.origin.to_str());
+  if (!build_properties.rule_registry_file.empty()) {
+    build_configuration.emplace("rule_registry",
+                                GetResource(MaliputImplementation::kOsm, build_properties.rule_registry_file));
+  }
+  if (!build_properties.road_rule_book_file.empty()) {
+    build_configuration.emplace("road_rule_book",
+                                GetResource(MaliputImplementation::kOsm, build_properties.road_rule_book_file));
+  }
+  if (!build_properties.traffic_light_book_file.empty()) {
+    build_configuration.emplace("traffic_light_book",
+                                GetResource(MaliputImplementation::kOsm, build_properties.traffic_light_book_file));
+  }
+  if (!build_properties.phase_ring_book_file.empty()) {
+    build_configuration.emplace("phase_ring_book",
+                                GetResource(MaliputImplementation::kOsm, build_properties.phase_ring_book_file));
+  }
+  if (!build_properties.intersection_book_file.empty()) {
+    build_configuration.emplace("intersection_book",
+                                GetResource(MaliputImplementation::kOsm, build_properties.intersection_book_file));
+  }
+
+  return maliput_osm::builder::RoadNetworkBuilder(build_configuration)();
+}
+
 std::unique_ptr<api::RoadNetwork> LoadRoadNetwork(MaliputImplementation maliput_implementation,
                                                   const DragwayBuildProperties& dragway_build_properties,
                                                   const MultilaneBuildProperties& multilane_build_properties,
-                                                  const MalidriveBuildProperties& malidrive_build_properties) {
+                                                  const MalidriveBuildProperties& malidrive_build_properties,
+                                                  const MaliputOsmBuildProperties& maliput_osm_build_properties) {
   switch (maliput_implementation) {
     case MaliputImplementation::kDragway:
       return CreateDragwayRoadNetwork(dragway_build_properties);
@@ -219,6 +259,8 @@ std::unique_ptr<api::RoadNetwork> LoadRoadNetwork(MaliputImplementation maliput_
       return CreateMultilaneRoadNetwork(multilane_build_properties);
     case MaliputImplementation::kMalidrive:
       return CreateMalidriveRoadNetwork(malidrive_build_properties);
+    case MaliputImplementation::kOsm:
+      return CreateMaliputOsmRoadNetwork(maliput_osm_build_properties);
     default:
       MALIPUT_ABORT_MESSAGE("Error loading RoadNetwork. Unknown implementation.");
   }
@@ -232,6 +274,9 @@ std::string GetResource(const MaliputImplementation& maliput_implementation, con
       break;
     case MaliputImplementation::kMultilane:
       file_path = GetFilePathFromEnv(resource_name, MULTILANE_RESOURCE_ROOT);
+      break;
+    case MaliputImplementation::kOsm:
+      file_path = GetFilePathFromEnv("resources/osm/" + resource_name, MALIPUT_OSM_RESOURCE_ROOT);
       break;
     default:
       break;

@@ -71,11 +71,21 @@
 
 #endif  // MULTILANE_PROPERTIES_FLAGS
 
+#ifndef COMMON_PROPERTIES_FLAGS
+#define COMMON_PROPERTIES_FLAGS()                                                                 \
+  DEFINE_double(linear_tolerance, 5e-2, "Linear tolerance used to load the map.");                \
+  DEFINE_double(angular_tolerance, 1e-3, "Angular tolerance used to load the map.");              \
+  DEFINE_string(rule_registry_file, "", "YAML file defining a Maliput rule registry");            \
+  DEFINE_string(road_rule_book_file, "", "YAML file defining a Maliput road rule book");          \
+  DEFINE_string(traffic_light_book_file, "", "YAML file defining a Maliput traffic lights book"); \
+  DEFINE_string(phase_ring_book_file, "", "YAML file defining a Maliput phase ring book");        \
+  DEFINE_string(intersection_book_file, "", "YAML file defining a Maliput intersection book");
+#endif  // COMMON_PROPERTIES_FLAGS
+
 #ifndef MALIDRIVE_PROPERTIES_FLAGS
 
 #define MALIDRIVE_PROPERTIES_FLAGS()                                                                                   \
   DEFINE_string(xodr_file_path, "", "XODR file path.");                                                                \
-  DEFINE_double(linear_tolerance, 5e-2, "Linear tolerance used to load the map.");                                     \
   DEFINE_double(max_linear_tolerance, -1., "Maximum linear tolerance used to load the map.");                          \
   DEFINE_string(build_policy, "sequential", "Build policy, it could be `sequential` or `parallel`.");                  \
   DEFINE_int32(num_threads, 0, "Number of threads to create the Road Geometry.");                                      \
@@ -85,11 +95,6 @@
       "OpenDrive standard strictness, it could be `permissive`, `allow_schema_errors`, `allow_semantic_errors` or "    \
       "`strict`. Union of policies are also allowed: 'allow_schema_errors|allow_semantic_errors'");                    \
   DEFINE_bool(omit_nondrivable_lanes, false, "If true, builder omits non-drivable lanes when building.");              \
-  DEFINE_string(rule_registry_file, "", "YAML file defining a Maliput rule registry");                                 \
-  DEFINE_string(road_rule_book_file, "", "YAML file defining a Maliput road rule book");                               \
-  DEFINE_string(traffic_light_book_file, "", "YAML file defining a Maliput traffic lights book");                      \
-  DEFINE_string(phase_ring_book_file, "", "YAML file defining a Maliput phase ring book");                             \
-  DEFINE_string(intersection_book_file, "", "YAML file defining a Maliput intersection book");                         \
   std::optional<double> GetLinearToleranceFlag() {                                                                     \
     return gflags::GetCommandLineFlagInfoOrDie("linear_tolerance").is_default                                          \
                ? std::nullopt                                                                                          \
@@ -101,3 +106,10 @@
                : std::make_optional<double>(FLAGS_max_linear_tolerance);                                               \
   }
 #endif  // MALIDRIVE_PROPERTIES_FLAGS
+
+#ifndef MALIPUT_OSM_PROPERTIES_FLAGS
+
+#define MALIPUT_OSM_PROPERTIES_FLAGS()           \
+  DEFINE_string(osm_file, "", "OSM file path."); \
+  DEFINE_string(origin, "{0., 0.}", "OSM map's origin lat/long coordinate.");
+#endif  // MALIPUT_OSM_PROPERTIES_FLAGS

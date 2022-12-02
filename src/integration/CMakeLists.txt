@@ -9,6 +9,12 @@ add_library(integration
   tools.cc
 )
 
+add_library(maliput_integration::integration ALIAS integration)
+set_target_properties(integration
+  PROPERTIES
+    OUTPUT_NAME maliput_integration_integration
+)
+
 target_include_directories(integration
   PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
@@ -19,10 +25,12 @@ target_link_libraries(integration
     maliput::api
     maliput::base
     maliput::common
+  PRIVATE
     maliput_dragway::maliput_dragway
     maliput_malidrive::builder
     maliput_malidrive::loader
     maliput_multilane::maliput_multilane
+    maliput_osm::builder
     yaml-cpp
 )
 

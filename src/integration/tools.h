@@ -44,6 +44,7 @@ enum class MaliputImplementation {
   kMalidrive,  //< malidrive implementation.
   kDragway,    //< dragway implementation.
   kMultilane,  //< multilane implementation.
+  kOsm,        //< osm implementation.
 };
 
 /// Returns the std::string version of `maliput_impl`.
@@ -88,6 +89,19 @@ struct MalidriveBuildProperties {
   std::string intersection_book_file{""};
 };
 
+/// Contains the attributes needed for building a maliput_osm RoadNetwork.
+struct MaliputOsmBuildProperties {
+  std::string osm_file{""};
+  double linear_tolerance{1e-5};
+  double angular_tolerance{1e-3};
+  maliput::math::Vector2 origin{0., 0.};
+  std::string rule_registry_file{""};
+  std::string road_rule_book_file{""};
+  std::string traffic_light_book_file{""};
+  std::string phase_ring_book_file{""};
+  std::string intersection_book_file{""};
+};
+
 /// Builds an api::RoadNetwork based on Dragway implementation.
 /// @param build_properties Holds the properties to build the RoadNetwork.
 /// @return A maliput::api::RoadNetwork.
@@ -107,18 +121,27 @@ std::unique_ptr<api::RoadNetwork> CreateMultilaneRoadNetwork(const MultilaneBuil
 /// @throw maliput::common::assertion_error When `build_properties.xodr_file_path` is empty.
 std::unique_ptr<api::RoadNetwork> CreateMalidriveRoadNetwork(const MalidriveBuildProperties& build_properties);
 
+/// Builds an api::RoadNetwork based on MaliputOsm implementation.
+/// @param build_properties Holds the properties to build the RoadNetwork.
+/// @return A maliput::api::RoadNetwork.
+///
+/// @throw maliput::common::assertion_error When `build_properties.osm_file` is empty.
+std::unique_ptr<api::RoadNetwork> CreateMaliputOsmRoadNetwork(const MaliputOsmBuildProperties& build_properties);
+
 /// Builds an api::RoadNetwork using the implementation that `maliput_implementation` describes.
 /// @param maliput_implementation One of MaliputImplementation. (kDragway, kMultilane, kMalidrive).
 /// @param dragway_build_properties Holds the properties to build a dragway RoadNetwork.
 /// @param multilane_build_properties Holds the properties to build a multilane RoadNetwork.
 /// @param malidrive_build_properties Holds the properties to build a malidrive RoadNetwork.
+/// @param maliput_osm_build_properties Holds the properties to build a maliput_osm RoadNetwork.
 /// @return A maliput::api::RoadNetwork.
 ///
 /// @throw maliput::common::assertion_error When `maliput_implementation` is unknown.
 std::unique_ptr<api::RoadNetwork> LoadRoadNetwork(MaliputImplementation maliput_implementation,
                                                   const DragwayBuildProperties& dragway_build_properties,
                                                   const MultilaneBuildProperties& multilane_build_properties,
-                                                  const MalidriveBuildProperties& malidrive_build_properties);
+                                                  const MalidriveBuildProperties& malidrive_build_properties,
+                                                  const MaliputOsmBuildProperties& maliput_osm_build_properties);
 
 /// Obtains the correspondent path to the @p resource_name located at the maliput's implementation's resource directory
 /// if exists, otherwise it returns @p resource_name .
