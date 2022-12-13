@@ -2,8 +2,8 @@
 Changelog for package maliput_integration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.4 (2022-12-13)
+------------------
 * Adds missing dependency to maliput_sparse (`#127 <https://github.com/maliput/maliput_integration/issues/127>`_)
 * Adds maliput_osm backend to the applications. (`#124 <https://github.com/maliput/maliput_integration/issues/124>`_)
 * Updates triage workflow. (`#125 <https://github.com/maliput/maliput_integration/issues/125>`_)
