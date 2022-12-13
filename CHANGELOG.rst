@@ -2,6 +2,13 @@
 Changelog for package maliput_integration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Adds missing dependency to maliput_sparse (`#127 <https://github.com/maliput/maliput_integration/issues/127>`_)
+* Adds maliput_osm backend to the applications. (`#124 <https://github.com/maliput/maliput_integration/issues/124>`_)
+* Updates triage workflow. (`#125 <https://github.com/maliput/maliput_integration/issues/125>`_)
+* Contributors: Franco Cipollone
+
 0.1.3 (2022-09-15)
 ------------------
 * Adds Lane::ToSegmentPosition query. (`#123 <https://github.com/maliput/maliput_integration/issues/123>`_)
