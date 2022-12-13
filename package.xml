@@ -19,6 +19,7 @@
   <depend>maliput_object</depend>
   <depend>maliput_osm</depend>
   <depend>maliput_py</depend>
+  <depend>maliput_sparse</depend>
   <depend>yaml-cpp</depend>
 
   <test_depend>ament_cmake_clang_format</test_depend>
