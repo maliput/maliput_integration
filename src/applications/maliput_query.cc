@@ -59,6 +59,8 @@
 #include <maliput/common/maliput_abort.h>
 #include <maliput/math/bounding_box.h>
 #include <maliput/math/overlapping_type.h>
+#include <maliput/plugin/create_road_network.h>
+#include <maliput/plugin/maliput_plugin_manager.h>
 #include <maliput_malidrive/constants.h>
 #include <maliput_malidrive/utility/file_tools.h>
 #include <maliput_object/api/object.h>
@@ -75,12 +77,36 @@ MALIDRIVE_PROPERTIES_FLAGS();
 MALIPUT_OSM_PROPERTIES_FLAGS();
 MALIPUT_APPLICATION_DEFINE_LOG_LEVEL_FLAG();
 
-DEFINE_string(maliput_backend, "malidrive",
-              "Whether to use <dragway>, <multilane> or <malidrive>. Default is malidrive.");
+DEFINE_string(maliput_backend, "malidrive", "Whether to use <dragway>, <multilane> or <malidrive> maliput backend.");
 
 namespace maliput {
 namespace integration {
 namespace {
+
+void GetMaliputBackendList(std::ostream* out) {
+  maliput::plugin::MaliputPluginManager manager;
+  const auto plugins = manager.ListPlugins();
+  (*out) << "Available Maliput backends: " << std::endl;
+  for (const auto& plugin : plugins) {
+    if (plugin.second == maliput::plugin::MaliputPluginType::kRoadNetworkLoader) {
+      (*out) << " - " << plugin.first << std::endl;
+    }
+  }
+}
+
+void GetMaliputBackendParameters(const std::string& backend, std::ostream* out) {
+  const auto road_network_loader = maliput::plugin::MakeRoadNetworkLoader(backend);
+  if (road_network_loader == nullptr) {
+    (*out) << "Could not load backend: " << backend << std::endl;
+    return;
+  }
+  (*out) << "Parameters for Maliput backend: " << backend << std::endl;
+
+  const auto parameters = road_network_loader->GetDefaultParameters();
+  for (const auto& parameter : parameters) {
+    (*out) << " - " << parameter.first << ": " << parameter.second << std::endl;
+  }
+}
 
 struct Command {
   std::string name{"default"};
@@ -95,6 +121,13 @@ struct Command {
 // @returns A map of command name to usage message.
 const std::map<const std::string, const Command> CommandsUsage() {
   return {
+      {"GetMaliputBackendList",
+       {"GetMaliputBackendList", "GetMaliputBackendList", {"Lists available maliput backends."}, 1}},
+      {"GetMaliputBackendParameters",
+       {"GetMaliputBackendParameters",
+        "GetMaliputBackendParameters maliput_backend_id",
+        {"Lists parameters of the selected maliput backend."},
+        2}},
       {"FindRoadPositions",
        {"FindRoadPositions",
         "FindRoadPositions x y z r",
@@ -975,6 +1008,17 @@ int Main(int argc, char* argv[]) {
 
   maliput::common::set_log_level(FLAGS_log_level);
 
+  // Commands that not require a road network.
+  if (command.name.compare("GetMaliputBackendList") == 0) {
+    GetMaliputBackendList(&std::cout);
+    return 0;
+  } else if (command.name.compare("GetMaliputBackendParameters") == 0) {
+    const std::string backend_name = argv[2];
+    GetMaliputBackendParameters(backend_name, &std::cout);
+    return 0;
+  }
+
+  // Loads a road network.
   log()->info("Loading road network using {} backend implementation...", FLAGS_maliput_backend);
   const MaliputImplementation maliput_implementation{StringToMaliputImplementation(FLAGS_maliput_backend)};
   auto rn = LoadRoadNetwork(
@@ -993,6 +1037,7 @@ int Main(int argc, char* argv[]) {
   auto rn_ptr = rn.get();
   RoadNetworkQuery query(&std::cout, const_cast<maliput::api::RoadNetwork*>(rn_ptr));
 
+  // Commands that require a road network.
   if (command.name.compare("FindRoadPositions") == 0) {
     const maliput::api::InertialPosition inertial_position = InertialPositionFromCLI(&(argv[2]));
     const double radius = RadiusFromCLI(&(argv[5]));
