@@ -2,6 +2,12 @@
 Changelog for package maliput_integration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Adds GetConfluentBranches and GetOngoingBranches query support. (`#130 <https://github.com/maliput/maliput_integration/issues/130>`_)
+* Adds queries to get parameter list from backends. (`#129 <https://github.com/maliput/maliput_integration/issues/129>`_)
+* Contributors: Franco Cipollone
+
 0.1.4 (2022-12-13)
 ------------------
 * Adds missing dependency to maliput_sparse (`#127 <https://github.com/maliput/maliput_integration/issues/127>`_)
