@@ -2,6 +2,12 @@
 Changelog for package maliput_integration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Adds more options to the obj creator app. (`#132 <https://github.com/maliput/maliput_integration/issues/132>`_)
+* Relies on maliput_multilane's RN builder. (`#131 <https://github.com/maliput/maliput_integration/issues/131>`_)
+* Contributors: Franco Cipollone
+
 0.1.5 (2023-02-15)
 ------------------
 * Adds GetConfluentBranches and GetOngoingBranches query support. (`#130 <https://github.com/maliput/maliput_integration/issues/130>`_)
