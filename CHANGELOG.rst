@@ -2,8 +2,8 @@
 Changelog for package maliput_integration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.6 (2023-04-13)
+------------------
 * Adds more options to the obj creator app. (`#132 <https://github.com/maliput/maliput_integration/issues/132>`_)
 * Relies on maliput_multilane's RN builder. (`#131 <https://github.com/maliput/maliput_integration/issues/131>`_)
 * Contributors: Franco Cipollone
