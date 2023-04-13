@@ -51,12 +51,7 @@ class TestYamlObjing(unittest.TestCase):
     def test_yaml_files(self):
         yaml_dir = os.environ.get("MULTILANE_RESOURCE_ROOT")
 
-        yaml_files = glob.glob(os.path.join(yaml_dir, '*.yaml'))
-        # NB:  Blacklist is empty now, but still here in case it is needed
-        # again in the future.
-        blacklist = []
-        test_yaml_files = [f for f in yaml_files
-                           if not any([b in f for b in blacklist])]
+        test_yaml_files = glob.glob(os.path.join(yaml_dir, '*.yaml'))
         self.assertTrue(len(test_yaml_files) > 0)
 
         for yf in test_yaml_files:
