@@ -90,6 +90,14 @@ DEFINE_double(simplify_mesh_threshold, maliput::utility::ObjFeatures().simplify_
               "Optional tolerance for mesh simplification, in meters. Make it "
               "equal to the road linear tolerance to get a mesh size reduction "
               "while keeping geometrical fidelity.");
+DEFINE_bool(draw_arrows, maliput::utility::ObjFeatures().draw_arrows,
+            "Whether to draw arrows for indicating the direction of the road ");
+DEFINE_bool(draw_branch_points, maliput::utility::ObjFeatures().draw_branch_points,
+            "Whether to draw the branch points of the road");
+DEFINE_bool(draw_stripes, maliput::utility::ObjFeatures().draw_stripes,
+            "Whether to draw stripes along boundaries of each lane");
+DEFINE_bool(draw_lane_haze, maliput::utility::ObjFeatures().draw_lane_haze,
+            "Whether to draw the highlighting swath with boundaries of each lane");
 
 namespace maliput {
 namespace integration {
@@ -128,6 +136,10 @@ int Main(int argc, char* argv[]) {
   features.min_grid_resolution = FLAGS_min_grid_resolution;
   features.draw_elevation_bounds = FLAGS_draw_elevation_bounds;
   features.simplify_mesh_threshold = FLAGS_simplify_mesh_threshold;
+  features.draw_arrows = FLAGS_draw_arrows;
+  features.draw_branch_points = FLAGS_draw_branch_points;
+  features.draw_stripes = FLAGS_draw_stripes;
+  features.draw_lane_haze = FLAGS_draw_lane_haze;
 
   const common::Path my_path = common::Filesystem::get_cwd();
   FLAGS_dirpath == "." ? log()->info("OBJ{} files location: {}.", FLAGS_urdf ? "/URDF" : "", my_path.get_path())
