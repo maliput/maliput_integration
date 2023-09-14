@@ -169,7 +169,7 @@ int Main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
   common::set_log_level(FLAGS_log_level);
 
-  log()->info("Loading road network using {} backend implementation...", FLAGS_maliput_backend);
+  log()->info("Loading road network using ", FLAGS_maliput_backend, " backend implementation...");
   const MaliputImplementation maliput_implementation{StringToMaliputImplementation(FLAGS_maliput_backend)};
   auto rn = LoadRoadNetwork(
       maliput_implementation,

@@ -109,7 +109,7 @@ int Main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
   common::set_log_level(FLAGS_log_level);
 
-  log()->info("Loading road network using {} backend implementation...", FLAGS_maliput_backend);
+  log()->info("Loading road network using ", FLAGS_maliput_backend, " backend implementation...");
   const MaliputImplementation maliput_implementation{StringToMaliputImplementation(FLAGS_maliput_backend)};
   auto rn = LoadRoadNetwork(
       maliput_implementation,
@@ -142,13 +142,14 @@ int Main(int argc, char* argv[]) {
   features.draw_lane_haze = FLAGS_draw_lane_haze;
 
   const common::Path my_path = common::Filesystem::get_cwd();
-  FLAGS_dirpath == "." ? log()->info("OBJ{} files location: {}.", FLAGS_urdf ? "/URDF" : "", my_path.get_path())
-                       : log()->info("OBJ{} files location: {}.", FLAGS_urdf ? "/URDF" : "", FLAGS_dirpath);
+  const std::string urdf = FLAGS_urdf ? "/URDF" : "";
+  FLAGS_dirpath == "." ? log()->info("OBJ", urdf, " files location: ", my_path.get_path(), ".")
+                       : log()->info("OBJ", urdf, " files location: ", FLAGS_dirpath, ".");
 
-  log()->info("Generating OBJ{} ...", FLAGS_urdf ? "/URDF" : "");
+  log()->info("Generating OBJ", urdf, " ...");
   FLAGS_urdf ? GenerateUrdfFile(rn->road_geometry(), FLAGS_dirpath, FLAGS_file_name_root, features)
              : GenerateObjFile(rn->road_geometry(), FLAGS_dirpath, FLAGS_file_name_root, features);
-  log()->info("OBJ{} creation has finished.", FLAGS_urdf ? "/URDF" : "");
+  log()->info("OBJ", urdf, " creation has finished.");
 
   return 0;
 }

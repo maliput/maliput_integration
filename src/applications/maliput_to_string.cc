@@ -83,7 +83,7 @@ int Main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
   maliput::common::set_log_level(FLAGS_log_level);
 
-  log()->info("Loading road network using {} backend implementation...", FLAGS_maliput_backend);
+  log()->info("Loading road network using ", FLAGS_maliput_backend, " backend implementation...");
   const MaliputImplementation maliput_implementation{StringToMaliputImplementation(FLAGS_maliput_backend)};
   auto rn = LoadRoadNetwork(
       maliput_implementation,
@@ -100,7 +100,7 @@ int Main(int argc, char* argv[]) {
     log()->info("Checking invariants...");
     const auto violations = rn->road_geometry()->CheckInvariants();
     violations.empty() ? log()->info("No invariant violations were found.")
-                       : log()->warn("{} invariant violations were found: ", violations.size());
+                       : log()->warn(violations.size(), " invariant violations were found: ");
     for (const auto& v : violations) {
       log()->warn(v);
     }

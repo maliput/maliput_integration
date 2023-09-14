@@ -100,17 +100,17 @@ int Main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
   maliput::common::set_log_level(FLAGS_log_level);
 
-  log()->debug("Backend implementation selected is {} ", FLAGS_maliput_backend);
+  log()->debug("Backend implementation selected is ", FLAGS_maliput_backend);
   const MaliputImplementation maliput_implementation{StringToMaliputImplementation(FLAGS_maliput_backend)};
 
   if (FLAGS_iterations < 1) {
-    log()->error("Iterations: {}. The number of iterations must be greater than zero.", FLAGS_iterations);
+    log()->error("Iterations: ", FLAGS_iterations, ". The number of iterations must be greater than zero.");
     return 1;
   }
   std::vector<double> times;
   times.reserve(FLAGS_iterations);
   for (int i = 0; i < FLAGS_iterations; i++) {
-    log()->info("Building RoadNetwork {} of {}.", i + 1, FLAGS_iterations);
+    log()->info("Building RoadNetwork ", i + 1, " of ", FLAGS_iterations, ".");
     times.push_back(MeasureLoadTime(
         maliput_implementation,
         {FLAGS_num_lanes, FLAGS_length, FLAGS_lane_width, FLAGS_shoulder_width, FLAGS_maximum_height},
@@ -124,7 +124,7 @@ int Main(int argc, char* argv[]) {
          FLAGS_intersection_book_file}));
   }
   const double mean_time = (std::accumulate(times.begin(), times.end(), 0.)) / static_cast<double>(times.size());
-  maliput::log()->info("\tMean time was: {}s out of {} iterations.\n", mean_time, FLAGS_iterations);
+  maliput::log()->info("\tMean time was: ", mean_time, "s out of ", FLAGS_iterations, " iterations.\n");
 
   return 0;
 }
