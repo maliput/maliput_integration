@@ -124,13 +124,13 @@ int Main(int argc, char* argv[]) {
   const maliput::plugin::MaliputPlugin* maliput_plugin =
       manager.GetPlugin(maliput::plugin::MaliputPlugin::Id(FLAGS_plugin_name));
   if (!maliput_plugin) {
-    maliput::log()->error("{} plugin hasn't been found.", FLAGS_plugin_name);
+    maliput::log()->error(FLAGS_plugin_name, " plugin hasn't been found.");
     return 1;
   }
-  maliput::log()->info("{} plugin has been found.", FLAGS_plugin_name);
-  maliput::log()->info("Plugin id: {}", maliput_plugin->GetId());
+  maliput::log()->info(FLAGS_plugin_name, " plugin has been found.");
+  maliput::log()->info("Plugin id: ", maliput_plugin->GetId());
   maliput::log()->info(
-      "Plugin type: {}",
+      "Plugin type: ",
       (maliput_plugin->GetType() == maliput::plugin::MaliputPluginType::kRoadNetworkLoader ? "RoadNetworkLoader"
                                                                                            : "unknown"));
   // Creates an instance of the RoadNetwork loader.

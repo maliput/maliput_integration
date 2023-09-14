@@ -138,13 +138,13 @@ std::vector<LaneSRoute> GetRoutes(const InertialPosition& start, const InertialP
   const RoadPositionResult end_rp = road_geometry->ToRoadPosition(end);
 
   maliput::log()->info("Start RoadPosition:");
-  maliput::log()->info("  - Lane: {}", start_rp.road_position.lane->id().string());
-  maliput::log()->info("  - s,r,h: ({}, {}, {})", start_rp.road_position.pos.s(), start_rp.road_position.pos.r(),
-                       start_rp.road_position.pos.h());
+  maliput::log()->info("  - Lane: ", start_rp.road_position.lane->id().string());
+  maliput::log()->info("  - s,r,h: (", start_rp.road_position.pos.s(), ", ", start_rp.road_position.pos.r(), ", ",
+                       start_rp.road_position.pos.h(), ")");
   maliput::log()->info("End RoadPosition:");
-  maliput::log()->info("  - Lane: {}", end_rp.road_position.lane->id().string());
-  maliput::log()->info("  - s,r,h: ({}, {}, {})", end_rp.road_position.pos.s(), end_rp.road_position.pos.r(),
-                       end_rp.road_position.pos.h());
+  maliput::log()->info("  - Lane: ", end_rp.road_position.lane->id().string());
+  maliput::log()->info("  - s,r,h: (", end_rp.road_position.pos.s(), ", ", end_rp.road_position.pos.r(), ", ",
+                       end_rp.road_position.pos.h(), ")");
 
   return DeriveLaneSRoutes(start_rp.road_position, end_rp.road_position, max_length);
 }
@@ -162,8 +162,8 @@ std::string SerializeLaneSRoutes(const std::vector<LaneSRoute>& routes, const Ro
       const double s1 = range.s_range().s1();
       const double lane_length = road_geometry->ById().GetLane(range.lane_id())->length();
       const double lane_length_delta = std::abs(std::abs(s1 - s0) - lane_length);
-      maliput::log()->trace("Lane {}, |s1 - s0| = {}, lane length = {}, delta = {}", range.lane_id().string(),
-                            std::abs(s1 - s0), lane_length, lane_length_delta);
+      maliput::log()->trace("Lane ", range.lane_id().string(), ", |s1 - s0| = ", std::abs(s1 - s0),
+                            ", lane length = ", lane_length, ", delta = ", lane_length_delta);
       if (lane_length_delta > kDistanceTolerance) {
         YAML::Node s_range_node;
         s_range_node.SetStyle(YAML::EmitterStyle::Flow);
@@ -204,7 +204,7 @@ bool ResolveConfigFields(const MaliputImplementation& maliput_implementation, co
                          double& max_length, std::string& xodr_file, std::string& yaml_file) {
   // If configuration file is passed, check the YAML fields.
   if (!FLAGS_config_file.empty()) {
-    maliput::log()->info("Configuration file is passed: {}", FLAGS_config_file);
+    maliput::log()->info("Configuration file is passed: ", FLAGS_config_file);
     const YAML::Node& root_node = YAML::LoadFile(FLAGS_config_file);
     if (!root_node.IsMap()) {
       maliput::log()->error("Invalid YAML file: Root node is not a map.");
@@ -218,7 +218,7 @@ bool ResolveConfigFields(const MaliputImplementation& maliput_implementation, co
         if (key == kYamlFileKey && maliput_implementation != MaliputImplementation::kMultilane) {
           continue;
         }
-        maliput::log()->error("YAML file missing \"{}\".", key);
+        maliput::log()->error("YAML file missing \"", key, "\".");
         return false;
       }
     }
@@ -301,18 +301,18 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  maliput::log()->info("Max length: {}", max_length);
+  maliput::log()->info("Max length: ", max_length);
   maliput::log()->info("Waypoints:");
   for (const auto& waypoint : waypoints) {
-    maliput::log()->info("  - {}", waypoint);
+    maliput::log()->info("  - ", waypoint);
   }
 
-  maliput::log()->info("Loading road network using {} backend implementation...", FLAGS_maliput_backend);
+  maliput::log()->info("Loading road network using ", FLAGS_maliput_backend, " backend implementation...");
 
   if (maliput_implementation == MaliputImplementation::kMalidrive) {
-    maliput::log()->info("xodr file path: {}", xodr_file);
+    maliput::log()->info("xodr file path: ", xodr_file);
   } else if (maliput_implementation == MaliputImplementation::kMultilane) {
-    maliput::log()->info("yaml file path: {}", yaml_file);
+    maliput::log()->info("yaml file path: ", yaml_file);
   }
 
   auto rn = LoadRoadNetwork(
@@ -332,7 +332,7 @@ int main(int argc, char* argv[]) {
       GetRoutes(InertialPosition::FromXyz(waypoints.front()), InertialPosition::FromXyz(waypoints.back()), max_length,
                 road_geometry);
 
-  maliput::log()->info("Number of routes: {}", routes.size());
+  maliput::log()->info("Number of routes: ", routes.size());
 
   if (routes.empty()) {
     maliput::log()->error("No routes found.");

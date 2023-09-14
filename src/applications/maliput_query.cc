@@ -1033,7 +1033,7 @@ maliput::api::LaneEnd::Which LaneEndWhichFromCLI(char** argv) {
   } else if (which == "finish") {
     return maliput::api::LaneEnd::kFinish;
   } else {
-    maliput::log()->error("Invalid LaneEnd::Which: {}\nRun 'maliput_query --help' for help.\n", which);
+    maliput::log()->error("Invalid LaneEnd::Which: ", which, "\nRun 'maliput_query --help' for help.\n");
     std::exit(1);
   }
 }
@@ -1072,12 +1072,12 @@ int Main(int argc, char* argv[]) {
   const auto commands_usage = CommandsUsage();
   const auto command_it = commands_usage.find(argv[1]);
   if (command_it == commands_usage.end()) {
-    maliput::log()->error("Not valid command provided: {}\nRun 'maliput_query --help' for help.\n", argv[1]);
+    maliput::log()->error("Not valid command provided: ", argv[1], "\nRun 'maliput_query --help' for help.\n");
     return 1;
   }
   const Command command = command_it->second;
   if (argc != command.num_arguments + 1) {
-    maliput::log()->error("Missing arguments for command: {}\nRun 'maliput_query --help' for help.\n", command.usage);
+    maliput::log()->error("Missing arguments for command: ", command.usage, "\nRun 'maliput_query --help' for help.\n");
     return 1;
   }
 
@@ -1094,7 +1094,7 @@ int Main(int argc, char* argv[]) {
   }
 
   // Loads a road network.
-  log()->info("Loading road network using {} backend implementation...", FLAGS_maliput_backend);
+  log()->info("Loading road network using ", FLAGS_maliput_backend, " backend implementation...");
   const MaliputImplementation maliput_implementation{StringToMaliputImplementation(FLAGS_maliput_backend)};
   auto rn = LoadRoadNetwork(
       maliput_implementation,
