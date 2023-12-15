@@ -55,12 +55,16 @@
 #include <vector>
 
 #include <gflags/gflags.h>
+#include <maliput/base/distance_router.h>
 #include <maliput/common/logger.h>
 #include <maliput/common/maliput_abort.h>
 #include <maliput/math/bounding_box.h>
 #include <maliput/math/overlapping_type.h>
 #include <maliput/plugin/create_road_network.h>
 #include <maliput/plugin/maliput_plugin_manager.h>
+#include <maliput/routing/phase.h>
+#include <maliput/routing/route.h>
+#include <maliput/routing/routing_constraints.h>
 #include <maliput_malidrive/constants.h>
 #include <maliput_malidrive/utility/file_tools.h>
 #include <maliput_object/api/object.h>
@@ -256,6 +260,13 @@ const std::map<const std::string, const Command> CommandsUsage() {
          "to a bounding box of size [box_length_2, box_width_2, box_height_2] ",
          "and pose [x_2, y_2, z_2, roll_2, pitch_2, yaw_2]"},
         19}},
+      {"FindRoutes",
+       {"FindRoutes",
+        "FindRoutes start_lane_id start_s end_lane_id end_s allow_lane_switch max_phase_cost max_route_cost",
+        {"Find Routes from ", "RoadPosition(LaneId(start_lane_id), LanePosition(start_s, 0, 0)) ",
+         "to  RoadPosition(LaneId(end_lane_id), LanePosition(end_s, 0, 0)) ",
+         "with RoutingConstraints(allow_lane_switch, max_phase_cost, max_route_cost)."},
+        8}},
   };
 }
 
@@ -319,7 +330,7 @@ std::ostream& operator<<(std::ostream& out, const maliput::api::LaneSRange& lane
 
 // Serializes `lane_s_route` into `out`.
 std::ostream& operator<<(std::ostream& out, const maliput::api::LaneSRoute& lane_s_route) {
-  out << "Route(ranges: [";
+  out << "LaneSRoute(ranges: [";
   for (const auto& range : lane_s_route.ranges()) {
     out << range << ", ";
   }
@@ -339,6 +350,38 @@ std::ostream& operator<<(std::ostream& out, const maliput::api::rules::RightOfWa
       out << "unknown";
       break;
   }
+  return out;
+}
+
+// Serializes `phase` into `out`.
+std::ostream& operator<<(std::ostream& out, const maliput::routing::Phase& phase) {
+  out << "Phase(index: " << phase.index() << ", ";
+  out << "lane_s_range_tolerance: " << phase.lane_s_range_tolerance() << ", ";
+  out << "start_positions: [";
+  for (const maliput::api::RoadPosition& pos : phase.start_positions()) {
+    out << pos << ", ";
+  }
+  out << "], ";
+  out << "end_positions: [";
+  for (const maliput::api::RoadPosition& pos : phase.end_positions()) {
+    out << pos << ", ";
+  }
+  out << "], ";
+  out << "lane_s_ranges: [";
+  for (const maliput::api::LaneSRange& lane_s_range : phase.lane_s_ranges()) {
+    out << lane_s_range << ", ";
+  }
+  out << "])";
+  return out;
+}
+
+// Serializes `route` into `out`.
+std::ostream& operator<<(std::ostream& out, const maliput::routing::Route& route) {
+  out << "Route(phases: [";
+  for (int i = 0; i < route.size(); ++i) {
+    out << route.Get(i) << ", ";
+  }
+  out << "])";
   return out;
 }
 
@@ -860,6 +903,31 @@ class RoadNetworkQuery {
     PrintQueryTime(duration.count());
   }
 
+  /// Finds all the Routes from start to end given the constraints.
+  void FindRoutes(const maliput::api::LaneId& start_lane_id, const maliput::api::LanePosition& start_lane_pos,
+                  const maliput::api::LaneId& end_lane_id, const maliput::api::LanePosition& end_lane_pos,
+                  const maliput::DistanceRouter& router,
+                  const maliput::routing::RoutingConstraints& constraints) const {
+    const maliput::api::Lane* start_lane = rn_->road_geometry()->ById().GetLane(start_lane_id);
+    const maliput::api::Lane* end_lane = rn_->road_geometry()->ById().GetLane(end_lane_id);
+    MALIPUT_THROW_UNLESS(start_lane != nullptr);
+    MALIPUT_THROW_UNLESS(end_lane != nullptr);
+    const maliput::api::RoadPosition start_pos(start_lane, start_lane_pos);
+    const maliput::api::RoadPosition end_pos(end_lane, start_lane_pos);
+
+    const auto start = std::chrono::high_resolution_clock::now();
+    const std::vector<maliput::routing::Route> routes = router.ComputeRoutes(start_pos, end_pos, constraints);
+    const auto end = std::chrono::high_resolution_clock::now();
+
+    (*out_) << "The Routes from " << start_pos << " to " << end_pos << " are: " << std::endl;
+    for (const auto& route : routes) {
+      (*out_) << "\t- " << route << std::endl;
+    }
+
+    const std::chrono::duration<double> duration = (end - start);
+    PrintQueryTime(duration.count());
+  }
+
   /// @return the object_book_ variable.
   maliput::object::ManualObjectBook<maliput::math::Vector3>* GetManualObjectBook() { return object_book_.get(); }
 
@@ -1062,6 +1130,38 @@ double SFromCLI(char** argv) {
   return s;
 }
 
+/// @return A bool represented by `*argv`. It must be either "true" or "false".
+/// @pre `argv` is not nullptr.
+/// @pre `argv` points to a string containing "true" or "false".
+/// @throws maliput::common::assertion_error When preconditions are not met.
+bool BoolFromCLI(char** argv) {
+  MALIPUT_THROW_UNLESS(argv != nullptr);
+  static const std::string kTrueStr("true");
+  static const std::string kFalseStr("false");
+  const std::string token(argv[0]);
+
+  if (kTrueStr.compare(token) == 0) {
+    return true;
+  }
+  if (kFalseStr.compare(token) == 0) {
+    return false;
+  }
+  MALIPUT_THROW_MESSAGE("Cannot convert token into bool, try with true or false.");
+}
+
+/// @return A maliput::routing::RoutingConstraints represented by @p argv.
+/// @p It must point to at least 3 different char sequences.
+/// @pre `argv` is not nullptr.
+/// @pre `argv` points to a string containing "true" or "false".
+/// @throws maliput::common::assertion_error When preconditions are not met.
+maliput::routing::RoutingConstraints RoutingConstraintsFromCLI(char** argv) {
+  MALIPUT_THROW_UNLESS(argv != nullptr);
+  const bool allow_lane_switch = BoolFromCLI(&(argv[0]));
+  const double max_phase_cost = std::strtod(argv[1], nullptr);
+  const double max_route_cost = std::strtod(argv[2], nullptr);
+  return maliput::routing::RoutingConstraints{allow_lane_switch, max_phase_cost, max_route_cost};
+}
+
 int Main(int argc, char* argv[]) {
   gflags::SetUsageMessage(GetUsageMessage());
   gflags::ParseCommandLineFlags(&argc, &argv, true);
@@ -1212,6 +1312,15 @@ int Main(int argc, char* argv[]) {
     query.GetManualObjectBook()->AddObject(std::move(bounding_object_1));
     query.GetManualObjectBook()->AddObject(std::move(bounding_object_2));
     query.Route(bounding_object_ptr_1, bounding_object_ptr_2);
+  } else if (command.name.compare("FindRoutes") == 0) {
+    const maliput::api::LaneId start_lane_id = LaneIdFromCLI(&(argv[2]));
+    const maliput::api::LanePosition start_lane_pos(SFromCLI(&(argv[3])), 0., 0.);
+    const maliput::api::LaneId end_lane_id = LaneIdFromCLI(&(argv[4]));
+    const maliput::api::LanePosition end_lane_pos(SFromCLI(&(argv[5])), 0., 0.);
+    const maliput::routing::RoutingConstraints constraints = RoutingConstraintsFromCLI(&(argv[6]));
+    const maliput::DistanceRouter router(const_cast<maliput::api::RoadNetwork*>(rn_ptr),
+                                         rn_ptr->road_geometry()->linear_tolerance());
+    query.FindRoutes(start_lane_id, start_lane_pos, end_lane_id, end_lane_pos, router, constraints);
   }
 
   return 0;
