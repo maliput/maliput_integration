@@ -1318,8 +1318,7 @@ int Main(int argc, char* argv[]) {
     const maliput::api::LaneId end_lane_id = LaneIdFromCLI(&(argv[4]));
     const maliput::api::LanePosition end_lane_pos(SFromCLI(&(argv[5])), 0., 0.);
     const maliput::routing::RoutingConstraints constraints = RoutingConstraintsFromCLI(&(argv[6]));
-    const maliput::DistanceRouter router(const_cast<maliput::api::RoadNetwork*>(rn_ptr),
-                                         rn_ptr->road_geometry()->linear_tolerance());
+    const maliput::DistanceRouter router(*rn_ptr, rn_ptr->road_geometry()->linear_tolerance());
     query.FindRoutes(start_lane_id, start_lane_pos, end_lane_id, end_lane_pos, router, constraints);
   }
 
