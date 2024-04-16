@@ -77,6 +77,7 @@ struct MalidriveBuildProperties {
   std::string xodr_file_path{""};
   std::optional<double> linear_tolerance{std::nullopt};
   std::optional<double> max_linear_tolerance{std::nullopt};
+  std::optional<double> angular_tolerance{std::nullopt};
   std::string build_policy{"sequential"};
   int number_of_threads{0};
   std::string simplification_policy{"none"};
