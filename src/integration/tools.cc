@@ -158,7 +158,9 @@ std::unique_ptr<api::RoadNetwork> CreateMalidriveRoadNetwork(const MalidriveBuil
     road_network_configuration.emplace("max_linear_tolerance",
                                        std::to_string(build_properties.max_linear_tolerance.value()));
   }
-  road_network_configuration.emplace("angular_tolerance", std::to_string(malidrive::constants::kAngularTolerance));
+  if (build_properties.angular_tolerance.has_value()) {
+    road_network_configuration.emplace("angular_tolerance", std::to_string(build_properties.angular_tolerance.value()));
+  }
   road_network_configuration.emplace("scale_length", std::to_string(malidrive::constants::kScaleLength));
   road_network_configuration.emplace("inertial_to_backend_frame_translation", "{0., 0., 0.}");
   road_network_configuration.emplace("build_policy", build_properties.build_policy);
