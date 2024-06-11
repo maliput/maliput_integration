@@ -104,6 +104,11 @@
     return gflags::GetCommandLineFlagInfoOrDie("max_linear_tolerance").is_default                                      \
                ? std::nullopt                                                                                          \
                : std::make_optional<double>(FLAGS_max_linear_tolerance);                                               \
+  }                                                                                                                    \
+  std::optional<double> GetAngularToleranceFlag() {                                                                    \
+    return gflags::GetCommandLineFlagInfoOrDie("angular_tolerance").is_default                                         \
+               ? std::nullopt                                                                                          \
+               : std::make_optional<double>(FLAGS_angular_tolerance);                                                  \
   }
 #endif  // MALIDRIVE_PROPERTIES_FLAGS
 
