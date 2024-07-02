@@ -1,6 +1,18 @@
 ##############################################################################
 # Sources
 ##############################################################################
+add_executable(maliput_to_dot
+  maliput_to_dot.cc
+)
+
+target_link_libraries(maliput_to_dot
+    gflags
+    maliput::common
+    maliput::routing
+    maliput::utility
+    maliput_integration::integration
+)
+
 add_executable(maliput_to_obj
   maliput_to_obj.cc
 )
@@ -99,6 +111,7 @@ install(
     maliput_dynamic_environment
     maliput_measure_load_time
     maliput_query
+    maliput_to_dot
     maliput_to_obj
     maliput_to_string
     maliput_to_string_with_plugin
