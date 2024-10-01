@@ -42,10 +42,10 @@
 ///           -yaml_file.
 ///      - "malidrive": xodr file path must be provided and other arguments are optional:
 ///           -xodr_file_path -linear_tolerance -build_policy -num_threads.
-///   2. The applications allows you to load a xodr multiple times and calculate a mean.
+///   2. The application allows you to load a xodr multiple times and calculate a mean.
 ///      The number of iterations could be changed using:
 ///      -iterations
-///   3. The level of the logger is selected with `-log_level`.
+///   3. The log level is selected with `-log_level`.
 
 #include <chrono>
 #include <numeric>

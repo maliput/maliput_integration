@@ -30,10 +30,10 @@
 /// @file maliput_to_dot.cc
 ///
 /// Builds a dragway, multilane or malidrive road geometry
-/// and creates a routing::graph::Graph from it to then serialize to a file a DOT representation.
+/// and creates a routing::graph::Graph from it to then serialize to a DOT file representation.
 ///
 /// @note
-/// 1. It allows to create an OBJ file from different road geometry implementations.
+/// 1. It allows to create an DOT file from different road geometry implementations.
 ///     The `maliput_backend` flag will determine the backend to be used.
 ///    - "dragway": The following flags are supported to use in order to create dragway road geometry:
 ///       -num_lanes, -length, -lane_width, -shoulder_width, -maximum_height.
@@ -41,9 +41,9 @@
 ///       -yaml_file.
 ///    - "malidrive": xodr file path must be provided and the tolerance is optional:
 ///         -xodr_file_path -linear_tolerance.
-/// 2. The applications possesses flags to modify the DOT file builder:
+/// 2. The application possesses flags to modify the DOT file builder:
 ///      -dot_dir_path, -dot_file_name
-/// 3. The level of the logger could be setted by: -log_level.
+/// 3. The log level could be set by: -log_level.
 
 #include <fstream>
 #include <limits>
@@ -76,9 +76,29 @@ namespace maliput {
 namespace integration {
 namespace {
 
-// Generates an OBJ file from a YAML file path or from
+// Generates an DOT file from a YAML file path or from
 // configurable values given as CLI arguments.
 int Main(int argc, char* argv[]) {
+  static constexpr const char* kUsageMessage = R"*(
+Builds a dragway, multilane or malidrive road geometry and creates a routing::graph::Graph from it to then serialize to a DOT file representation.
+
+1. It allows to create an DOT file from different road geometry implementations.
+    The `maliput_backend` flag will determine the backend to be used.
+   - "dragway": The following flags are supported to use in order to create dragway road geometry:
+      -num_lanes, -length, -lane_width, -shoulder_width, -maximum_height.
+   - "multilane": yaml file path must be provided:
+      -yaml_file.
+   - "malidrive": xodr file path must be provided and the tolerance is optional:
+        -xodr_file_path -linear_tolerance.
+2. The application possesses flags to modify the DOT file builder:
+     -dot_dir_path, -dot_file_name
+3. The log level could be set by: -log_level.
+
+Example:
+
+maliput_to_dot --maliput_backend malidrive --xodr_file_path TShapeRoad.xodr
+)*";
+  gflags::SetUsageMessage(kUsageMessage);
   gflags::ParseCommandLineFlags(&argc, &argv, true);
   common::set_log_level(FLAGS_log_level);
 

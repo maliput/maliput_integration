@@ -42,7 +42,7 @@
 ///    - "malidrive": xodr file path must be provided, tolerance and rule file paths are optional:
 ///         -xodr_file_path -linear_tolerance -road_rule_book_file -traffic_light_book_file -phase_ring_book_file
 ///         -intersection_book_file
-/// 2. The level of the logger could be setted by: -log_level.
+/// 2. The log level could be set by: -log_level.
 
 #include <chrono>
 #include <iostream>

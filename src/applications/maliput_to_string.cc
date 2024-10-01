@@ -41,10 +41,10 @@
 ///           -yaml_file.
 ///      - "malidrive": xodr file path must be provided and the tolerance is optional:
 ///           -xodr_file_path -linear_tolerance.
-///   2. The applications possesses flags to modify the output serialization:
+///   2. The application possesses flags to modify the output serialization:
 ///      -include_type_labels, -include_road_geometry_id, -include_junction_ids,
 ///      -include_segment_ids, -include_lane_ids, -include_lane_details.
-///   3. The level of the logger is selected with `-log_level`.
+///   3. The log level is selected with `-log_level`.
 
 #include <iostream>
 #include <memory>
