@@ -241,7 +241,11 @@ const std::map<const std::string, const Command> CommandsUsage() {
         3}},
       {"GetNumberOfLanes",
        {"GetNumberOfLanes", "GetNumberOfLanes", {"Obtains number of lanes in the RoadGeometry."}, 1}},
-
+      {"GetTotalLengthOfTheRoadGeometry",
+       {"GetTotalLengthOfTheRoadGeometry",
+        "GetTotalLengthOfTheRoadGeometry",
+        {"It is calculated adding up all the lanes' length."},
+        1}},
       {"FindOverlappingLanesIn",
        {"FindOverlappingLanesIn",
         "FindOverlappingLanesIn overlapping_type box_length box_width box_height x y z roll pitch yaw",
@@ -858,6 +862,21 @@ class RoadNetworkQuery {
     PrintQueryTime(duration.count());
   }
 
+  /// Gets the total length of the RoadGeometry.
+  void GetTotalLengthOfTheRoadGeometry() {
+    const auto start = std::chrono::high_resolution_clock::now();
+    const auto lanes = rn_->road_geometry()->ById().GetLanes();
+    double total_length = 0.0;
+    for (const auto& lane : lanes) {
+      total_length += lane.second->length();
+    }
+    const auto end = std::chrono::high_resolution_clock::now();
+    (*out_) << "Total length of the RoadGeometry: " << total_length << " m in " << lanes.size() << " lanes."
+            << std::endl;
+    const std::chrono::duration<double> duration = (end - start);
+    PrintQueryTime(duration.count());
+  }
+
   /// Gets all the Lanes (according to the overlapping type) in respect to a BoundingRegion
   void FindOverlappingLanesIn(const maliput::object::api::Object<maliput::math::Vector3>* bounding_object_ptr,
                               const maliput::math::OverlappingType overlapping_type) {
@@ -1196,6 +1215,7 @@ int Main(int argc, char* argv[]) {
   // Loads a road network.
   log()->info("Loading road network using ", FLAGS_maliput_backend, " backend implementation...");
   const MaliputImplementation maliput_implementation{StringToMaliputImplementation(FLAGS_maliput_backend)};
+  const auto start = std::chrono::high_resolution_clock::now();
   auto rn = LoadRoadNetwork(
       maliput_implementation,
       {FLAGS_num_lanes, FLAGS_length, FLAGS_lane_width, FLAGS_shoulder_width, FLAGS_maximum_height}, {FLAGS_yaml_file},
@@ -1207,6 +1227,9 @@ int Main(int argc, char* argv[]) {
        maliput::math::Vector2::FromStr(FLAGS_origin), FLAGS_rule_registry_file, FLAGS_road_rule_book_file,
        FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file, FLAGS_intersection_book_file});
   MALIPUT_DEMAND(rn != nullptr);
+  const auto end = std::chrono::high_resolution_clock::now();
+  const std::chrono::duration<double> duration = (end - start);
+  std::cout << "Road network loaded in " << duration.count() << " seconds." << std::endl;
   log()->info("RoadNetwork loaded successfully.");
 
   auto rn_ptr = rn.get();
@@ -1293,6 +1316,9 @@ int Main(int argc, char* argv[]) {
     query.GetLaneLength(lane_id);
   } else if (command.name.compare("GetNumberOfLanes") == 0) {
     query.GetNumberOfLanes();
+
+  } else if (command.name.compare("GetTotalLengthOfTheRoadGeometry") == 0) {
+    query.GetTotalLengthOfTheRoadGeometry();
 
   } else if (command.name.compare("FindOverlappingLanesIn") == 0) {
     const maliput::math::OverlappingType overlapping_type = OverlappingTypeFromCLI(&(argv[2]));
