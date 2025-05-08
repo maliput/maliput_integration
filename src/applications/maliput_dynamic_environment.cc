@@ -45,7 +45,7 @@
 ///   2. The application allows to select:
 ///      `-phase_duration`: the duration of each phase.
 ///      `-timeout`: the duration of the simulation.
-///   3. The level of the logger is selected with `-log_level`.
+///   3. The log level is selected with `-log_level`.
 
 #include <map>
 #include <memory>

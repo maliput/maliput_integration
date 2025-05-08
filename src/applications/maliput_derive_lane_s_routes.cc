@@ -46,7 +46,7 @@
 /// 2. Comments about the config_file:
 ///      i - It should have a valid xodr_file only when malidrive backend is selected.
 ///     ii - If a xodr_file_path(gflag) is provided then the xodr file path described in the config_file is discarded.
-/// 3. The level of the logger could be setted by: -log_level.
+/// 3. The log level could be setted by: -log_level.
 
 #include <cmath>
 #include <iostream>

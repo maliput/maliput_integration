@@ -1,7 +1,6 @@
 // BSD 3-Clause License
 //
-// Copyright (c) 2022, Woven Planet. All rights reserved.
-// Copyright (c) 2020-2022, Toyota Research Institute. All rights reserved.
+// Copyright (c) 2024, Woven by Toyota. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -28,13 +27,13 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-/// @file maliput_to_obj.cc
+/// @file maliput_to_dot.cc
 ///
 /// Builds a dragway, multilane or malidrive road geometry
-/// and render the road surface to a WaveFront OBJ output file.
+/// and creates a routing::graph::Graph from it to then serialize to a DOT file representation.
 ///
 /// @note
-/// 1. It allows to create an OBJ file from different road geometry implementations.
+/// 1. It allows to create an DOT file from different road geometry implementations.
 ///     The `maliput_backend` flag will determine the backend to be used.
 ///    - "dragway": The following flags are supported to use in order to create dragway road geometry:
 ///       -num_lanes, -length, -lane_width, -shoulder_width, -maximum_height.
@@ -42,11 +41,11 @@
 ///       -yaml_file.
 ///    - "malidrive": xodr file path must be provided and the tolerance is optional:
 ///         -xodr_file_path -linear_tolerance.
-/// 2. The application possesses flags to modify the OBJ file builder:
-///      -obj_dir, -obj_file, -max_grid_unit, -min_grid_resolution, -draw_elevation_bounds, -simplify_mesh_threshold
-/// 3. An urdf file can also be created by passing -urdf flag.
-/// 4. The log level could be set by: -log_level.
+/// 2. The application possesses flags to modify the DOT file builder:
+///      -dot_dir_path, -dot_file_name
+/// 3. The log level could be set by: -log_level.
 
+#include <fstream>
 #include <limits>
 #include <string>
 
@@ -54,9 +53,8 @@
 #include <maliput/common/filesystem.h>
 #include <maliput/common/logger.h>
 #include <maliput/common/maliput_abort.h>
-#include <maliput/utility/generate_obj.h>
-#include <maliput/utility/generate_urdf.h>
-#include <yaml-cpp/yaml.h>
+#include <maliput/routing/graph/graph.h>
+#include <maliput/utility/generate_dot.h>
 
 #include "integration/tools.h"
 #include "maliput_gflags.h"
@@ -70,42 +68,37 @@ MALIPUT_APPLICATION_DEFINE_LOG_LEVEL_FLAG();
 
 DEFINE_string(maliput_backend, "dragway", "Whether to use <dragway>, <multilane> or <malidrive>. Default is dragway.");
 
-// Gflag to enable .urdf file creation.
-DEFINE_bool(urdf, false, "Enable URDF file creation.");
-
 // Gflags for output files.
-DEFINE_string(dirpath, ".", "Directory to contain rendered road surface");
-DEFINE_string(file_name_root, "maliput_to_obj", "Basename for output Wavefront OBJ and MTL files");
-
-// Gflags for OBJ generation configuration.
-DEFINE_double(max_grid_unit, maliput::utility::ObjFeatures().max_grid_unit,
-              "Maximum size of a grid unit in the rendered mesh covering the "
-              "road surface");
-DEFINE_double(min_grid_resolution, maliput::utility::ObjFeatures().min_grid_resolution,
-              "Minimum number of grid-units in either lateral or longitudinal "
-              "direction in the rendered mesh covering the road surface");
-DEFINE_bool(draw_elevation_bounds, maliput::utility::ObjFeatures().draw_elevation_bounds,
-            "Whether to draw the elevation bounds");
-DEFINE_double(simplify_mesh_threshold, maliput::utility::ObjFeatures().simplify_mesh_threshold,
-              "Optional tolerance for mesh simplification, in meters. Make it "
-              "equal to the road linear tolerance to get a mesh size reduction "
-              "while keeping geometrical fidelity.");
-DEFINE_bool(draw_arrows, maliput::utility::ObjFeatures().draw_arrows,
-            "Whether to draw arrows for indicating the direction of the road ");
-DEFINE_bool(draw_branch_points, maliput::utility::ObjFeatures().draw_branch_points,
-            "Whether to draw the branch points of the road");
-DEFINE_bool(draw_stripes, maliput::utility::ObjFeatures().draw_stripes,
-            "Whether to draw stripes along boundaries of each lane");
-DEFINE_bool(draw_lane_haze, maliput::utility::ObjFeatures().draw_lane_haze,
-            "Whether to draw the highlighting swath with boundaries of each lane");
+DEFINE_string(dot_dir_path, ".", "Directory to contain DOT file.");
+DEFINE_string(dot_file_name, "maliput_graph.dot", "Name of the maliput::routing::graph::Graph DOT file.");
 
 namespace maliput {
 namespace integration {
 namespace {
 
-// Generates an OBJ file from a YAML file path or from
+// Generates an DOT file from a YAML file path or from
 // configurable values given as CLI arguments.
 int Main(int argc, char* argv[]) {
+  static constexpr const char* kUsageMessage = R"*(
+Builds a dragway, multilane or malidrive road geometry and creates a routing::graph::Graph from it to then serialize to a DOT file representation.
+
+1. It allows to create an DOT file from different road geometry implementations.
+    The `maliput_backend` flag will determine the backend to be used.
+   - "dragway": The following flags are supported to use in order to create dragway road geometry:
+      -num_lanes, -length, -lane_width, -shoulder_width, -maximum_height.
+   - "multilane": yaml file path must be provided:
+      -yaml_file.
+   - "malidrive": xodr file path must be provided and the tolerance is optional:
+        -xodr_file_path -linear_tolerance.
+2. The application possesses flags to modify the DOT file builder:
+     -dot_dir_path, -dot_file_name
+3. The log level could be set by: -log_level.
+
+Example:
+
+maliput_to_dot --maliput_backend malidrive --xodr_file_path TShapeRoad.xodr
+)*";
+  gflags::SetUsageMessage(kUsageMessage);
   gflags::ParseCommandLineFlags(&argc, &argv, true);
   common::set_log_level(FLAGS_log_level);
 
@@ -125,31 +118,20 @@ int Main(int argc, char* argv[]) {
 
   // Creates the destination directory if it does not already exist.
   common::Path directory;
-  directory.set_path(FLAGS_dirpath);
+  directory.set_path(FLAGS_dot_dir_path);
   if (!directory.exists()) {
     common::Filesystem::create_directory_recursive(directory);
   }
   MALIPUT_THROW_UNLESS(directory.exists());
 
-  utility::ObjFeatures features;
-  features.max_grid_unit = FLAGS_max_grid_unit;
-  features.min_grid_resolution = FLAGS_min_grid_resolution;
-  features.draw_elevation_bounds = FLAGS_draw_elevation_bounds;
-  features.simplify_mesh_threshold = FLAGS_simplify_mesh_threshold;
-  features.draw_arrows = FLAGS_draw_arrows;
-  features.draw_branch_points = FLAGS_draw_branch_points;
-  features.draw_stripes = FLAGS_draw_stripes;
-  features.draw_lane_haze = FLAGS_draw_lane_haze;
+  const std::string dot_file_path = FLAGS_dot_dir_path + "/" + FLAGS_dot_file_name;
+  std::ofstream os(dot_file_path, std::ios::binary);
 
-  const common::Path my_path = common::Filesystem::get_cwd();
-  const std::string urdf = FLAGS_urdf ? "/URDF" : "";
-  FLAGS_dirpath == "." ? log()->info("OBJ", urdf, " files location: ", my_path.get_path(), ".")
-                       : log()->info("OBJ", urdf, " files location: ", FLAGS_dirpath, ".");
+  log()->info("Generating DOT file at ", dot_file_path, " ...");
+  utility::GenerateDotStream(routing::graph::BuildGraph(rn->road_geometry()), &os);
+  log()->info("Generated DOT file.");
 
-  log()->info("Generating OBJ", urdf, " ...");
-  FLAGS_urdf ? GenerateUrdfFile(rn->road_geometry(), FLAGS_dirpath, FLAGS_file_name_root, features)
-             : GenerateObjFile(rn->road_geometry(), FLAGS_dirpath, FLAGS_file_name_root, features);
-  log()->info("OBJ", urdf, " creation has finished.");
+  os.close();
 
   return 0;
 }
