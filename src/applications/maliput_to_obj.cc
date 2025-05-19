@@ -47,6 +47,7 @@
 /// 3. An urdf file can also be created by passing -urdf flag.
 /// 4. The level of the logger could be setted by: -log_level.
 
+#include <chrono>
 #include <limits>
 #include <string>
 
@@ -98,6 +99,10 @@ DEFINE_bool(draw_stripes, maliput::utility::ObjFeatures().draw_stripes,
             "Whether to draw stripes along boundaries of each lane");
 DEFINE_bool(draw_lane_haze, maliput::utility::ObjFeatures().draw_lane_haze,
             "Whether to draw the highlighting swath with boundaries of each lane");
+DEFINE_bool(off_grid_mesh_generation, maliput::utility::ObjFeatures().off_grid_mesh_generation,
+            "Whether to reduce the amount of vertices from the road by creating "
+            "quads big enough which don't violate some tolerance. This could "
+            "affect the accuracy of curved roads.");
 
 namespace maliput {
 namespace integration {
@@ -140,6 +145,7 @@ int Main(int argc, char* argv[]) {
   features.draw_branch_points = FLAGS_draw_branch_points;
   features.draw_stripes = FLAGS_draw_stripes;
   features.draw_lane_haze = FLAGS_draw_lane_haze;
+  features.off_grid_mesh_generation = FLAGS_off_grid_mesh_generation;
 
   const common::Path my_path = common::Filesystem::get_cwd();
   const std::string urdf = FLAGS_urdf ? "/URDF" : "";
@@ -147,9 +153,13 @@ int Main(int argc, char* argv[]) {
                        : log()->info("OBJ", urdf, " files location: ", FLAGS_dirpath, ".");
 
   log()->info("Generating OBJ", urdf, " ...");
+  const auto now = std::chrono::system_clock::now();
   FLAGS_urdf ? GenerateUrdfFile(rn->road_geometry(), FLAGS_dirpath, FLAGS_file_name_root, features)
              : GenerateObjFile(rn->road_geometry(), FLAGS_dirpath, FLAGS_file_name_root, features);
-  log()->info("OBJ", urdf, " creation has finished.");
+  const auto elapsed = std::chrono::system_clock::now() - now;
+  log()->info("OBJ", urdf, " creation has finished in ",
+              std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count(), " ms.");
+  log()->info("OBJ", urdf, " files location: ", FLAGS_dirpath, ".");
 
   return 0;
 }
