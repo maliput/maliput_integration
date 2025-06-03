@@ -106,16 +106,31 @@ DEFINE_bool(off_grid_mesh_generation, maliput::utility::ObjFeatures().off_grid_m
 
 namespace maliput {
 namespace integration {
-namespace {
 
+// Returns a string with the usage message.
+std::string GetUsageMessage() {
+  std::stringstream ss;
+  ss << "Create a OBJ (WAVEFRONT) file from a maliput road network." << std::endl << std::endl;
+  ss << "  maliput_to_obj <OPTIONS> " << std::endl << std::endl;
+  ss << "  Examples of use: " << std::endl;
+  ss << "    $ maliput_to_obj --maliput_backend=malidrive --xodr_file_path=Town07.xodr --build_policy=parallel "
+        "--linear_tolerance=0.05 --max_linear_tolerance=0.05 --log_level=info --dirpath=src/maliput_malidrive/obj/ "
+        "--file_name_root=TShapeRoadOBJ --off_grid_mesh_generation=True --draw_elevation_bounds=False"
+     << std::endl;
+
+  return ss.str();
+}
+namespace {
 // Generates an OBJ file from a YAML file path or from
 // configurable values given as CLI arguments.
 int Main(int argc, char* argv[]) {
+  gflags::SetUsageMessage(GetUsageMessage());
   gflags::ParseCommandLineFlags(&argc, &argv, true);
   common::set_log_level(FLAGS_log_level);
 
   log()->info("Loading road network using ", FLAGS_maliput_backend, " backend implementation...");
   const MaliputImplementation maliput_implementation{StringToMaliputImplementation(FLAGS_maliput_backend)};
+  const auto load_time_now = std::chrono::system_clock::now();
   auto rn = LoadRoadNetwork(
       maliput_implementation,
       {FLAGS_num_lanes, FLAGS_length, FLAGS_lane_width, FLAGS_shoulder_width, FLAGS_maximum_height}, {FLAGS_yaml_file},
@@ -126,7 +141,10 @@ int Main(int argc, char* argv[]) {
       {FLAGS_osm_file, FLAGS_linear_tolerance, FLAGS_max_linear_tolerance,
        maliput::math::Vector2::FromStr(FLAGS_origin), FLAGS_rule_registry_file, FLAGS_road_rule_book_file,
        FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file, FLAGS_intersection_book_file});
-  log()->info("RoadNetwork loaded successfully.");
+  log()->info(
+      "RoadNetwork loaded successfully in ",
+      std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - load_time_now).count(),
+      " ms.");
 
   // Creates the destination directory if it does not already exist.
   common::Path directory;
