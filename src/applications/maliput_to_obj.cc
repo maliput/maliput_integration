@@ -42,10 +42,10 @@
 ///       -yaml_file.
 ///    - "malidrive": xodr file path must be provided and the tolerance is optional:
 ///         -xodr_file_path -linear_tolerance.
-/// 2. The applications possesses flags to modify the OBJ file builder:
+/// 2. The application possesses flags to modify the OBJ file builder:
 ///      -obj_dir, -obj_file, -max_grid_unit, -min_grid_resolution, -draw_elevation_bounds, -simplify_mesh_threshold
 /// 3. An urdf file can also be created by passing -urdf flag.
-/// 4. The level of the logger could be setted by: -log_level.
+/// 4. The log level could be set by: -log_level.
 
 #include <chrono>
 #include <limits>
