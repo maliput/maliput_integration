@@ -95,6 +95,8 @@
       "OpenDrive standard strictness, it could be `permissive`, `allow_schema_errors`, `allow_semantic_errors` or "    \
       "`strict`. Union of policies are also allowed: 'allow_schema_errors|allow_semantic_errors'");                    \
   DEFINE_bool(omit_nondrivable_lanes, false, "If true, builder omits non-drivable lanes when building.");              \
+  DEFINE_double(integrator_accuracy_multiplier, 1.,                                                                    \
+                "Integrator accuracy multiplier used to build the Road Geometry.");                                    \
   std::optional<double> GetLinearToleranceFlag() {                                                                     \
     return gflags::GetCommandLineFlagInfoOrDie("linear_tolerance").is_default                                          \
                ? std::nullopt                                                                                          \
