@@ -42,7 +42,9 @@ add_executable(maliput_query
 target_link_libraries(maliput_query
     gflags
     maliput::common
+    maliput::base
     maliput::plugin
+    maliput::routing
     maliput::utility
     maliput_malidrive::loader
     maliput_integration::integration

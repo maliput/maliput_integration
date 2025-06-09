@@ -47,6 +47,7 @@
 /// 3. An urdf file can also be created by passing -urdf flag.
 /// 4. The log level could be set by: -log_level.
 
+#include <chrono>
 #include <limits>
 #include <string>
 
@@ -98,19 +99,38 @@ DEFINE_bool(draw_stripes, maliput::utility::ObjFeatures().draw_stripes,
             "Whether to draw stripes along boundaries of each lane");
 DEFINE_bool(draw_lane_haze, maliput::utility::ObjFeatures().draw_lane_haze,
             "Whether to draw the highlighting swath with boundaries of each lane");
+DEFINE_bool(off_grid_mesh_generation, maliput::utility::ObjFeatures().off_grid_mesh_generation,
+            "Whether to reduce the amount of vertices from the road by creating "
+            "quads big enough which don't violate some tolerance. This could "
+            "affect the accuracy of curved roads.");
 
 namespace maliput {
 namespace integration {
-namespace {
 
+// Returns a string with the usage message.
+std::string GetUsageMessage() {
+  std::stringstream ss;
+  ss << "Create a OBJ (WAVEFRONT) file from a maliput road network." << std::endl << std::endl;
+  ss << "  maliput_to_obj <OPTIONS> " << std::endl << std::endl;
+  ss << "  Examples of use: " << std::endl;
+  ss << "    $ maliput_to_obj --maliput_backend=malidrive --xodr_file_path=Town07.xodr --build_policy=parallel "
+        "--linear_tolerance=0.05 --max_linear_tolerance=0.05 --log_level=info --dirpath=src/maliput_malidrive/obj/ "
+        "--file_name_root=TShapeRoadOBJ --off_grid_mesh_generation=True --draw_elevation_bounds=False"
+     << std::endl;
+
+  return ss.str();
+}
+namespace {
 // Generates an OBJ file from a YAML file path or from
 // configurable values given as CLI arguments.
 int Main(int argc, char* argv[]) {
+  gflags::SetUsageMessage(GetUsageMessage());
   gflags::ParseCommandLineFlags(&argc, &argv, true);
   common::set_log_level(FLAGS_log_level);
 
   log()->info("Loading road network using ", FLAGS_maliput_backend, " backend implementation...");
   const MaliputImplementation maliput_implementation{StringToMaliputImplementation(FLAGS_maliput_backend)};
+  const auto load_time_now = std::chrono::system_clock::now();
   auto rn = LoadRoadNetwork(
       maliput_implementation,
       {FLAGS_num_lanes, FLAGS_length, FLAGS_lane_width, FLAGS_shoulder_width, FLAGS_maximum_height}, {FLAGS_yaml_file},
@@ -121,7 +141,10 @@ int Main(int argc, char* argv[]) {
       {FLAGS_osm_file, FLAGS_linear_tolerance, FLAGS_max_linear_tolerance,
        maliput::math::Vector2::FromStr(FLAGS_origin), FLAGS_rule_registry_file, FLAGS_road_rule_book_file,
        FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file, FLAGS_intersection_book_file});
-  log()->info("RoadNetwork loaded successfully.");
+  log()->info(
+      "RoadNetwork loaded successfully in ",
+      std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - load_time_now).count(),
+      " ms.");
 
   // Creates the destination directory if it does not already exist.
   common::Path directory;
@@ -140,6 +163,7 @@ int Main(int argc, char* argv[]) {
   features.draw_branch_points = FLAGS_draw_branch_points;
   features.draw_stripes = FLAGS_draw_stripes;
   features.draw_lane_haze = FLAGS_draw_lane_haze;
+  features.off_grid_mesh_generation = FLAGS_off_grid_mesh_generation;
 
   const common::Path my_path = common::Filesystem::get_cwd();
   const std::string urdf = FLAGS_urdf ? "/URDF" : "";
@@ -147,9 +171,13 @@ int Main(int argc, char* argv[]) {
                        : log()->info("OBJ", urdf, " files location: ", FLAGS_dirpath, ".");
 
   log()->info("Generating OBJ", urdf, " ...");
+  const auto now = std::chrono::system_clock::now();
   FLAGS_urdf ? GenerateUrdfFile(rn->road_geometry(), FLAGS_dirpath, FLAGS_file_name_root, features)
              : GenerateObjFile(rn->road_geometry(), FLAGS_dirpath, FLAGS_file_name_root, features);
-  log()->info("OBJ", urdf, " creation has finished.");
+  const auto elapsed = std::chrono::system_clock::now() - now;
+  log()->info("OBJ", urdf, " creation has finished in ",
+              std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count(), " ms.");
+  log()->info("OBJ", urdf, " files location: ", FLAGS_dirpath, ".");
 
   return 0;
 }
