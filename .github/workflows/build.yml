@@ -2,6 +2,8 @@ name: gcc
 
 on:
   push:
+    branches:
+      - main
   pull_request:
     branches:
       - main
@@ -16,7 +18,10 @@ jobs:
     name: Compile and test
     runs-on: ubuntu-latest
     container:
-      image: rostooling/setup-ros-docker:ubuntu-focal-ros-foxy-ros-base-latest
+      image: ghcr.io/maliput/ci_foxy_image:latest
+      credentials:
+         username: ${{ github.actor }}
+         password: ${{ secrets.GITHUB_TOKEN }}
     steps:
     - uses: actions/checkout@v4
     - uses: ros-tooling/action-ros-ci@v0.4
