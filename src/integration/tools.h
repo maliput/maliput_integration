@@ -84,6 +84,7 @@ struct MalidriveBuildProperties {
   std::string standard_strictness_policy{"permissive"};
   bool omit_nondrivable_lanes{"true"};
   double integrator_accuracy_multiplier{1.0};
+  bool use_userdata_traffic_direction{false};
   std::string rule_registry_file{""};
   std::string road_rule_book_file{""};
   std::string traffic_light_book_file{""};
