@@ -97,6 +97,8 @@
   DEFINE_bool(omit_nondrivable_lanes, false, "If true, builder omits non-drivable lanes when building.");              \
   DEFINE_double(integrator_accuracy_multiplier, 1.,                                                                    \
                 "Integrator accuracy multiplier used to build the Road Geometry.");                                    \
+  DEFINE_bool(use_userdata_traffic_direction, false,                                                                   \
+              "If true, the XODR parser will support userData XODR nodes to override Lane's travel direction rules."); \
   std::optional<double> GetLinearToleranceFlag() {                                                                     \
     return gflags::GetCommandLineFlagInfoOrDie("linear_tolerance").is_default                                          \
                ? std::nullopt                                                                                          \

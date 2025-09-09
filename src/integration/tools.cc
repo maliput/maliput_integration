@@ -173,6 +173,8 @@ std::unique_ptr<api::RoadNetwork> CreateMalidriveRoadNetwork(const MalidriveBuil
                                      build_properties.omit_nondrivable_lanes ? "true" : "false");
   road_network_configuration.emplace("integrator_accuracy_multiplier",
                                      std::to_string(build_properties.integrator_accuracy_multiplier));
+  road_network_configuration.emplace("use_userdata_traffic_direction",
+                                     build_properties.use_userdata_traffic_direction ? "true" : "false");
   if (!build_properties.rule_registry_file.empty()) {
     road_network_configuration.emplace(
         "rule_registry", GetResource(MaliputImplementation::kMalidrive, build_properties.rule_registry_file));
