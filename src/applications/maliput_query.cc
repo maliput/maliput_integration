@@ -164,6 +164,13 @@ const std::map<const std::string, const Command> CommandsUsage() {
         {"Obtains the orientation in a Lane, identified by lane_id, that is",
          "closest, in the world frame, to an (s, r, h) LanePosition."},
         5}},
+      {"GetCurvature",
+       {"GetCurvature",
+        "GetCurvature lane_id s r h",
+        {"Obtains the curvature (1/m) at an (s, r, h) LanePosition in a Lane,",
+         "identified by lane_id. Curvature is computed as |dθ/ds|, the rate of",
+         "change of heading with respect to arc length with sign information."},
+        5}},
       {"ToInertialPosition",
        {"ToInertialPosition",
         "ToInertialPosition lane_id s r h",
@@ -579,6 +586,28 @@ class RoadNetworkQuery {
 
     (*out_) << "(" << lane_id.string() << ")->GetOrientation(lane_position: " << lane_position << ")" << std::endl;
     (*out_) << "              : Result: orientation:" << rotation << std::endl;
+    const std::chrono::duration<double> duration = (end - start);
+    PrintQueryTime(duration.count());
+  }
+
+  /// Redirects `lane_position` to `lane_id`'s Lane::GetCurvature().
+  void GetCurvature(const maliput::api::LaneId& lane_id, const maliput::api::LanePosition& lane_position) {
+    const maliput::api::Lane* lane = rn_->road_geometry()->ById().GetLane(lane_id);
+
+    if (lane == nullptr) {
+      (*out_) << "              : Result: Could not find lane. " << std::endl;
+      return;
+    }
+
+    const auto start = std::chrono::high_resolution_clock::now();
+    const double curvature = lane->GetCurvature(lane_position);
+    const auto end = std::chrono::high_resolution_clock::now();
+
+    (*out_) << "(" << lane_id.string() << ")->GetCurvature(lane_position: " << lane_position << ")" << std::endl;
+    (*out_) << "              : Result: curvature: " << curvature << " (1/m)" << std::endl;
+    if (curvature > 1e-9) {
+      (*out_) << "              : Result: radius: " << (1.0 / curvature) << " (m)" << std::endl;
+    }
     const std::chrono::duration<double> duration = (end - start);
     PrintQueryTime(duration.count());
   }
@@ -1261,6 +1290,11 @@ int Main(int argc, char* argv[]) {
     const maliput::api::LanePosition lane_position = LanePositionFromCLI(&(argv[3]));
 
     query.GetOrientation(lane_id, lane_position);
+  } else if (command.name.compare("GetCurvature") == 0) {
+    const maliput::api::LaneId lane_id = LaneIdFromCLI(&(argv[2]));
+    const maliput::api::LanePosition lane_position = LanePositionFromCLI(&(argv[3]));
+
+    query.GetCurvature(lane_id, lane_position);
   } else if (command.name.compare("ToInertialPosition") == 0) {
     const maliput::api::LaneId lane_id = LaneIdFromCLI(&(argv[2]));
     const maliput::api::LanePosition lane_position = LanePositionFromCLI(&(argv[3]));
