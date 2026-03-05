@@ -140,6 +140,15 @@ const std::map<const std::string, const Command> CommandsUsage() {
          "the world frame, the RoadPosition of the point in the Lane manifold",
          "which is closest to that InertialPosition."},
         5}},
+      {"FindRoadPositionsAtXY",
+       {"FindRoadPositionsAtXY",
+        "FindRoadPositionsAtXY x y r",
+        {"Obtains, for all Lanes whose segment regions include points",
+         "that are within a 2D radius r of an (x, y) position in the XY plane,",
+         "the on-surface RoadPosition of the point in the Lane manifold",
+         "closest to that (x, y) position. Unlike FindRoadPositions, this",
+         "method ignores the Z coordinate and computes 2D planar distances."},
+        4}},
       {"ToRoadPosition",
        {"ToRoadPosition",
         "ToRoadPosition x y z",
@@ -450,6 +459,21 @@ class RoadNetworkQuery {
 
     (*out_) << "FindRoadPositions(inertial_position:" << inertial_position << ", radius: " << radius << ")"
             << std::endl;
+    for (const maliput::api::RoadPositionResult& result : results) {
+      (*out_) << "              : Result: " << result << std::endl;
+    }
+    const std::chrono::duration<double> duration = (end - start);
+    PrintQueryTime(duration.count());
+  }
+
+  /// Redirects `x`, `y` and `radius` to RoadGeometry::FindRoadPositionsAtXY().
+  void FindRoadPositionsAtXY(double x, double y, double radius) {
+    const auto start = std::chrono::high_resolution_clock::now();
+    const std::vector<maliput::api::RoadPositionResult> results =
+        rn_->road_geometry()->FindRoadPositionsAtXY(x, y, radius);
+    const auto end = std::chrono::high_resolution_clock::now();
+
+    (*out_) << "FindRoadPositionsAtXY(x: " << x << ", y: " << y << ", radius: " << radius << ")" << std::endl;
     for (const maliput::api::RoadPositionResult& result : results) {
       (*out_) << "              : Result: " << result << std::endl;
     }
@@ -1271,6 +1295,12 @@ int Main(int argc, char* argv[]) {
     const double radius = RadiusFromCLI(&(argv[5]));
 
     query.FindRoadPositions(inertial_position, radius);
+  } else if (command.name.compare("FindRoadPositionsAtXY") == 0) {
+    const double x = std::stod(std::string(argv[2]));
+    const double y = std::stod(std::string(argv[3]));
+    const double radius = RadiusFromCLI(&(argv[4]));
+
+    query.FindRoadPositionsAtXY(x, y, radius);
   } else if (command.name.compare("ToRoadPosition") == 0) {
     const maliput::api::InertialPosition inertial_position = InertialPositionFromCLI(&(argv[2]));
 
