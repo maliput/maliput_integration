@@ -67,9 +67,11 @@ MULTILANE_PROPERTIES_FLAGS();
 DRAGWAY_PROPERTIES_FLAGS();
 MALIDRIVE_PROPERTIES_FLAGS();
 MALIPUT_OSM_PROPERTIES_FLAGS();
+MALIPUT_GEOPACKAGE_PROPERTIES_FLAGS();
 MALIPUT_APPLICATION_DEFINE_LOG_LEVEL_FLAG();
 
-DEFINE_string(maliput_backend, "dragway", "Whether to use <dragway>, <multilane> or <malidrive>. Default is dragway.");
+DEFINE_string(maliput_backend, "dragway",
+              "Whether to use <dragway>, <multilane>, <malidrive>, <osm> or <geopackage>. Default is dragway.");
 
 // Gflag to enable .urdf file creation.
 DEFINE_bool(urdf, false, "Enable URDF file creation.");
@@ -141,7 +143,10 @@ int Main(int argc, char* argv[]) {
        FLAGS_intersection_book_file},
       {FLAGS_osm_file, FLAGS_linear_tolerance, FLAGS_max_linear_tolerance,
        maliput::math::Vector2::FromStr(FLAGS_origin), FLAGS_rule_registry_file, FLAGS_road_rule_book_file,
-       FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file, FLAGS_intersection_book_file});
+       FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file, FLAGS_intersection_book_file},
+      {FLAGS_gpkg_file, FLAGS_linear_tolerance, FLAGS_angular_tolerance, FLAGS_rule_registry_file,
+       FLAGS_road_rule_book_file, FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file,
+       FLAGS_intersection_book_file});
   log()->info(
       "RoadNetwork loaded successfully in ",
       std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - load_time_now).count(),

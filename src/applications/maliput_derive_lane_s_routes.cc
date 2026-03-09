@@ -81,10 +81,11 @@ MULTILANE_PROPERTIES_FLAGS();
 DRAGWAY_PROPERTIES_FLAGS();
 MALIDRIVE_PROPERTIES_FLAGS();
 MALIPUT_OSM_PROPERTIES_FLAGS();
+MALIPUT_GEOPACKAGE_PROPERTIES_FLAGS();
 MALIPUT_APPLICATION_DEFINE_LOG_LEVEL_FLAG();
 
 DEFINE_string(maliput_backend, "malidrive",
-              "Whether to use <dragway>, <multilane> or <malidrive>. Default is malidrive.");
+              "Whether to use <dragway>, <multilane>, <malidrive>, <osm> or <geopackage>. Default is malidrive.");
 DEFINE_string(config_file, "", "YAML file that defines XODR file path, route max length, and start/end waypoints.");
 DEFINE_double(max_length, 1000, "Maximum length of the intermediate lanes between start and end waypoints.[m]");
 DEFINE_string(start_waypoint, "", "Start waypoint to calculate the routing from. Expected format: '{x0, y0, z0}' ");
@@ -325,6 +326,9 @@ int main(int argc, char* argv[]) {
        FLAGS_intersection_book_file},
       {FLAGS_osm_file, FLAGS_linear_tolerance, FLAGS_angular_tolerance, maliput::math::Vector2::FromStr(FLAGS_origin),
        FLAGS_rule_registry_file, FLAGS_road_rule_book_file, FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file,
+       FLAGS_intersection_book_file},
+      {FLAGS_gpkg_file, FLAGS_linear_tolerance, FLAGS_angular_tolerance, FLAGS_rule_registry_file,
+       FLAGS_road_rule_book_file, FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file,
        FLAGS_intersection_book_file});
   log()->info("RoadNetwork loaded successfully.");
 

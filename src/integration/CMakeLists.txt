@@ -31,6 +31,7 @@ target_link_libraries(integration
     maliput_malidrive::loader
     maliput_multilane::maliput_multilane
     maliput_osm::builder
+    maliput_geopackage::builder
     yaml-cpp
 )
 

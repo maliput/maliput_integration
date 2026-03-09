@@ -122,3 +122,8 @@
   DEFINE_string(osm_file, "", "OSM file path."); \
   DEFINE_string(origin, "{0., 0.}", "OSM map's origin lat/long coordinate.");
 #endif  // MALIPUT_OSM_PROPERTIES_FLAGS
+
+#ifndef MALIPUT_GEOPACKAGE_PROPERTIES_FLAGS
+
+#define MALIPUT_GEOPACKAGE_PROPERTIES_FLAGS() DEFINE_string(gpkg_file, "", "GeoPackage file path.");
+#endif  // MALIPUT_GEOPACKAGE_PROPERTIES_FLAGS

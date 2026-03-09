@@ -20,6 +20,7 @@ find_package(maliput_multilane REQUIRED)
 find_package(maliput_object REQUIRED)
 find_package(maliput_sparse REQUIRED)
 find_package(maliput_osm REQUIRED)
+find_package(maliput_geopackage REQUIRED)
 find_package(maliput_py REQUIRED)
 find_package(yaml-cpp REQUIRED)
 

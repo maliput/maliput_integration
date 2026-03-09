@@ -67,10 +67,11 @@ MULTILANE_PROPERTIES_FLAGS();
 DRAGWAY_PROPERTIES_FLAGS();
 MALIDRIVE_PROPERTIES_FLAGS();
 MALIPUT_OSM_PROPERTIES_FLAGS();
+MALIPUT_GEOPACKAGE_PROPERTIES_FLAGS();
 MALIPUT_APPLICATION_DEFINE_LOG_LEVEL_FLAG();
 
 DEFINE_string(maliput_backend, "malidrive",
-              "Whether to use <dragway>, <multilane> or <malidrive>. Default is malidrive.");
+              "Whether to use <dragway>, <multilane>, <malidrive>, <osm> or <geopackage>. Default is malidrive.");
 DEFINE_int32(iterations, 1, "Number of iterations for loading the Road Geometry.");
 
 // Measure the time that it takes to create the RoadNetwork using the implementation that `maliput_implementation`
@@ -87,10 +88,12 @@ double MeasureLoadTime(MaliputImplementation maliput_implementation,
                        const DragwayBuildProperties& dragway_build_properties,
                        const MultilaneBuildProperties& multilane_build_properties,
                        const MalidriveBuildProperties& malidrive_build_properties,
-                       const MaliputOsmBuildProperties& maliput_osm_build_properties) {
+                       const MaliputOsmBuildProperties& maliput_osm_build_properties,
+                       const MaliputGeopackageBuildProperties& maliput_geopackage_build_properties) {
   const auto start = std::chrono::high_resolution_clock::now();
-  const auto rn = LoadRoadNetwork(maliput_implementation, dragway_build_properties, multilane_build_properties,
-                                  malidrive_build_properties, maliput_osm_build_properties);
+  const auto rn =
+      LoadRoadNetwork(maliput_implementation, dragway_build_properties, multilane_build_properties,
+                      malidrive_build_properties, maliput_osm_build_properties, maliput_geopackage_build_properties);
   const auto end = std::chrono::high_resolution_clock::now();
   const std::chrono::duration<double> duration = (end - start);
   return duration.count();
@@ -122,7 +125,10 @@ int Main(int argc, char* argv[]) {
          FLAGS_intersection_book_file},
         {FLAGS_osm_file, FLAGS_linear_tolerance, FLAGS_max_linear_tolerance,
          maliput::math::Vector2::FromStr(FLAGS_origin), FLAGS_rule_registry_file, FLAGS_road_rule_book_file,
-         FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file, FLAGS_intersection_book_file}));
+         FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file, FLAGS_intersection_book_file},
+        {FLAGS_gpkg_file, FLAGS_linear_tolerance, FLAGS_angular_tolerance, FLAGS_rule_registry_file,
+         FLAGS_road_rule_book_file, FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file,
+         FLAGS_intersection_book_file}));
   }
   const double mean_time = (std::accumulate(times.begin(), times.end(), 0.)) / static_cast<double>(times.size());
   maliput::log()->info("\tMean time was: ", mean_time, "s out of ", FLAGS_iterations, " iterations.\n");
