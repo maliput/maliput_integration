@@ -47,6 +47,7 @@
 #include <maliput/common/logger.h>
 #include <maliput/common/maliput_abort.h>
 #include <maliput_dragway/road_geometry.h>
+#include <maliput_geopackage/builder/road_network_builder.h>
 #include <maliput_malidrive/builder/road_network_builder.h>
 #include <maliput_malidrive/constants.h>
 #include <maliput_malidrive/loader/loader.h>
@@ -54,7 +55,6 @@
 #include <maliput_multilane/loader.h>
 #include <maliput_multilane/road_network_builder.h>
 #include <maliput_osm/builder/road_network_builder.h>
-#include <maliput_geopackage/builder/road_network_builder.h>
 #include <yaml-cpp/yaml.h>
 
 namespace maliput {
@@ -68,19 +68,15 @@ constexpr char MALIPUT_GEOPACKAGE_RESOURCE_ROOT[] = "MALIPUT_GEOPACKAGE_RESOURCE
 
 // Holds the conversions from MaliputImplementation to std::string.
 const std::map<MaliputImplementation, std::string> maliput_impl_to_string{
-    {MaliputImplementation::kDragway, "dragway"},
-    {MaliputImplementation::kMalidrive, "malidrive"},
-    {MaliputImplementation::kMultilane, "multilane"},
-    {MaliputImplementation::kOsm, "osm"},
+    {MaliputImplementation::kDragway, "dragway"},       {MaliputImplementation::kMalidrive, "malidrive"},
+    {MaliputImplementation::kMultilane, "multilane"},   {MaliputImplementation::kOsm, "osm"},
     {MaliputImplementation::kGeopackage, "geopackage"},
 };
 
 // Holds the conversions from std::string to MaliputImplementation.
 const std::map<std::string, MaliputImplementation> string_to_maliput_impl{
-    {"dragway", MaliputImplementation::kDragway},
-    {"malidrive", MaliputImplementation::kMalidrive},
-    {"multilane", MaliputImplementation::kMultilane},
-    {"osm", MaliputImplementation::kOsm},
+    {"dragway", MaliputImplementation::kDragway},       {"malidrive", MaliputImplementation::kMalidrive},
+    {"multilane", MaliputImplementation::kMultilane},   {"osm", MaliputImplementation::kOsm},
     {"geopackage", MaliputImplementation::kGeopackage},
 };
 
@@ -245,30 +241,29 @@ std::unique_ptr<api::RoadNetwork> CreateMaliputGeopackageRoadNetwork(
 
   std::map<std::string, std::string> build_configuration;
   build_configuration.emplace("road_geometry_id", "maliput_geopackage_rg");
-  build_configuration.emplace("gpkg_file",
-                              GetResource(MaliputImplementation::kGeopackage, build_properties.gpkg_file));
+  build_configuration.emplace("gpkg_file", GetResource(MaliputImplementation::kGeopackage, build_properties.gpkg_file));
   build_configuration.emplace("linear_tolerance", std::to_string(build_properties.linear_tolerance));
   build_configuration.emplace("angular_tolerance", std::to_string(build_properties.angular_tolerance));
   build_configuration.emplace("inertial_to_backend_frame_translation", "{0., 0., 0.}");
   if (!build_properties.rule_registry_file.empty()) {
-    build_configuration.emplace(
-        "rule_registry", GetResource(MaliputImplementation::kGeopackage, build_properties.rule_registry_file));
+    build_configuration.emplace("rule_registry",
+                                GetResource(MaliputImplementation::kGeopackage, build_properties.rule_registry_file));
   }
   if (!build_properties.road_rule_book_file.empty()) {
-    build_configuration.emplace(
-        "road_rule_book", GetResource(MaliputImplementation::kGeopackage, build_properties.road_rule_book_file));
+    build_configuration.emplace("road_rule_book",
+                                GetResource(MaliputImplementation::kGeopackage, build_properties.road_rule_book_file));
   }
   if (!build_properties.traffic_light_book_file.empty()) {
     build_configuration.emplace("traffic_light_book", GetResource(MaliputImplementation::kGeopackage,
-                                                                   build_properties.traffic_light_book_file));
+                                                                  build_properties.traffic_light_book_file));
   }
   if (!build_properties.phase_ring_book_file.empty()) {
-    build_configuration.emplace(
-        "phase_ring_book", GetResource(MaliputImplementation::kGeopackage, build_properties.phase_ring_book_file));
+    build_configuration.emplace("phase_ring_book",
+                                GetResource(MaliputImplementation::kGeopackage, build_properties.phase_ring_book_file));
   }
   if (!build_properties.intersection_book_file.empty()) {
-    build_configuration.emplace("intersection_book", GetResource(MaliputImplementation::kGeopackage,
-                                                                  build_properties.intersection_book_file));
+    build_configuration.emplace(
+        "intersection_book", GetResource(MaliputImplementation::kGeopackage, build_properties.intersection_book_file));
   }
 
   return maliput_geopackage::builder::RoadNetworkBuilder(build_configuration)();
@@ -316,7 +311,6 @@ std::string GetResource(const MaliputImplementation& maliput_implementation, con
   }
   return file_path.empty() ? resource_name : file_path;
 }
-
 
 }  // namespace integration
 }  // namespace maliput
