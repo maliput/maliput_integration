@@ -62,10 +62,11 @@ MULTILANE_PROPERTIES_FLAGS();
 DRAGWAY_PROPERTIES_FLAGS();
 MALIDRIVE_PROPERTIES_FLAGS();
 MALIPUT_OSM_PROPERTIES_FLAGS();
+MALIPUT_GEOPACKAGE_PROPERTIES_FLAGS();
 MALIPUT_APPLICATION_DEFINE_LOG_LEVEL_FLAG();
 
 DEFINE_string(maliput_backend, "malidrive",
-              "Whether to use <dragway>, <multilane> or <malidrive>. Default is malidrive.");
+              "Whether to use <dragway>, <multilane>, <malidrive>, <osm> or <geopackage>. Default is malidrive.");
 DEFINE_bool(check_invariants, false, "Whether to enable maliput invariants verification.");
 // Gflags to select options for serialization.
 DEFINE_bool(include_type_labels, false, "Whether to include type labels in the output string");
@@ -93,9 +94,12 @@ int Main(int argc, char* argv[]) {
        FLAGS_omit_nondrivable_lanes, FLAGS_integrator_accuracy_multiplier, FLAGS_use_userdata_traffic_direction,
        FLAGS_rule_registry_file, FLAGS_road_rule_book_file, FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file,
        FLAGS_intersection_book_file},
-      {FLAGS_osm_file, FLAGS_linear_tolerance, FLAGS_max_linear_tolerance,
-       maliput::math::Vector2::FromStr(FLAGS_origin), FLAGS_rule_registry_file, FLAGS_road_rule_book_file,
-       FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file, FLAGS_intersection_book_file});
+      {FLAGS_osm_file, FLAGS_linear_tolerance, FLAGS_angular_tolerance, maliput::math::Vector2::FromStr(FLAGS_origin),
+       FLAGS_rule_registry_file, FLAGS_road_rule_book_file, FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file,
+       FLAGS_intersection_book_file},
+      {FLAGS_gpkg_file, FLAGS_linear_tolerance, FLAGS_angular_tolerance, FLAGS_rule_registry_file,
+       FLAGS_road_rule_book_file, FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file,
+       FLAGS_intersection_book_file});
   log()->info("RoadNetwork loaded successfully.");
   if (FLAGS_check_invariants) {
     log()->info("Checking invariants...");

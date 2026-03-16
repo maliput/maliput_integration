@@ -79,9 +79,11 @@ MULTILANE_PROPERTIES_FLAGS();
 DRAGWAY_PROPERTIES_FLAGS();
 MALIDRIVE_PROPERTIES_FLAGS();
 MALIPUT_OSM_PROPERTIES_FLAGS();
+MALIPUT_GEOPACKAGE_PROPERTIES_FLAGS();
 MALIPUT_APPLICATION_DEFINE_LOG_LEVEL_FLAG();
 
-DEFINE_string(maliput_backend, "malidrive", "Whether to use <dragway>, <multilane> or <malidrive> maliput backend.");
+DEFINE_string(maliput_backend, "malidrive",
+              "Whether to use <dragway>, <multilane>, <malidrive>, <osm> or <geopackage> maliput backend.");
 
 namespace maliput {
 namespace integration {
@@ -1277,9 +1279,12 @@ int Main(int argc, char* argv[]) {
        FLAGS_omit_nondrivable_lanes, FLAGS_integrator_accuracy_multiplier, FLAGS_use_userdata_traffic_direction,
        FLAGS_rule_registry_file, FLAGS_road_rule_book_file, FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file,
        FLAGS_intersection_book_file},
-      {FLAGS_osm_file, FLAGS_linear_tolerance, FLAGS_max_linear_tolerance,
-       maliput::math::Vector2::FromStr(FLAGS_origin), FLAGS_rule_registry_file, FLAGS_road_rule_book_file,
-       FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file, FLAGS_intersection_book_file});
+      {FLAGS_osm_file, FLAGS_linear_tolerance, FLAGS_angular_tolerance, maliput::math::Vector2::FromStr(FLAGS_origin),
+       FLAGS_rule_registry_file, FLAGS_road_rule_book_file, FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file,
+       FLAGS_intersection_book_file},
+      {FLAGS_gpkg_file, FLAGS_linear_tolerance, FLAGS_angular_tolerance, FLAGS_rule_registry_file,
+       FLAGS_road_rule_book_file, FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file,
+       FLAGS_intersection_book_file});
   MALIPUT_DEMAND(rn != nullptr);
   const auto end = std::chrono::high_resolution_clock::now();
   const std::chrono::duration<double> duration = (end - start);
