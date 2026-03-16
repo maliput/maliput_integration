@@ -123,9 +123,9 @@ int Main(int argc, char* argv[]) {
          FLAGS_omit_nondrivable_lanes, FLAGS_integrator_accuracy_multiplier, FLAGS_use_userdata_traffic_direction,
          FLAGS_rule_registry_file, FLAGS_road_rule_book_file, FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file,
          FLAGS_intersection_book_file},
-        {FLAGS_osm_file, FLAGS_linear_tolerance, FLAGS_max_linear_tolerance,
-         maliput::math::Vector2::FromStr(FLAGS_origin), FLAGS_rule_registry_file, FLAGS_road_rule_book_file,
-         FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file, FLAGS_intersection_book_file},
+        {FLAGS_osm_file, FLAGS_linear_tolerance, FLAGS_angular_tolerance, maliput::math::Vector2::FromStr(FLAGS_origin),
+         FLAGS_rule_registry_file, FLAGS_road_rule_book_file, FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file,
+         FLAGS_intersection_book_file},
         {FLAGS_gpkg_file, FLAGS_linear_tolerance, FLAGS_angular_tolerance, FLAGS_rule_registry_file,
          FLAGS_road_rule_book_file, FLAGS_traffic_light_book_file, FLAGS_phase_ring_book_file,
          FLAGS_intersection_book_file}));
