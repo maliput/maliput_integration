@@ -40,9 +40,11 @@
 #include <maliput/base/manual_right_of_way_rule_state_provider.h>
 #include <maliput/base/manual_rulebook.h>
 #include <maliput/base/phase_ring_book_loader.h>
+#include <maliput/base/road_object_book.h>
 #include <maliput/base/road_rulebook_loader.h>
 #include <maliput/base/traffic_light_book.h>
 #include <maliput/base/traffic_light_book_loader.h>
+#include <maliput/base/traffic_sign_book.h>
 #include <maliput/common/filesystem.h>
 #include <maliput/common/logger.h>
 #include <maliput/common/maliput_abort.h>
@@ -125,11 +127,12 @@ std::unique_ptr<api::RoadNetwork> CreateDragwayRoadNetwork(const DragwayBuildPro
       std::make_unique<ManualDiscreteValueRuleStateProvider>(rulebook.get());
   std::unique_ptr<ManualRangeValueRuleStateProvider> range_value_rule_state_provider =
       std::make_unique<ManualRangeValueRuleStateProvider>(rulebook.get());
-  return std::make_unique<api::RoadNetwork>(std::move(rg), std::move(rulebook), std::move(traffic_light_book),
-                                            std::move(intersection_book), std::move(phase_ring_book),
-                                            std::move(right_of_way_rule_state_provider), std::move(phase_provider),
-                                            std::move(rule_registry), std::move(discrete_value_rule_state_provider),
-                                            std::move(range_value_rule_state_provider));
+  return std::make_unique<api::RoadNetwork>(
+      std::move(rg), std::move(rulebook), std::move(traffic_light_book), std::move(intersection_book),
+      std::move(phase_ring_book), std::move(right_of_way_rule_state_provider), std::move(phase_provider),
+      std::move(rule_registry), std::move(discrete_value_rule_state_provider),
+      std::move(range_value_rule_state_provider), std::make_unique<maliput::RoadObjectBook>(),
+      std::make_unique<maliput::TrafficSignBook>());
 }
 
 std::unique_ptr<api::RoadNetwork> CreateMultilaneRoadNetwork(const MultilaneBuildProperties& build_properties) {
