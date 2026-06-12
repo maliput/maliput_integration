@@ -113,7 +113,8 @@
     return gflags::GetCommandLineFlagInfoOrDie("angular_tolerance").is_default                                         \
                ? std::nullopt                                                                                          \
                : std::make_optional<double>(FLAGS_angular_tolerance);                                                  \
-  }
+  }                                                                                                                    \
+  DEFINE_string(traffic_control_device_database, "", "YAML file defining a Maliput traffic control device database.");
 #endif  // MALIDRIVE_PROPERTIES_FLAGS
 
 #ifndef MALIPUT_OSM_PROPERTIES_FLAGS

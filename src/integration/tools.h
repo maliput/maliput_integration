@@ -91,6 +91,7 @@ struct MalidriveBuildProperties {
   std::string traffic_light_book_file{""};
   std::string phase_ring_book_file{""};
   std::string intersection_book_file{""};
+  std::string traffic_control_device_database{""};
 };
 
 /// Contains the attributes needed for building a maliput_osm RoadNetwork.
