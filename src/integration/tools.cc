@@ -199,6 +199,11 @@ std::unique_ptr<api::RoadNetwork> CreateMalidriveRoadNetwork(const MalidriveBuil
     road_network_configuration.emplace(
         "intersection_book", GetResource(MaliputImplementation::kMalidrive, build_properties.intersection_book_file));
   }
+  if (!build_properties.traffic_control_device_database.empty()) {
+    road_network_configuration.emplace(
+        "traffic_control_device_db",
+        GetResource(MaliputImplementation::kMalidrive, build_properties.traffic_control_device_database));
+  }
 
   return malidrive::loader::Load<malidrive::builder::RoadNetworkBuilder>(road_network_configuration);
 }
